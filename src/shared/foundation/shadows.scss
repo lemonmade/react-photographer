@@ -1,7 +1,8 @@
 @import 'colors';
 
 $shadows-data: (
-  base: (0 2px 4px color(black)),
+  base: (0 2px 4px color(shade)),
+  deep: (0 0 0 1px color(shade, light), 0 2px 7px 1px color(shade, dark))
 );
 
 

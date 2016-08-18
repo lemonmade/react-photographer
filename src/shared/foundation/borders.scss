@@ -2,7 +2,8 @@
 @import 'utilities';
 
 $borders-data: (
-  base: 1px solid color(black)
+  base: 1px solid color(sky),
+  dark: 1px solid color(sky, dark)
 );
 
 /// Returns the default border.
