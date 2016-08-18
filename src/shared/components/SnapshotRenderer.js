@@ -7,6 +7,11 @@ type Props = {
   children?: any,
   path: string[],
   action?: () => void,
+  snapshots?: React.Element[],
+};
+
+type State = {
+  currentSnapshot: number,
 };
 
 class ActionManager {
@@ -20,25 +25,46 @@ class ActionManager {
   }
 
   focus() {
-    console.log(this.node);
     this.node.focus();
   }
 }
 
 export default class SnapshotRenderer extends Component {
   props: Props;
+  state: State = {currentSnapshot: 0};
 
-  componentDidMount() {
-    const {path, action} = this.props;
+  makeProgress() {
+    const {path, action, snapshots} = this.props;
+    const {currentSnapshot} = this.state;
+
+    if (snapshots == null) {
+      console.log(`rendering ${path.join(' > ')}`);
+    }
+
     if (typeof action === 'function') {
       action(new ActionManager(ReactDOM.findDOMNode(this).children[0]));
     }
 
-    console.log(`rendering ${path.join(' > ')}`);
+    if (snapshots != null && currentSnapshot < snapshots.length - 1) {
+      setTimeout(() => this.setState({currentSnapshot: currentSnapshot + 1}), 500);
+    }
+  }
+
+  componentDidUpdate() {
+    this.makeProgress();
+  }
+
+  componentDidMount() {
+    this.makeProgress();
   }
 
   render() {
-    const {children} = this.props;
-    return <div>{children}</div>;
+    const {children, snapshots} = this.props;
+
+    if (snapshots == null) {
+      return <div>{children}</div>;
+    } else {
+      return snapshots[this.state.currentSnapshot];
+    }
   }
 }
