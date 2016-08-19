@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <style>
+      p {
+        font-size: 3rem;
+        color: purple;
+      }
+    </style>
+  </head>
+  <body>
+    <p>Here is some good content!</p>
+
+    <script>
+      var node = document.querySelector('p');
+      var text = ['Some content', 'Some more content'];
+      var websocket = new WebSocket('ws://localhost:3000/');
+      websocket.onopen = function() {
+        websocket.send(JSON.stringify({testCount: text.length}));
+
+        websocket.onmessage = function(message) {
+          var messageDetails = JSON.parse(message.data);
+          if (messageDetails.runTest != null) {
+            node.innerHTML = text[messageDetails.runTest];
+            websocket.send(JSON.stringify({readyForMyCloseup: true}));
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

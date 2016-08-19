@@ -48,7 +48,8 @@
     "relay": "^0.8.0-1",
     "serialize-javascript": "1.3.0",
     "source-map-support": "0.4.2",
-    "webdriverio": "^4.2.7"
+    "webdriverio": "^4.2.7",
+    "ws": "^1.1.1"
   },
   "devDependencies": {
     "assets-webpack-plugin": "3.4.0",
