@@ -8,59 +8,49 @@ type Props = {
   children?: any,
 };
 
-const SNAPSHOT_NAMES = ['Snapshot', 'SnapshotGroup'];
-
 function allChildrenAreSnapshots(element: React.Element): boolean {
   let allSnapshots = true;
 
   Children.forEach(element.props.children, (child) => {
-    allSnapshots = allSnapshots && (child != null) && (SNAPSHOT_NAMES.includes(child.type.name));
+    allSnapshots = allSnapshots && (child != null) && (child.type.name === 'Snapshot');
   });
 
   return allSnapshots;
 }
 
-function flatten(array) {
-  return array.reduce((all, item) => {
-    if (Array.isArray(item)) {
-      return [...all, ...item];
-    }
-
-    return [...all, item];
-  }, []);
-}
-
-function renderSnapshot(element: React.Element, stack = []) {
-  const {children, name, component, action, cases} = element.props;
-  const currentStack = [
-    ...stack,
-    component ? component.name : name,
-  ];
+function getSnapshots(element: React.Element, stack = []) {
+  const {component, name, children, action, cases} = element.props;
+  const snapshotName = component ? component.name : name;
 
   if (allChildrenAreSnapshots(element)) {
-    return (
-      <SnapshotRenderer
-        path={currentStack}
-        snapshots={flatten(Children.map(children, (child) => renderSnapshot(child, currentStack)))}
-      />
-    );
+    const currentStack = [...stack, snapshotName];
+    const snapshots = [];
+
+    Children.forEach(children, (child) => {
+      snapshots.push(...getSnapshots(child, currentStack));
+    });
+
+    return snapshots;
   }
 
-  if (element.type.name === 'SnapshotGroup') {
-    return cases.map(({name, action}) => (
-      <SnapshotRenderer path={[...stack, name]} action={action}>
-        {children}
-      </SnapshotRenderer>
-    ));
+  if (cases != null) {
+    return cases.map((aCase) => {
+      return {
+        ...aCase,
+        stack,
+        children,
+      };
+    });
   }
 
-  return (
-    <SnapshotRenderer path={currentStack} action={action}>
-      {children}
-    </SnapshotRenderer>
-  );
+  return [{
+    stack,
+    action,
+    children,
+    name: snapshotName,
+  }];
 }
 
 export default function SnapshotProvider({children}: Props) {
-  return renderSnapshot(Children.only(children));
+  return <SnapshotRenderer snapshots={getSnapshots(Children.only(children))} />;
 }

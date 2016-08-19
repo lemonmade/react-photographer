@@ -4,10 +4,7 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
 type Props = {
-  children?: any,
-  path: string[],
-  action?: () => void,
-  snapshots?: React.Element[],
+  snapshots: Object[],
 };
 
 type State = {
@@ -34,18 +31,17 @@ export default class SnapshotRenderer extends Component {
   state: State = {currentSnapshot: 0};
 
   makeProgress() {
-    const {path, action, snapshots} = this.props;
+    const {snapshots} = this.props;
     const {currentSnapshot} = this.state;
+    const {name, stack, action, children} = snapshots[currentSnapshot];
 
-    if (snapshots == null) {
-      console.log(`rendering ${path.join(' > ')}`);
-    }
+    console.log(`rendering ${[...stack, name].join(' > ')}`);
 
     if (typeof action === 'function') {
       action(new ActionManager(ReactDOM.findDOMNode(this).children[0]));
     }
 
-    if (snapshots != null && currentSnapshot < snapshots.length - 1) {
+    if (currentSnapshot < snapshots.length - 1) {
       setTimeout(() => this.setState({currentSnapshot: currentSnapshot + 1}), 500);
     }
   }
@@ -59,12 +55,9 @@ export default class SnapshotRenderer extends Component {
   }
 
   render() {
-    const {children, snapshots} = this.props;
+    const {snapshots} = this.props;
+    const {currentSnapshot} = this.state;
 
-    if (snapshots == null) {
-      return <div>{children}</div>;
-    } else {
-      return snapshots[this.state.currentSnapshot];
-    }
+    return <div>{snapshots[currentSnapshot].children}</div>;
   }
 }

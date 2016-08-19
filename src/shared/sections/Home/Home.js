@@ -4,7 +4,6 @@ import React from 'react';
 
 import Button from '../../components/Button';
 import Snapshot from '../../components/Snapshot';
-import SnapshotGroup from '../../components/SnapshotGroup';
 import SnapshotProvider from '../../components/SnapshotProvider';
 
 export default function Home() {
@@ -19,14 +18,14 @@ export default function Home() {
           <Button primary>Button</Button>
         </Snapshot>
 
-        <SnapshotGroup
+        <Snapshot
           cases={[
             {name: 'destructive'},
             {name: 'destructive-focus', action: (button) => button.focus()},
           ]}
         >
           <Button destructive>Button</Button>
-        </SnapshotGroup>
+        </Snapshot>
       </Snapshot>
     </SnapshotProvider>
   );
