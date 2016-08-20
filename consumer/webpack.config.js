@@ -1,15 +1,17 @@
+/* eslint-env node */
+
 const path = require('path');
 const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-const rootDir = __dirname;
+const rootDir = path.resolve(__dirname, '..');
 
 module.exports = {
   entry: {
     main: [
       'babel-polyfill',
-      path.resolve(rootDir, './index.js'),
+      path.resolve(__dirname, './index.js'),
     ],
   },
   output: {
@@ -50,7 +52,7 @@ module.exports = {
   },
   sassLoader: {
     includePaths: [
-      path.resolve(rootDir, './src/shared'),
+      __dirname,
     ],
   },
   plugins: [

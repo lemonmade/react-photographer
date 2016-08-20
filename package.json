@@ -7,10 +7,7 @@
     "node": "~6.3.0"
   },
   "scripts": {
-    "clean": "rimraf build",
-    "build": "npm run clean && webpack --env.mode production --config config/webpack.client.config.js && webpack --env.mode production --config config/webpack.server.config.js",
-    "dev": "npm run clean && node src/server/dev",
-    "start": "node build/server/main.js"
+    "start": "babel-node src/lib/runner.js"
   },
   "repository": {
     "type": "git",

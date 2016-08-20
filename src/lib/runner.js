@@ -1,17 +1,16 @@
 /* eslint-env node */
 /* eslint no-console: off */
 
-const http = require('http');
-const path = require('path');
-// const webdriver = require('webdriverio');
-const {create: phantom} = require('phantom');
-const express = require('express');
-const WebSocketServer = require('ws').Server;
-const webpack = require('webpack');
-const webpackDevMiddleware = require('webpack-dev-middleware');
-// const gm = require('gm');
+import http from 'http';
+import path from 'path';
+import {create as phantom} from 'phantom';
+import express from 'express';
+import {Server as WebSocketServer} from 'ws';
+import webpack from 'webpack';
+import webpackDevMiddleware from 'webpack-dev-middleware';
 
-const webpackConfig = require('./webpack.config');
+import webpackConfig from '../../consumer/webpack.config';
+import {Rect} from './geometry';
 
 const server = http.createServer();
 const wss = new WebSocketServer({server});
@@ -27,32 +26,8 @@ app.use(webpackDevMiddleware(webpack(webpackConfig), {
 }));
 
 app.get('/', (req, res) => {
-  res.sendFile(path.resolve('./index.html'));
+  res.sendFile(path.resolve(__dirname, '../../consumer/index.html'));
 });
-
-export class Rect {
-  constructor({x = 0, y = 0, width = 0, height = 0} = {}) {
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-  }
-
-  get center() {
-    return {
-      x: this.x + (this.width / 2),
-      y: this.y + (this.height / 2),
-    };
-  }
-
-  get origin() {
-    return {
-      x: this.x,
-      y: this.y,
-    };
-  }
-}
-
 
 async function cleanup() {
   console.log('Closing everything down!');
@@ -141,7 +116,7 @@ async function cleanup() {
   //   setTimeout(resolve, 3000);
   // });
 })()
-  // .then(cleanup)
+  .then(cleanup)
   .catch((err) => {
     console.error(err);
     cleanup();
