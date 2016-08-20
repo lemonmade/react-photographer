@@ -1,30 +1,18 @@
-<html>
-  <head>
-    <style>
-      p {
-        font-size: 3rem;
-        color: purple;
-      }
-    </style>
-  </head>
-  <body>
-    <p>Here is some good content!</p>
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>Project</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/main.css"></link>
+  <style>
+    body, html {
+      background: transparent;
+    }
+  </style>
+</head>
 
-    <script>
-      var node = document.querySelector('p');
-      var text = ['Some content', 'Some more content'];
-      var websocket = new WebSocket('ws://localhost:3000/');
-      websocket.onopen = function() {
-        websocket.send(JSON.stringify({testCount: text.length}));
-
-        websocket.onmessage = function(message) {
-          var messageDetails = JSON.parse(message.data);
-          if (messageDetails.runTest != null) {
-            node.innerHTML = text[messageDetails.runTest];
-            websocket.send(JSON.stringify({readyForMyCloseup: true}));
-          }
-        }
-      }
-    </script>
-  </body>
+<body>
+  <div id="root"></div>
+  <script type="text/javascript" src="/static/main.js"></script>
+</body>
 </html>

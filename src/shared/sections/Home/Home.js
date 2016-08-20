@@ -14,13 +14,20 @@ export default function Home() {
           <Button>Button</Button>
         </Snapshot>
 
-        <Snapshot name="primary">
+        <Snapshot
+          cases={[
+            {name: 'primary'},
+            {name: 'primary-hover', action: (button) => button.hover()},
+            {name: 'primary-focus', action: (button) => button.focus()},
+          ]}
+        >
           <Button primary>Button</Button>
         </Snapshot>
 
         <Snapshot
           cases={[
             {name: 'destructive'},
+            {name: 'destructive-hover', action: (button) => button.hover()},
             {name: 'destructive-focus', action: (button) => button.focus()},
           ]}
         >

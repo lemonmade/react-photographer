@@ -1,6 +1,6 @@
 // @flow
 
-import React, {Children} from 'react';
+import React, {Component, Children} from 'react';
 
 import SnapshotRenderer from './SnapshotRenderer';
 
@@ -51,6 +51,11 @@ function getSnapshots(element: React.Element, stack = []) {
   }];
 }
 
-export default function SnapshotProvider({children}: Props) {
-  return <SnapshotRenderer snapshots={getSnapshots(Children.only(children))} />;
+export default class SnapshotProvider extends Component {
+  props: Props;
+  snapshots: Object[];
+
+  render() {
+    return <SnapshotRenderer snapshots={getSnapshots(Children.only(this.props.children))} />;
+  }
 }
