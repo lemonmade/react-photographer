@@ -14,9 +14,7 @@ render((
     <Snapshot component={Button}>
       <Snapshot
         name="base"
-        cases={[
-          {name: 'hover', action: (button) => button.hover()},
-        ]}
+        cases={[{name: 'hover', action: (button) => button.hover()}]}
       >
         <Button>Button</Button>
       </Snapshot>
@@ -25,6 +23,7 @@ render((
         name="primary"
         cases={[
           {name: 'hover', action: (button) => button.hover()},
+          {name: 'active', action: (button) => button.mousedown()},
         ]}
       >
         <Button primary>Button</Button>
@@ -32,20 +31,23 @@ render((
 
       <Snapshot
         name="destructive"
-        cases={[
-          {name: 'hover', action: (button) => button.hover()},
-        ]}
+        cases={[{name: 'hover', action: (button) => button.hover()}]}
       >
         <Button destructive>Button</Button>
       </Snapshot>
 
       <Snapshot
         name="disabled"
-        cases={[
-          {name: 'hover', action: (button) => button.hover()},
-        ]}
+        cases={[{name: 'hover', action: (button) => button.hover()}]}
       >
         <Button disabled>Button</Button>
+      </Snapshot>
+
+      <Snapshot
+        name="link"
+        cases={[{name: 'hover', action: (button) => button.hover()}]}
+      >
+        <Button link>Button</Button>
       </Snapshot>
 
       <Snapshot name="full-width">

@@ -13,22 +13,30 @@ export default class ActionManager {
     return getPositionForNode(this.node);
   }
 
-  hover() {
+  performAction(action) {
     const {websocket} = this;
 
     return new Promise((resolve) => {
       function listener(message: Object) {
         const messageDetails = JSON.parse(message.data);
-        if (messageDetails.performedAction !== 'hover') { return; }
+        if (messageDetails.performedAction !== action) { return; }
         websocket.removeEventListener('message', listener);
         resolve();
       }
 
       websocket.addEventListener('message', listener);
       websocket.send(JSON.stringify({
-        requestAction: 'hover',
+        requestAction: action,
         position: this.position,
       }));
     });
+  }
+
+  mousedown() {
+    return this.performAction('mousedown');
+  }
+
+  hover() {
+    return this.performAction('hover');
   }
 }

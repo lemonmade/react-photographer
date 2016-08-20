@@ -1,6 +1,7 @@
 /* eslint-env node */
 /* eslint no-console: off */
 
+import fs from 'fs';
 import http from 'http';
 import path from 'path';
 import {create as phantom} from 'phantom';
@@ -11,6 +12,7 @@ import webpackDevMiddleware from 'webpack-dev-middleware';
 import shell from 'shelljs';
 
 import webpackConfig from '../../consumer/webpack.config';
+import compareFiles from './resemble';
 import {Rect} from './geometry';
 
 const server = http.createServer();
@@ -80,6 +82,14 @@ async function cleanup() {
           return;
         }
 
+        if (messageDetails.requestAction === 'mousedown') {
+          const position = new Rect(messageDetails.position);
+          const {center} = position;
+          await page.sendEvent('mousedown', center.x, center.y);
+          ws.send(JSON.stringify({performedAction: 'mousedown'}));
+          return;
+        }
+
         if (messageDetails.testCount) {
           testCount = messageDetails.testCount;
           runTest();
@@ -88,13 +98,30 @@ async function cleanup() {
 
         if (messageDetails.readyForMyCloseup) {
           const {position, stack, name} = messageDetails;
-          const destination = path.join(__dirname, '..', '..', 'snapshots', 'reference', ...stack, `${name}.png`);
+          const snapshotRoot = path.join(__dirname, '..', '..', 'snapshots');
+          const reference = path.join(snapshotRoot, 'reference', ...stack, `${name}.png`);
+          const destination = path.join(snapshotRoot, 'compare', ...stack, `${name}.png`);
+          const diff = path.join(snapshotRoot, 'diff', ...stack, `${name}.png`);
           console.log(`Rendering ${path.join('snapshots', 'reference', ...stack, `${name}.png`)}`);
           try {
             await page.property('clipRect', position);
             shell.mkdir('-p', path.dirname(destination));
             await page.render(destination);
             await page.sendEvent('mousemove', 10000, 10000);
+            const comparisonResult = await compareFiles(destination, reference);
+            shell.mkdir('-p', path.dirname(diff));
+            await new Promise((resolve) => {
+              const writeStream = fs.createWriteStream(diff);
+              writeStream.on('close', resolve);
+
+              comparisonResult
+                .getDiffImage()
+                .pack()
+                .pipe(writeStream);
+            });
+
+            console.log(`Mismatch: ${comparisonResult.misMatchPercentage}`);
+
           } catch (err) {
             console.error(err);
           }
