@@ -42,9 +42,14 @@ export default class SnapshotRenderer extends Component {
   }
 
   handleWebSocketOpen() {
+    const snapshots = this.props.snapshots.map((snapshot) => {
+      const {children, action, ...rest} = snapshot;
+      return rest;
+    });
+
     this.websocket.send(JSON.stringify({
-      type: 'TEST_COUNT',
-      count: this.props.snapshots.length,
+      type: 'TEST_DETAILS',
+      tests: snapshots,
     }));
   }
 

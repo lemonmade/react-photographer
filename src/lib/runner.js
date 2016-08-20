@@ -7,6 +7,7 @@ import express from 'express';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import shell from 'shelljs';
+import chalk from 'chalk';
 
 import createServer from './server';
 import webpackConfig from '../../consumer/webpack.config';
@@ -34,7 +35,9 @@ async function cleanup() {
 
 (async () => {
   let testCount = 0;
-  let currentTest = 0;
+  let currentTestIndex = 0;
+  let currentTest;
+  let tests = [];
 
   server = await createServer();
   server.use(app);
@@ -43,13 +46,21 @@ async function cleanup() {
 
   const testPromise = new Promise((resolve) => {
     function runTest() {
-      if (currentTest >= testCount) {
+      if (currentTestIndex >= testCount) {
         resolve();
         return;
       }
 
-      server.send({type: 'RUN_TEST', test: currentTest});
-      currentTest += 1;
+      currentTest = tests[currentTestIndex];
+
+      if (currentTest.skip) {
+        currentTestIndex += 1;
+        runTest();
+        return;
+      }
+
+      server.send({type: 'RUN_TEST', test: currentTestIndex});
+      currentTestIndex += 1;
     }
 
     server.on('message', async (message) => {
@@ -59,27 +70,40 @@ async function cleanup() {
           return;
         }
 
-        if (message.type === 'TEST_COUNT') {
-          currentTest = 0;
-          testCount = message.count;
+        if (message.type === 'TEST_DETAILS') {
+          currentTestIndex = 0;
+          tests = message.tests;
+          testCount = message.tests.length;
           runTest();
           return;
         }
 
         if (message.type === 'READY_FOR_MY_CLOSEUP') {
-          const {position, stack, name} = message;
+          const {record, stack, name, threshold} = currentTest;
+          const {position} = message;
+          const testName = [...stack, name].join('/');
+
           const snapshotRoot = path.join(__dirname, '..', '..', 'snapshots');
           const dir = path.join(snapshotRoot, ...stack);
           shell.mkdir('-p', dir);
 
           await page.property('clipRect', position);
-          await page.render(path.join(dir, `${name}.compare.png`));
+          await page.render(path.join(dir, `${name}.${record ? 'reference' : 'compare'}.png`));
           await page.sendEvent('mousemove', 10000, 10000);
-          const comparisonResult = await compareFiles(
-            path.join(dir, `${name}.compare.png`),
-            path.join(dir, `${name}.reference.png`)
-          );
-          await writeComparisonToFile(comparisonResult, path.join(dir, `${name}.diff.png`));
+
+          if (record) {
+            console.log(chalk.gray(`[record] ${testName}`));
+          }
+
+          if (!record) {
+            const comparisonResult = await compareFiles(
+              path.join(dir, `${name}.compare.png`),
+              path.join(dir, `${name}.reference.png`)
+            );
+            const passed = (comparisonResult.misMatchPercentage <= threshold);
+            await writeComparisonToFile(comparisonResult, path.join(dir, `${name}.diff.png`));
+            console.log(chalk[passed ? 'green' : 'red'](`[${passed ? 'pass' : 'fail'}] ${testName}${passed ? '' : ` (${comparisonResult.misMatchPercentage * 100}% mismatch)`}`));
+          }
 
           runTest();
         }
