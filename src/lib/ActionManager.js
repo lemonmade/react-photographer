@@ -26,7 +26,8 @@ export default class ActionManager {
 
       websocket.addEventListener('message', listener);
       websocket.send(JSON.stringify({
-        requestAction: action,
+        type: 'REQUEST_ACTION',
+        action,
         position: this.position,
       }));
     });

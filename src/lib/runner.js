@@ -2,26 +2,20 @@
 /* eslint no-console: off */
 
 import fs from 'fs';
-import http from 'http';
 import path from 'path';
-import {create as phantom} from 'phantom';
 import express from 'express';
-import {Server as WebSocketServer} from 'ws';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import shell from 'shelljs';
 
+import createServer from './server';
 import webpackConfig from '../../consumer/webpack.config';
 import compareFiles from './resemble';
-import {Rect} from './geometry';
 
-const server = http.createServer();
-const wss = new WebSocketServer({server});
+import handleAction from './actions';
+
 const app = express();
-let client;
-let page;
-
-server.on('request', app);
+let server;
 
 app.use(webpackDevMiddleware(webpack(webpackConfig), {
   noInfo: true,
@@ -34,124 +28,86 @@ app.get('/', (req, res) => {
 
 async function cleanup() {
   console.log('Closing everything down!');
-  server.close();
-  await page.close();
-  await client.exit();
+  await server.close();
   process.exit(0);
 }
 
 (async () => {
-  let testCount;
+  let testCount = 0;
   let currentTest = 0;
 
-  const result = await Promise.all([
-    phantom(),
-    new Promise((resolve) => {
-      server.listen(3000, () => {
-        console.log('Server is listening on localhost:3000');
+  server = await createServer();
+  server.use(app);
+
+  const {page} = server;
+
+  const testPromise = new Promise((resolve) => {
+    function runTest() {
+      if (currentTest >= testCount) {
         resolve();
-      });
-    }),
-  ]);
-
-  client = result[0];
-
-  const testRunnerPromise = new Promise((resolve) => {
-    wss.on('connection', (ws) => {
-      currentTest = 0;
-      console.log('CONNECTED TO WEBSOCKET');
-
-      function runTest() {
-        if (currentTest >= testCount) {
-          resolve();
-          return;
-        }
-
-        ws.send(JSON.stringify({runTest: currentTest}));
-        currentTest += 1;
+        return;
       }
 
-      ws.on('message', async (message) => {
-        const messageDetails = JSON.parse(message);
+      server.send({type: 'RUN_TEST', test: currentTest});
+      currentTest += 1;
+    }
 
-        if (messageDetails.requestAction === 'hover') {
-          const position = new Rect(messageDetails.position);
-          const {center} = position;
-          await page.sendEvent('mousemove', center.x, center.y);
-          ws.send(JSON.stringify({performedAction: 'hover'}));
+    server.on('message', async (message) => {
+      try {
+        if (message.type === 'REQUEST_ACTION') {
+          await handleAction(message, server);
           return;
         }
 
-        if (messageDetails.requestAction === 'mousedown') {
-          const position = new Rect(messageDetails.position);
-          const {center} = position;
-          await page.sendEvent('mousedown', center.x, center.y);
-          ws.send(JSON.stringify({performedAction: 'mousedown'}));
-          return;
-        }
-
-        if (messageDetails.testCount) {
-          testCount = messageDetails.testCount;
+        if (message.type === 'TEST_COUNT') {
+          currentTest = 0;
+          testCount = message.count;
           runTest();
           return;
         }
 
-        if (messageDetails.readyForMyCloseup) {
-          const {position, stack, name} = messageDetails;
+        if (message.type === 'READY_FOR_MY_CLOSEUP') {
+          const {position, stack, name} = message;
           const snapshotRoot = path.join(__dirname, '..', '..', 'snapshots');
-          const reference = path.join(snapshotRoot, 'reference', ...stack, `${name}.png`);
-          const destination = path.join(snapshotRoot, 'compare', ...stack, `${name}.png`);
-          const diff = path.join(snapshotRoot, 'diff', ...stack, `${name}.png`);
-          console.log(`Rendering ${path.join('snapshots', 'reference', ...stack, `${name}.png`)}`);
-          try {
-            await page.property('clipRect', position);
-            shell.mkdir('-p', path.dirname(destination));
-            await page.render(destination);
-            await page.sendEvent('mousemove', 10000, 10000);
-            const comparisonResult = await compareFiles(destination, reference);
-            shell.mkdir('-p', path.dirname(diff));
-            await new Promise((resolve) => {
-              const writeStream = fs.createWriteStream(diff);
-              writeStream.on('close', resolve);
+          const dir = path.join(snapshotRoot, ...stack);
+          shell.mkdir('-p', dir);
 
-              comparisonResult
-                .getDiffImage()
-                .pack()
-                .pipe(writeStream);
-            });
-
-            console.log(`Mismatch: ${comparisonResult.misMatchPercentage}`);
-
-          } catch (err) {
-            console.error(err);
-          }
+          await page.property('clipRect', position);
+          await page.render(path.join(dir, `${name}.compare.png`));
+          await page.sendEvent('mousemove', 10000, 10000);
+          const comparisonResult = await compareFiles(
+            path.join(dir, `${name}.compare.png`),
+            path.join(dir, `${name}.reference.png`)
+          );
+          await writeComparisonToFile(comparisonResult, path.join(dir, `${name}.diff.png`));
 
           runTest();
         }
-      });
+      } catch (err) {
+        console.error(err);
+      }
     });
   });
 
-  page = await client.createPage();
-  await page.property('onError', (msg, trace) => {
-    console.error(msg, trace);
-  });
-
-  await page.property('onConsoleMessage', (msg) => {
-    console.log(msg);
-  });
-
   await page.open('http://localhost:3000/');
-
-  await testRunnerPromise;
-  // await new Promise((resolve) => {
-  //   setTimeout(resolve, 3000);
-  // });
+  await testPromise;
 })()
   .then(cleanup)
   .catch((err) => {
     console.error(err);
     cleanup();
   });
+
+async function writeComparisonToFile(comparison, file) {
+  await new Promise((resolve) => {
+    const writeStream = fs.createWriteStream(file);
+    writeStream.on('close', resolve);
+
+    comparison
+      .getDiffImage()
+      .pack()
+      .pipe(writeStream);
+  });
+}
 
 process.on('SIGINT', cleanup);

@@ -34,7 +34,7 @@ export default class SnapshotRenderer extends Component {
     }
 
     websocket.send(JSON.stringify({
-      readyForMyCloseup: true,
+      type: 'READY_FOR_MY_CLOSEUP',
       name,
       stack,
       position: getPositionForNode(node),
@@ -42,15 +42,18 @@ export default class SnapshotRenderer extends Component {
   }
 
   handleWebSocketOpen() {
-    this.websocket.send(JSON.stringify({testCount: this.props.snapshots.length}));
+    this.websocket.send(JSON.stringify({
+      type: 'TEST_COUNT',
+      count: this.props.snapshots.length,
+    }));
   }
 
   handleWebSocketMessage(message: Object) {
     const messageDetails = JSON.parse(message.data);
-    if (messageDetails.runTest != null) {
+    if (messageDetails.type === 'RUN_TEST') {
       this.setState({
         runningTest: true,
-        currentSnapshot: messageDetails.runTest,
+        currentSnapshot: messageDetails.test,
       });
     }
   }
