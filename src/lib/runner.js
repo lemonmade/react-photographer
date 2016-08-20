@@ -8,6 +8,7 @@ import express from 'express';
 import {Server as WebSocketServer} from 'ws';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
+import shell from 'shelljs';
 
 import webpackConfig from '../../consumer/webpack.config';
 import {Rect} from './geometry';
@@ -76,6 +77,7 @@ async function cleanup() {
           const {center} = position;
           await page.sendEvent('mousemove', center.x, center.y);
           ws.send(JSON.stringify({performedAction: 'hover'}));
+          return;
         }
 
         if (messageDetails.testCount) {
@@ -85,11 +87,14 @@ async function cleanup() {
         }
 
         if (messageDetails.readyForMyCloseup) {
-          console.log(`TAKING SNAPSHOT WITH DETAILS: ${message}`);
-          const {position, name} = messageDetails;
+          const {position, stack, name} = messageDetails;
+          const destination = path.join(__dirname, '..', '..', 'snapshots', 'reference', ...stack, `${name}.png`);
+          console.log(`Rendering ${path.join('snapshots', 'reference', ...stack, `${name}.png`)}`);
           try {
             await page.property('clipRect', position);
-            await page.render(path.join(__dirname, `snapshots/${name}.png`));
+            shell.mkdir('-p', path.dirname(destination));
+            await page.render(destination);
+            await page.sendEvent('mousemove', 10000, 10000);
           } catch (err) {
             console.error(err);
           }

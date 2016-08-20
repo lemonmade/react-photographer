@@ -34,13 +34,19 @@ function getSnapshots(element: React.Element, stack = []) {
   }
 
   if (cases != null) {
-    return cases.map((aCase) => {
+    const hasName = (snapshotName != null);
+    const currentStack = hasName ? [...stack, snapshotName] : stack;
+    const starterCases = hasName
+      ? [{name: 'base', stack: currentStack, children}]
+      : [];
+
+    return starterCases.concat(cases.map((aCase) => {
       return {
         ...aCase,
-        stack,
+        stack: currentStack,
         children,
       };
-    });
+    }));
   }
 
   return [{

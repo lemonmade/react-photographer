@@ -31,8 +31,4 @@ export default class ActionManager {
       }));
     });
   }
-
-  focus() {
-    this.node.focus();
-  }
 }

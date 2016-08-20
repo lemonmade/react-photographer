@@ -1,3 +1,5 @@
+// @flow
+
 import React from 'react';
 import {render} from 'react-dom';
 
@@ -10,28 +12,44 @@ import './index.scss';
 render((
   <SnapshotProvider>
     <Snapshot component={Button}>
-      <Snapshot name="base">
+      <Snapshot
+        name="base"
+        cases={[
+          {name: 'hover', action: (button) => button.hover()},
+        ]}
+      >
         <Button>Button</Button>
       </Snapshot>
 
       <Snapshot
+        name="primary"
         cases={[
-          {name: 'primary'},
-          {name: 'primary-hover', action: (button) => button.hover()},
-          {name: 'primary-focus', action: (button) => button.focus()},
+          {name: 'hover', action: (button) => button.hover()},
         ]}
       >
         <Button primary>Button</Button>
       </Snapshot>
 
       <Snapshot
+        name="destructive"
         cases={[
-          {name: 'destructive'},
-          {name: 'destructive-hover', action: (button) => button.hover()},
-          {name: 'destructive-focus', action: (button) => button.focus()},
+          {name: 'hover', action: (button) => button.hover()},
         ]}
       >
         <Button destructive>Button</Button>
+      </Snapshot>
+
+      <Snapshot
+        name="disabled"
+        cases={[
+          {name: 'hover', action: (button) => button.hover()},
+        ]}
+      >
+        <Button disabled>Button</Button>
+      </Snapshot>
+
+      <Snapshot name="full-width">
+        <Button fullWidth>Button</Button>
       </Snapshot>
     </Snapshot>
   </SnapshotProvider>
