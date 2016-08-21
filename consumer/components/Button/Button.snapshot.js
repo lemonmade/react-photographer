@@ -36,6 +36,7 @@ export default function ButtonSnapshotTest() {
       </Snapshot>
 
       <Snapshot
+        skip
         name="disabled"
         cases={[
           {name: 'hover', action: (button) => button.hover()},

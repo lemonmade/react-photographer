@@ -1,0 +1,10 @@
+@import 'foundation/typography';
+
+.ListResult {
+
+}
+
+.MetaText {
+  @include text-emphasis-subdued;
+  font-size: 0.75rem;
+}

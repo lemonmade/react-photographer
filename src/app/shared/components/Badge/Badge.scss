@@ -1,0 +1,23 @@
+@import 'foundation/border-radius';
+@import 'foundation/colors';
+@import 'foundation/spacing';
+
+.Badge {
+  font-size: 0.7rem;
+  border-radius: border-radius();
+  background: color(sky);
+  display: inline-block;
+  line-height: 1;
+  color: color(slate);
+  padding: (spacing(extra-tight) / 2) spacing(extra-tight) spacing(extra-tight);
+}
+
+.statusSuccess {
+  background: color(green, light);
+  color: color(green, darker);
+}
+
+.statusFailure {
+  background: color(red, light);
+  color: color(red, darker);
+}
