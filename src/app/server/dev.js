@@ -132,8 +132,8 @@ class HotServers {
 
   start() {
     try {
-      const clientConfig = require('../../config/webpack.client.config')({mode: 'development'});
-      const serverConfig = require('../../config/webpack.server.config')({mode: 'development'});
+      const clientConfig = require('../../../config/webpack.client.config')({mode: 'development'});
+      const serverConfig = require('../../../config/webpack.server.config')({mode: 'development'});
 
       this.clientCompiler = webpack(clientConfig);
       this.serverCompiler = webpack(serverConfig);

@@ -3,9 +3,23 @@ schema {
 }
 
 type Query {
-  user: User
+  viewer: Viewer
 }
 
-type User {
+type Snapshot {
   name: String
+  stack: [String]
+  passed: Boolean
+  record: Boolean
+  skip: Boolean
+  exclusive: Boolean
+  threshold: Float
+  mismatch: Float
+  referenceImage: String
+  compareImage: String
+  diffImage: String
+}
+
+type Viewer {
+  snapshots: [Snapshot]
 }

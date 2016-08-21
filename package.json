@@ -7,7 +7,8 @@
     "node": "~6.3.0"
   },
   "scripts": {
-    "start": "babel-node src/lib/runner.js"
+    "test": "babel-node src/lib/runner.js",
+    "dev": "node src/app/server/dev"
   },
   "repository": {
     "type": "git",

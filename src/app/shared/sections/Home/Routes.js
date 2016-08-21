@@ -3,6 +3,8 @@
 import React from 'react';
 import IndexRoute from 'react-router/lib/IndexRoute';
 
+import {ViewerQuery} from '../../queries';
+
 function resolveHomeComponent(nextState, cb) {
   System
     .import('./Home')
@@ -12,5 +14,6 @@ function resolveHomeComponent(nextState, cb) {
 export default (
   <IndexRoute
     getComponent={resolveHomeComponent}
+    queries={ViewerQuery}
   />
 );

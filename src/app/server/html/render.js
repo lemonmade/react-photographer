@@ -5,7 +5,7 @@ import {renderToString} from 'react-dom/server';
 import createTemplate from './template';
 
 // TODO: Import the webpack config and resolve the bundle assets location from it.
-import ClientBundleAssets from '../../../build/client/assets.json';
+import ClientBundleAssets from '../../../../build/client/assets.json';
 
 // This takes the assets.json file that was output by webpack for our client
 // bundle and converts it into an object that contains all the paths to our

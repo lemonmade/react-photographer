@@ -38,6 +38,7 @@ async function cleanup() {
   let currentTestIndex = 0;
   let currentTest;
   let tests = [];
+  const results = [];
 
   server = await createServer();
   server.use(app);
@@ -55,6 +56,7 @@ async function cleanup() {
 
       if (currentTest.skip) {
         currentTestIndex += 1;
+        results.push(currentTest);
         runTest();
         return;
       }
@@ -87,15 +89,18 @@ async function cleanup() {
           const dir = path.join(snapshotRoot, ...stack);
           shell.mkdir('-p', dir);
 
+          const result = {
+            ...currentTest,
+            referenceImage: path.join('snapshots', ...stack, `${name}.reference.png`),
+          };
+
           await page.property('clipRect', position);
           await page.render(path.join(dir, `${name}.${record ? 'reference' : 'compare'}.png`));
           await page.sendEvent('mousemove', 10000, 10000);
 
           if (record) {
             console.log(chalk.gray(`[record] ${testName}`));
-          }
-
-          if (!record) {
+          } else {
             const comparisonResult = await compareFiles(
               path.join(dir, `${name}.compare.png`),
               path.join(dir, `${name}.reference.png`)
@@ -103,8 +108,14 @@ async function cleanup() {
             const passed = (comparisonResult.misMatchPercentage <= threshold);
             await writeComparisonToFile(comparisonResult, path.join(dir, `${name}.diff.png`));
             console.log(chalk[passed ? 'green' : 'red'](`[${passed ? 'pass' : 'fail'}] ${testName}${passed ? '' : ` (${comparisonResult.misMatchPercentage * 100}% mismatch)`}`));
+
+            result.mismatch = comparisonResult.misMatchPercentage;
+            result.passed = passed;
+            result.compareImage = path.join('snapshots', ...stack, `${name}.compare.png`);
+            result.diffImage = path.join('snapshots', ...stack, `${name}.diff.png`);
           }
 
+          results.push(result);
           runTest();
         }
       } catch (err) {
@@ -115,6 +126,7 @@ async function cleanup() {
 
   await page.open('http://localhost:3000/');
   await testPromise;
+  fs.writeFileSync(path.join(__dirname, '..', '..', 'snapshots', 'data.json'), JSON.stringify({snapshots: results}));
 })()
   .then(cleanup)
   .catch((err) => {
