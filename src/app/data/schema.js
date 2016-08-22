@@ -21,6 +21,7 @@ const ViewportType = new GraphQLObjectType({
 const SnapshotType = new GraphQLObjectType({
   name: 'Snapshot',
   fields: {
+    id: {type: GraphQLString},
     name: {type: GraphQLString},
     stack: {type: new GraphQLList(GraphQLString)},
     passed: {type: GraphQLBoolean},
@@ -49,6 +50,13 @@ export default new GraphQLSchema({
       viewer: {
         type: ViewerType,
         resolve: () => data,
+      },
+      snapshot: {
+        type: SnapshotType,
+        args: {
+          id: {type: GraphQLString},
+        },
+        resolve: (_, {id}) => data.snapshots.find((snapshot) => snapshot.id === id),
       },
     },
   }),

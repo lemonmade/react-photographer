@@ -5,3 +5,9 @@ export const ViewerQuery = {
     query { viewer }
   `,
 };
+
+export const SnapshotQuery = {
+  snapshot: () => Relay.QL`
+    query { snapshot(id: $id) }
+  `,
+};

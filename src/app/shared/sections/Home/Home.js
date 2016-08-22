@@ -5,48 +5,8 @@ import Relay from 'react-relay';
 
 import styles from './Home.scss';
 
-import List from '../../components/List';
-import Stack from '../../components/Stack';
-import Badge from '../../components/Badge';
-import ListResult from './components/ListResult';
-
 function Home({viewer}) {
   const {snapshots} = viewer;
-
-  return (
-    <div className={styles.Home}>
-      <div className={styles.Sidebar}>
-        <List>
-          {snapshots.map((snapshot, index) => {
-            const {name, stack, mismatch} = snapshot;
-            const badge = <ListBadge snapshot={snapshot} />;
-            const accessory = (
-              <Stack vertical spacing="none" alignment="center">
-                {badge}
-                {mismatch < 0.001 ? null : <span className={styles.Mismatch}>{mismatch * 100}%</span>}
-              </Stack>
-            );
-
-            return (
-              <ListResult
-                key={index}
-                name={name}
-                stack={stack}
-                badge={accessory}
-              />
-            );
-          })}
-        </List>
-      </div>
-
-      <div className={styles.Content}>
-        <Summary viewer={viewer} />
-      </div>
-    </div>
-  );
-}
-
-function Summary({viewer: {snapshots}}) {
   const {passes, skips, failures} = snapshots.reduce((all, snapshot) => {
     if (snapshot.skip) {
       all.skips += 1;
@@ -76,32 +36,13 @@ function Summary({viewer: {snapshots}}) {
   );
 }
 
-function ListBadge({snapshot: {passed, skip}}) {
-  let status;
-  let text = 'skipped';
-
-  if (passed) {
-    status = 'success';
-    text = 'passed';
-  } else if (!skip) {
-    status = 'failure';
-    text = 'failed';
-  }
-
-  return <Badge status={status}>{text}</Badge>;
-}
-
-
 const HomeContainer = Relay.createContainer(Home, {
   fragments: {
     viewer: () => Relay.QL`
       fragment on Viewer {
         snapshots {
-          name
-          stack
           passed
           skip
-          mismatch
         }
       }
     `,

@@ -4,9 +4,11 @@ schema {
 
 type Query {
   viewer: Viewer
+  snapshot(id: String): Snapshot
 }
 
 type Snapshot {
+  id: String
   name: String
   stack: [String]
   passed: Boolean

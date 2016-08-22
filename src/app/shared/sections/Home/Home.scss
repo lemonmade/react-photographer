@@ -1,34 +1,4 @@
-@import 'foundation/borders';
-@import 'foundation/typography';
 @import 'foundation/spacing';
-
-.Home {
-  display: flex;
-  align-items: stretch;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.Sidebar {
-  flex: 0 0 auto;
-  overflow: auto;
-  border-right: border();
-}
-
-.Content {
-  flex: 1 1 0%;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.Mismatch {
-  @include text-emphasis-subdued;
-  margin-top: 0.25rem;
-  font-size: 0.75rem;
-}
 
 .Summary {
   display: flex;

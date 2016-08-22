@@ -1,6 +1,8 @@
 // @flow
 
 import React from 'react';
+import Relay from 'react-relay';
+import Link from 'react-router/lib/Link';
 import styles from './ListResult.scss';
 
 import Stack from '../../../../components/Stack';
@@ -12,9 +14,9 @@ type Props = {
   badge?: React.Element,
 };
 
-export default function ListResult({name, stack, badge}: Props) {
+function ListResult({snapshot: {id, name, stack}, badge}: Props) {
   return (
-    <div className={styles.ListResult}>
+    <Link to={`/snapshot/${id}`} className={styles.ListResult}>
       <Stack alignment="center">
         <Stack.Item fill>
           <div className={styles.MetaText}>{stack.join('/')}</div>
@@ -22,6 +24,18 @@ export default function ListResult({name, stack, badge}: Props) {
         </Stack.Item>
         {badge}
       </Stack>
-    </div>
+    </Link>
   );
 }
+
+export default Relay.createContainer(ListResult, {
+  fragments: {
+    snapshot: () => Relay.QL`
+      fragment on Snapshot {
+        id
+        name
+        stack
+      }
+    `,
+  },
+});

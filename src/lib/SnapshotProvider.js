@@ -65,11 +65,12 @@ function getSnapshots(element: React.Element, stack = [], base = DEFAULT_CONFIG)
     const hasName = (snapshotName != null);
     const currentStack = hasName ? [...stack, snapshotName] : stack;
     const starterCases = hasName
-      ? [{name: 'base', stack: currentStack, children, ...newBase}]
+      ? [{id: [...currentStack, 'base'].join('-'), name: 'base', stack: currentStack, children, ...newBase}]
       : [];
 
     return starterCases.concat(cases.map((aCase) => {
       return {
+        id: [...currentStack, aCase.name].join('-'),
         stack: currentStack,
         children,
         ...aCase,
@@ -83,6 +84,7 @@ function getSnapshots(element: React.Element, stack = [], base = DEFAULT_CONFIG)
     action,
     children,
     name: snapshotName,
+    id: [...stack, snapshotName].join('-'),
     ...newBase,
   }];
 }
