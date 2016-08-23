@@ -3,13 +3,31 @@
 @import 'foundation/spacing';
 
 .Badge {
-  font-size: 0.7rem;
-  border-radius: border-radius();
-  background: color(sky);
-  display: inline-block;
-  line-height: 1;
+  height: 1rem;
+  min-width: 1rem;
+  display: block;
+  display: inline-flex;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: color(sky, dark);
+  line-height: 0;
   color: color(slate);
-  padding: (spacing(extra-tight) / 2) spacing(extra-tight) spacing(extra-tight);
+
+  > .Segment:first-child {
+    padding-left: spacing(extra-tight) * 1.5;
+  }
+
+  > .Segment:last-child {
+    padding-right: spacing(extra-tight) * 1.5;
+  }
+}
+
+.Segment {
+  height: 1rem;
+  font-size: 0.7rem;
+  flex: 1 1 auto;
+  line-height: 1rem;
+  padding: 0 spacing(extra-tight);
 }
 
 .statusSuccess {

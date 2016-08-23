@@ -2,12 +2,12 @@
 
 import React from 'react';
 import Relay from 'react-relay';
-import styles from './App.scss';
 
-import List from '../../components/List';
+import List, {ListItem, ListGroup} from '../../components/List';
+import Header from '../../components/Header';
 import Badge from '../../components/Badge';
-import Stack from '../../components/Stack';
-import ListResult from './components/ListResult';
+import Sidebar from '../../components/Sidebar';
+import Frame from '../../components/Frame';
 
 import '../../components/index.scss';
 
@@ -16,35 +16,56 @@ type Props = {
 };
 
 function App({children, viewer: {snapshots}}: Props) {
+  const groupedSnapshots = snapshots.reduce((groups, snapshot) => {
+    const component = snapshot.stack[0];
+    groups[component] = groups[component] || [];
+    groups[component].push(snapshot);
+    return groups;
+  }, {});
+
+  const sidebar = (
+    <Sidebar header={<Header />}>
+      <List>
+        {Object.keys(groupedSnapshots).map((component, index) => {
+          const groupDetails = groupedSnapshots[component].reduce((details, snapshot) => {
+            const prop = snapshot.skip ? 'neutral' : (snapshot.passed ? 'success' : 'failure');
+            details[prop] = details[prop] || 0;
+            details[prop] += 1;
+            return details;
+          }, {});
+
+          return (
+            <ListGroup key={index} title={component} accessory={<Badge status={groupDetails} />}>
+              {groupedSnapshots[component].map((snapshot, snapshotIndex) => {
+                const {passed, skip, name, id} = snapshot;
+                let status;
+
+                if (passed) {
+                  status = 'success';
+                } else if (!skip) {
+                  status = 'failure';
+                }
+
+                return (
+                  <ListItem
+                    key={snapshotIndex}
+                    link={`/snapshot/${id}`}
+                    title={name}
+                    accessory={<Badge status={status} />}
+                  />
+                );
+              })}
+            </ListGroup>
+          );
+        })}
+      </List>
+    </Sidebar>
+  );
+
   return (
-    <div className={styles.Home}>
-      <div className={styles.Sidebar}>
-        <List>
-          {snapshots.map((snapshot, index) => {
-            const {mismatch} = snapshot;
-            const badge = <ListBadge snapshot={snapshot} />;
-            const accessory = (
-              <Stack vertical spacing="none" alignment="center">
-                {badge}
-                {mismatch < 0.001 ? null : <span className={styles.Mismatch}>{mismatch * 100}%</span>}
-              </Stack>
-            );
-
-            return (
-              <ListResult
-                key={index}
-                snapshot={snapshot}
-                badge={accessory}
-              />
-            );
-          })}
-        </List>
-      </div>
-
-      <div className={styles.Content}>
-        {children}
-      </div>
-    </div>
+    <Frame sidebar={sidebar} header={<Header />}>
+      {children}
+    </Frame>
   );
 }
 
@@ -53,29 +74,13 @@ export default Relay.createContainer(App, {
     viewer: () => Relay.QL`
       fragment on Viewer {
         snapshots {
+          id
           name
-          stack
-          passed
           skip
-          mismatch
-          ${ListResult.getFragment('snapshot')}
+          passed
+          stack
         }
       }
     `,
   },
 });
-
-function ListBadge({snapshot: {passed, skip}}) {
-  let status;
-  let text = 'skipped';
-
-  if (passed) {
-    status = 'success';
-    text = 'passed';
-  } else if (!skip) {
-    status = 'failure';
-    text = 'failed';
-  }
-
-  return <Badge status={status}>{text}</Badge>;
-}

@@ -10,9 +10,7 @@ type Props = {
 export default function List({children}: Props) {
   return (
     <ul className={styles.List}>
-      {Children.map(children, (child, index) => {
-        return <li className={styles.Item} key={index}>{child}</li>;
-      })}
+      {children}
     </ul>
   );
 }

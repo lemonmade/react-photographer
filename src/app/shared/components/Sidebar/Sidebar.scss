@@ -1,0 +1,18 @@
+@import 'foundation/borders';
+
+.Sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border-right: border();
+}
+
+.Header {
+  flex: 0 0 auto;
+}
+
+.Content {
+  flex: 1 1 auto;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}

@@ -1,16 +1,58 @@
 @import 'foundation/borders';
+@import 'foundation/colors';
 @import 'foundation/spacing';
 
-.List {
+.List,
+.GroupList {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.Item {
+.Group {
+  padding-left: spacing();
+
+  + .Group {
+    border-top: border();
+  }
+}
+
+.GroupTitle {
+  margin-left: -1 * spacing();
   padding: spacing(tight) spacing();
+  border-bottom: border();
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  left: 0;
+  background: color(sky, light);
+}
+
+.GroupList > .Item > .ContentWrapper {
+  padding-left: spacing(tight);
+}
+
+.Item {
+  display: block;
 
   + .Item {
     border-top: border();
   }
+}
+
+.ContentWrapper {
+  display: block;
+  padding: spacing(tight) spacing();
+}
+
+.Content {
+  display: flex;
+  align-items: center;
+}
+
+.Title {
+  flex: 1 1 auto;
+  margin-right: spacing();
 }
