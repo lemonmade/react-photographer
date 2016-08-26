@@ -97,6 +97,7 @@ async function cleanup() {
           await page.property('clipRect', position);
           await page.render(path.join(dir, `${name}.${record ? 'reference' : 'compare'}.png`));
           await page.sendEvent('mousemove', 10000, 10000);
+          await page.sendEvent('mouseup');
 
           if (record) {
             console.log(chalk.gray(`[record] ${testName}`));
