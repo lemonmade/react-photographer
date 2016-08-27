@@ -37,7 +37,7 @@ function App({children, viewer: {snapshots}}: Props) {
           return (
             <ListGroup key={index} title={component} accessory={<Badge status={groupDetails} />}>
               {groupedSnapshots[component].map((snapshot, snapshotIndex) => {
-                const {passed, skip, name, id} = snapshot;
+                const {passed, skip, name, id, stack} = snapshot;
                 let status;
 
                 if (passed) {
@@ -51,6 +51,7 @@ function App({children, viewer: {snapshots}}: Props) {
                     key={snapshotIndex}
                     link={`/snapshot/${id}`}
                     title={name}
+                    subtitle={stack.slice(1).join('/')}
                     accessory={<Badge status={status} />}
                   />
                 );

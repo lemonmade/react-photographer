@@ -4,23 +4,22 @@ import React from 'react';
 import Link from 'react-router/lib/Link';
 
 import styles from './List.scss';
+import Layout from './Layout';
 
 type Props = {
   children?: any,
   link?: string,
   title: string,
+  subtitle?: string,
   accessory?: React.Element,
 };
 
-export default function ListItem({title, link, accessory}: Props) {
+export default function ListItem({title, link, accessory, subtitle}: Props) {
   const contents = (
-    <div className={styles.Content}>
-      <div className={styles.Title}>
-        {title}
-      </div>
-
-      {accessory}
-    </div>
+    <Layout accessory={accessory}>
+      {subtitle && <div className={styles.Subtitle}>{subtitle}</div>}
+      <div className={styles.Title}>{title}</div>
+    </Layout>
   );
 
   if (link) {

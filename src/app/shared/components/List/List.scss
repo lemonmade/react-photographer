@@ -21,9 +21,6 @@
   margin-left: -1 * spacing();
   padding: spacing(tight) spacing();
   border-bottom: border();
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   position: sticky;
   top: 0;
   left: 0;
@@ -47,12 +44,25 @@
   padding: spacing(tight) spacing();
 }
 
-.Content {
+.Title {
+  font-size: 0.9rem;
+}
+
+.Subtitle {
+  font-size: 0.75rem;
+  color: color(slate, lightest);
+}
+
+.Layout {
   display: flex;
   align-items: center;
 }
 
-.Title {
+.Content {
   flex: 1 1 auto;
-  margin-right: spacing();
+}
+
+.Accessory {
+  flex: 0 0 auto;
+  margin-left: spacing();
 }
