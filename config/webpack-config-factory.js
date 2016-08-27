@@ -141,6 +141,7 @@ function webpackConfigFactory({target, mode}, {json}) {
       }),
 
       ifDev(new webpack.NoErrorsPlugin()),
+      ifDevClient(new webpack.optimize.OccurrenceOrderPlugin()),
       ifDevClient(new webpack.HotModuleReplacementPlugin()),
       ifDevServer(new webpack.optimize.LimitChunkCountPlugin({maxChunks: 1})),
 
@@ -205,7 +206,7 @@ function webpackConfigFactory({target, mode}, {json}) {
               // ES5 code for wider browser/device compatability.
               presets: [
                 {plugins: ['./src/app/data/babel-relay-plugin']},
-                'es2015-webpack',
+                ['es2015', {modules: false}],
                 'stage-2',
                 'react',
               ],

@@ -4,7 +4,7 @@ import Relay from 'react-relay';
 function Snapshot({snapshot: {id, referenceImage, compareImage, diffImage}}) {
   return (
     <div>
-      <h1>{id}</h1>
+      <h1>{id}!</h1>
       <img src={`/${referenceImage}`} alt="reference"></img>
       <img src={`/${compareImage}`} alt="compare"></img>
       <img src={`/${diffImage}`} alt="diff"></img>

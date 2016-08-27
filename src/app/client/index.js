@@ -11,7 +11,7 @@ import Router from 'react-router/lib/Router';
 import browserHistory from 'react-router/lib/browserHistory';
 import match from 'react-router/lib/match';
 
-import routes from '../shared/routes';
+import initialRoutes from '../shared/routes';
 import createStore from '../shared/store';
 
 const environment = new Relay.Environment();
@@ -22,8 +22,9 @@ IsomorphicRelay.injectPreparedData(environment, data);
 
 // Get the DOM Element that will host our React application.
 const container = document.querySelector('#app');
+const store = createStore();
 
-function renderApp() {
+function renderApp(routes) {
   // As we are using dynamic react-router routes we have to use the following
   // asynchronous routing mechanism supported by the `match` function.
   // @see https://github.com/reactjs/react-router/blob/master/docs/guides/ServerRendering.md
@@ -35,8 +36,6 @@ function renderApp() {
     IsomorphicRouter
       .prepareInitialRender(environment, renderProps)
       .then((props) => {
-        const store = createStore();
-
         return render(
           <AppContainer>
             <Provider store={store}>
@@ -49,10 +48,14 @@ function renderApp() {
   });
 }
 
-// The following is needed so that we can hot reload our App.
-if (process.env.NODE_ENV === 'development' && module.hot) {
-  module.hot.accept();
-  module.hot.accept('../shared/routes', renderApp);
-}
+renderApp(initialRoutes);
 
-renderApp();
+// The following is needed so that we can hot reload our App.
+if (module.hot) {
+  module.hot.accept('./index.js');
+  module.hot.accept('../shared/routes.js', () => {
+    const newRoutes = require('../shared/routes.js').default;
+
+    renderApp(newRoutes);
+  });
+}
