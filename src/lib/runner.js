@@ -7,13 +7,41 @@ import express from 'express';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import shell from 'shelljs';
-import chalk from 'chalk';
+import {EventEmitter} from 'events';
 
 import createServer from './server';
 import webpackConfig from '../../consumer/webpack.config';
 import compareFiles from './resemble';
+import * as Events from './events';
+import dotReporter from './reporters/dot';
 
 import handleAction from './actions';
+
+class Runner extends EventEmitter {
+  passCount = 0;
+  failCount = 0;
+  skipCount = 0;
+
+  start() {
+    this.emit(Events.start, this);
+  }
+
+  end() {
+    this.emit(Events.end, this);
+  }
+
+  test(test) {
+    if (test.passed) {
+      this.passCount += 1;
+    } else if (test.skipped) {
+      this.skipCount += 1;
+    } else {
+      this.failCount += 1;
+    }
+
+    this.emit(Events.test, test);
+  }
+}
 
 const app = express();
 let server;
@@ -28,7 +56,6 @@ app.get('/', (req, res) => {
 });
 
 async function cleanup() {
-  console.log('Closing everything down!');
   await server.close();
   process.exit(0);
 }
@@ -39,6 +66,10 @@ async function cleanup() {
   let currentTest;
   let tests = [];
   const results = [];
+  const runner = new Runner();
+
+  dotReporter(runner);
+  runner.start();
 
   server = await createServer();
   server.use(app);
@@ -49,6 +80,7 @@ async function cleanup() {
     function runTest() {
       if (currentTestIndex >= testCount) {
         resolve();
+        runner.end();
         return;
       }
 
@@ -99,16 +131,13 @@ async function cleanup() {
           await page.sendEvent('mousemove', 10000, 10000);
           await page.sendEvent('mouseup');
 
-          if (record) {
-            console.log(chalk.gray(`[record] ${testName}`));
-          } else {
+          if (!record) {
             const comparisonResult = await compareFiles(
               path.join(dir, `${name}.compare.png`),
               path.join(dir, `${name}.reference.png`)
             );
             const passed = (comparisonResult.misMatchPercentage <= threshold);
             await writeComparisonToFile(comparisonResult, path.join(dir, `${name}.diff.png`));
-            console.log(chalk[passed ? 'green' : 'red'](`[${passed ? 'pass' : 'fail'}] ${testName}${passed ? '' : ` (${comparisonResult.misMatchPercentage * 100}% mismatch)`}`));
 
             result.mismatch = comparisonResult.misMatchPercentage;
             result.passed = passed;
@@ -116,11 +145,13 @@ async function cleanup() {
             result.diffImage = path.join('snapshots', ...stack, `${name}.diff.png`);
           }
 
+          runner.test(result);
           results.push(result);
           runTest();
         }
       } catch (err) {
         console.error(err);
+        process.exit(1);
       }
     });
   });
