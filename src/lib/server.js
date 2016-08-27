@@ -13,6 +13,7 @@ class Server {
 
     socketServer.on('connection', (socket) => {
       this.socket = socket;
+      console.log('connected to websocket');
 
       socket.on('message', (msg) => {
         if (typeof this.listeners.message === 'function') {
@@ -62,6 +63,7 @@ export default async function server() {
     createPhantom(),
     new Promise((resolve) => {
       httpServer.listen(3000, () => {
+        console.log('listening on port 3000');
         resolve();
       });
     }),

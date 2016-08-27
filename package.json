@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "babel-node src/lib/runner.js",
+    "gen": "babel-node src/lib/generate.js",
     "dev": "node src/app/server/dev"
   },
   "repository": {
@@ -30,10 +31,13 @@
     "babel-relay-plugin": "^0.9.2",
     "chalk": "^1.1.3",
     "compression": "1.6.2",
+    "cosmiconfig": "^1.1.0",
     "eslint": "^3.3.1",
     "eslint-plugin-shopify": "^14.0.0",
     "express": "4.14.0",
     "express-graphql": "^0.5.3",
+    "fs-extra": "^0.30.0",
+    "globby": "^6.0.0",
     "gm": "^1.23.0",
     "graphql": "^0.6.2",
     "helmet": "2.1.1",

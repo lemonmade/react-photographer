@@ -1,7 +1,7 @@
 /* eslint-env node */
 /* eslint no-console: off */
 
-import fs from 'fs';
+import fs from 'fs-extra';
 import path from 'path';
 import express from 'express';
 import webpack from 'webpack';
@@ -10,10 +10,10 @@ import shell from 'shelljs';
 import {EventEmitter} from 'events';
 
 import createServer from './server';
-import webpackConfig from '../../consumer/webpack.config';
 import compareFiles from './resemble';
 import * as Events from './events';
 import dotReporter from './reporters/dot';
+import getConfig from './config';
 
 import handleAction from './actions';
 
@@ -43,17 +43,7 @@ class Runner extends EventEmitter {
   }
 }
 
-const app = express();
 let server;
-
-app.use(webpackDevMiddleware(webpack(webpackConfig), {
-  noInfo: true,
-  publicPath: webpackConfig.output.publicPath,
-}));
-
-app.get('/', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../../consumer/index.html'));
-});
 
 async function cleanup() {
   await server.close();
@@ -67,12 +57,47 @@ async function cleanup() {
   let tests = [];
   const results = [];
   const runner = new Runner();
+  const config = await getConfig();
+  const app = express();
 
   dotReporter(runner);
   runner.start();
 
   server = await createServer();
   server.use(app);
+
+  const {files} = config;
+  const fileContents = `
+var React = require('react');
+var ReactDOM = require('react-dom');
+var SnapshotProvider = snapshotInteropRequire(require('../src/lib/SnapshotProvider'));
+
+${files.map((file, index) => `var SnapshotComponent${index} = snapshotInteropRequire(require('../${file}'));`).join('\n')}
+
+function snapshotInteropRequire(mod) {
+  return mod.__esModule ? mod.default : mod;
+}
+
+ReactDOM.render(
+React.createElement(SnapshotProvider, {
+  tests: [${files.map((_, index) => `SnapshotComponent${index}`).join(', ')}]
+}),
+document.getElementById('root')
+);
+`;
+
+  fs.mkdirpSync('.snapshots');
+  fs.writeFileSync('.snapshots/index.js', fileContents);
+  fs.copySync(path.join(__dirname, './index.html'), '.snapshots/index.html');
+
+  app.use(webpackDevMiddleware(webpack(config.webpack), {
+    noInfo: true,
+    publicPath: config.webpack.output.publicPath,
+  }));
+
+  app.get('/', (req, res) => {
+    res.sendFile(path.resolve(process.cwd(), './.snapshots/index.html'));
+  });
 
   const {page} = server;
 
@@ -88,6 +113,8 @@ async function cleanup() {
 
       if (currentTest.skip) {
         currentTestIndex += 1;
+        currentTest.skipped = true;
+        runner.test(currentTest);
         results.push(currentTest);
         runTest();
         return;
@@ -115,7 +142,6 @@ async function cleanup() {
         if (message.type === 'READY_FOR_MY_CLOSEUP') {
           const {record, stack, name, threshold} = currentTest;
           const {position} = message;
-          const testName = [...stack, name].join('/');
 
           const snapshotRoot = path.join(__dirname, '..', '..', 'snapshots');
           const dir = path.join(snapshotRoot, ...stack);

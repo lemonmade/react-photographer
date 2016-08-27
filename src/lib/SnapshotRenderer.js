@@ -22,23 +22,27 @@ export default class SnapshotRenderer extends Component {
   handleWebSocketOpen: () => void = this.handleWebSocketOpen.bind(this);
   handleWebSocketMessage: () => void = this.handleWebSocketMessage.bind(this);
 
-  async makeProgress() {
+  makeProgress() {
     const {snapshots} = this.props;
     const {currentSnapshot} = this.state;
     const {websocket} = this;
     const {name, stack, action} = snapshots[currentSnapshot];
     const node = ReactDOM.findDOMNode(this).children[0];
 
+    const promise = Promise.resolve();
+
     if (typeof action === 'function') {
-      await action(new ActionManager({node, websocket}));
+      promise.then(() => action(new ActionManager({node, websocket})));
     }
 
-    websocket.send(JSON.stringify({
-      type: 'READY_FOR_MY_CLOSEUP',
-      name,
-      stack,
-      position: getPositionForNode(node),
-    }));
+    promise.then(() => {
+      websocket.send(JSON.stringify({
+        type: 'READY_FOR_MY_CLOSEUP',
+        name,
+        stack,
+        position: getPositionForNode(node),
+      }));
+    });
   }
 
   handleWebSocketOpen() {

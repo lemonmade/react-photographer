@@ -4,6 +4,8 @@ import React from 'react';
 import styles from './Badge.scss';
 import {css} from '../../utilities/styles';
 
+import '../../index.scss';
+
 type Props = {
   children?: any,
   status: 'success' | 'subdued' | 'info' | 'attention' | 'warning' | 'critical',
