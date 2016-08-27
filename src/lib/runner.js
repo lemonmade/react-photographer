@@ -102,7 +102,7 @@ document.getElementById('root')
   const {page} = server;
 
   const testPromise = new Promise((resolve) => {
-    function runTest() {
+    async function runTest() {
       if (currentTestIndex >= testCount) {
         resolve();
         runner.end();
@@ -120,6 +120,7 @@ document.getElementById('root')
         return;
       }
 
+      await page.property('viewportSize', currentTest.viewport);
       server.send({type: 'RUN_TEST', test: currentTestIndex});
       currentTestIndex += 1;
     }
@@ -140,7 +141,8 @@ document.getElementById('root')
         }
 
         if (message.type === 'READY_FOR_MY_CLOSEUP') {
-          const {record, stack, name, threshold} = currentTest;
+          const {record, stack, name, threshold, viewport: {height, width}, hasMultipleViewports} = currentTest;
+          const viewportString = hasMultipleViewports ? `@${width}x${height}` : '';
           const {position} = message;
 
           const snapshotRoot = path.join(__dirname, '..', '..', 'snapshots');
@@ -149,26 +151,26 @@ document.getElementById('root')
 
           const result = {
             ...currentTest,
-            referenceImage: path.join('snapshots', ...stack, `${name}.reference.png`),
+            referenceImage: path.join('snapshots', ...stack, `${name}${viewportString}.reference.png`),
           };
 
           await page.property('clipRect', position);
-          await page.render(path.join(dir, `${name}.${record ? 'reference' : 'compare'}.png`));
+          await page.render(path.join(dir, `${name}${viewportString}.${record ? 'reference' : 'compare'}.png`));
           await page.sendEvent('mousemove', 10000, 10000);
           await page.sendEvent('mouseup');
 
           if (!record) {
             const comparisonResult = await compareFiles(
-              path.join(dir, `${name}.compare.png`),
-              path.join(dir, `${name}.reference.png`)
+              path.join(dir, `${name}${viewportString}.compare.png`),
+              path.join(dir, `${name}${viewportString}.reference.png`)
             );
             const passed = (comparisonResult.misMatchPercentage <= threshold);
-            await writeComparisonToFile(comparisonResult, path.join(dir, `${name}.diff.png`));
+            await writeComparisonToFile(comparisonResult, path.join(dir, `${name}${viewportString}.diff.png`));
 
             result.mismatch = comparisonResult.misMatchPercentage;
             result.passed = passed;
-            result.compareImage = path.join('snapshots', ...stack, `${name}.compare.png`);
-            result.diffImage = path.join('snapshots', ...stack, `${name}.diff.png`);
+            result.compareImage = path.join('snapshots', ...stack, `${name}${viewportString}.compare.png`);
+            result.diffImage = path.join('snapshots', ...stack, `${name}${viewportString}.diff.png`);
           }
 
           runner.test(result);

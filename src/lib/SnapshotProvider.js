@@ -28,7 +28,7 @@ function allChildrenAreSnapshots(element: React.Element): boolean {
 }
 
 const DEFAULT_CONFIG = {
-  record: false,
+  record: true,
   skip: false,
   exclusive: false,
   threshold: 0,
@@ -41,12 +41,13 @@ function getSnapshots(element: React.Element, stack = [], base = DEFAULT_CONFIG)
   }
 
   const {component, name, children, action, cases, record, skip, exclusive, viewports, threshold} = element.props;
+  const finalViewports = viewports || base.viewports;
+  const hasMultipleViewports = (finalViewports.length > 1);
   const snapshotName = component ? component.name : name;
   const newBase = {
     record: record == null ? base.record : record,
     skip: skip == null ? base.skip : skip,
     exclusive: exclusive == null ? base.exclusive : exclusive,
-    viewports: viewports == null ? base.viewports : viewports,
     threshold: threshold == null ? base.threshold : threshold,
   };
 
@@ -55,7 +56,7 @@ function getSnapshots(element: React.Element, stack = [], base = DEFAULT_CONFIG)
     const snapshots = [];
 
     Children.forEach(children, (child) => {
-      snapshots.push(...getSnapshots(child, currentStack, newBase));
+      snapshots.push(...getSnapshots(child, currentStack, {...newBase, viewports: finalViewports}));
     });
 
     return snapshots;
@@ -65,28 +66,46 @@ function getSnapshots(element: React.Element, stack = [], base = DEFAULT_CONFIG)
     const hasName = (snapshotName != null);
     const currentStack = hasName ? [...stack, snapshotName] : stack;
     const starterCases = hasName
-      ? [{id: [...currentStack, 'base'].join('-'), name: 'base', stack: currentStack, children, ...newBase}]
+      ? finalViewports.map((viewport) => {
+        return {
+          id: [...currentStack, 'base'].join('-'),
+          name: 'base',
+          stack: currentStack,
+          children,
+          viewport,
+          hasMultipleViewports,
+          ...newBase,
+        };
+      })
       : [];
 
-    return starterCases.concat(cases.map((aCase) => {
-      return {
-        id: [...currentStack, aCase.name].join('-'),
-        stack: currentStack,
-        children,
-        ...aCase,
-        ...newBase,
-      };
+    return starterCases.concat(...cases.map((aCase) => {
+      return finalViewports.map((viewport) => {
+        return {
+          id: [...currentStack, aCase.name].join('-'),
+          stack: currentStack,
+          children,
+          viewport,
+          hasMultipleViewports,
+          ...aCase,
+          ...newBase,
+        };
+      });
     }));
   }
 
-  return [{
-    stack,
-    action,
-    children,
-    name: snapshotName,
-    id: [...stack, snapshotName].join('-'),
-    ...newBase,
-  }];
+  return finalViewports.map((viewport) => {
+    return {
+      stack,
+      action,
+      children,
+      name: snapshotName,
+      id: [...stack, snapshotName].join('-'),
+      viewport,
+      hasMultipleViewports,
+      ...newBase,
+    };
+  });
 }
 
 function getWrappedTests(Comp): React.Element {

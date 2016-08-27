@@ -36,7 +36,6 @@ export default function ButtonSnapshotTest() {
       </Snapshot>
 
       <Snapshot
-        skip
         name="disabled"
         cases={[
           {name: 'hover', action: (button) => button.hover()},
@@ -56,7 +55,13 @@ export default function ButtonSnapshotTest() {
         <Button link>Button</Button>
       </Snapshot>
 
-      <Snapshot name="full-width">
+      <Snapshot
+        name="full-width"
+        viewports={[
+          {height: 200, width: 400},
+          {height: 200, width: 200},
+        ]}
+      >
         <Button fullWidth>Button</Button>
       </Snapshot>
     </Snapshot>
