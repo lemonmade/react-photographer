@@ -9,7 +9,7 @@ const rootDir = __dirname;
 
 
 module.exports = {
-  files: 'consumer/**/*.snapshot.js',
+  files: 'demo/**/*.snapshot.js',
   webpack: {
     module: {
       loaders: [
@@ -43,7 +43,7 @@ module.exports = {
     },
     sassLoader: {
       includePaths: [
-        path.join(rootDir, 'consumer'),
+        path.join(rootDir, 'demo'),
       ],
     },
     plugins: [

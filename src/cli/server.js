@@ -1,16 +1,72 @@
+import fs from 'fs-extra';
+import path from 'path';
+import ejs from 'ejs';
+
+import http from 'http';
+import express from 'express';
+import {Server as WebSocketServer} from 'ws';
 import {EventEmitter} from 'events';
 
-class Connection extends EventEmitter {}
+import webpack from 'webpack';
+import webpackDevMiddleware from 'webpack-dev-middleware';
 
 class Server extends EventEmitter {
-  constructor(...args) {
-    super(...args);
-    setTimeout(() => this.emit('connection', new Connection()), 1000);
+  constructor({httpServer, webSocketServer}) {
+    super();
+    this.httpServer = httpServer;
+    this.webSocketServer = webSocketServer;
+    this.webSocketServer.on('connection', (...args) => {
+      this.emit('connection', ...args);
+    });
   }
 
-  async close() {}
+  async close() {
+    this.httpServer.close();
+  }
 }
 
-export default function server() {
-  return new Server();
+function renderTemplate(template, data) {
+  return ejs.render(
+    fs.readFileSync(path.join(__dirname, `templates/${template}`), 'utf8'),
+    data
+  );
+}
+
+export default async function createServer(config) {
+  fs.mkdirpSync('.snapshots');
+  fs.writeFileSync('.snapshots/index.js', renderTemplate(
+    'test.js.ejs',
+    {
+      testComponents: config.files.map((test, index) => ({
+        name: `SnapshotTestComponent${index}`,
+        path: path.relative(path.resolve('./.snapshots'), test),
+      })),
+    }
+  ));
+  fs.writeFileSync('.snapshots/index.html', renderTemplate(
+    'test.html.ejs',
+    {scripts: ['<script type="text/javascript" src="/static/main.js"></script>'], styles: ['<link rel="stylesheet" href="/static/main.css"></link>']}
+  ));
+
+  const app = express();
+
+  app.use(webpackDevMiddleware(webpack(config.webpack), {
+    noInfo: true,
+    publicPath: config.webpack.output.publicPath,
+  }));
+
+  app.get('/', (req, res) => {
+    res.sendFile(path.resolve(process.cwd(), './.snapshots/index.html'));
+  });
+
+  const httpServer = http.createServer();
+  httpServer.on('request', app);
+
+  await new Promise((resolve) => {
+    httpServer.listen(3000, () => { resolve(); });
+  });
+
+  const webSocketServer = new WebSocketServer({server: httpServer});
+  const server = new Server({httpServer, webSocketServer});
+  return server;
 }

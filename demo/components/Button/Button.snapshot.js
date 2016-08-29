@@ -1,5 +1,5 @@
 import React from 'react';
-import Snapshot from 'react-snapshot';
+import Snapshot from 'react-snapshots';
 import Button from './Button';
 
 export default function ButtonSnapshotTest() {

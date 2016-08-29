@@ -1,14 +1,21 @@
 import {EventEmitter} from 'events';
 
 class Runner extends EventEmitter {
-  constructor(...args) {
-    super(...args);
-    setTimeout(() => this.emit('end'), 1000);
+  constructor(connection, env) {
+    super();
+
+    this.connection = connection;
+    this.env = env;
+
+    connection.on('message', (message) => {
+      env.logger.debug(`Received message: ${message}`);
+      this.emit('end');
+    });
   }
 }
 
-export default function runner() {
-  return new Runner();
+export default function runner(...args) {
+  return new Runner(...args);
 }
 
 // /* eslint-env node */
@@ -99,18 +106,18 @@ export default function runner() {
 // );
 // `;
 //
-//   fs.mkdirpSync('.snapshots');
-//   fs.writeFileSync('.snapshots/index.js', fileContents);
-//   fs.copySync(path.join(__dirname, './index.html'), '.snapshots/index.html');
-//
-//   app.use(webpackDevMiddleware(webpack(config.webpack), {
-//     noInfo: true,
-//     publicPath: config.webpack.output.publicPath,
-//   }));
-//
-//   app.get('/', (req, res) => {
-//     res.sendFile(path.resolve(process.cwd(), './.snapshots/index.html'));
-//   });
+  // fs.mkdirpSync('.snapshots');
+  // fs.writeFileSync('.snapshots/index.js', fileContents);
+  // fs.copySync(path.join(__dirname, './index.html'), '.snapshots/index.html');
+  //
+  // app.use(webpackDevMiddleware(webpack(config.webpack), {
+  //   noInfo: true,
+  //   publicPath: config.webpack.output.publicPath,
+  // }));
+  //
+  // app.get('/', (req, res) => {
+  //   res.sendFile(path.resolve(process.cwd(), './.snapshots/index.html'));
+  // });
 //
 //   const {page} = server;
 //

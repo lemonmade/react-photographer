@@ -14,6 +14,11 @@ export default async function getConfig() {
     publicPath: '/static/',
     filename: '[name].js',
   };
+
+  config.webpack.resolve = config.webpack.resolve || {};
+  config.webpack.resolve.alias = config.webpack.resolve.alias || {};
+  config.webpack.resolve.alias['react-snapshots'] = path.resolve(__dirname, '..');
+
   config.files = glob.sync(config.files || []);
   return config;
 }

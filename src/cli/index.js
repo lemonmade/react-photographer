@@ -36,12 +36,18 @@ async function run() {
   try {
     config = await loadConfig();
     logger.debug('Loaded config');
+    // logger.debug(JSON.stringify(config));
 
     [client, server] = await Promise.all([createClient(config), createServer(config)]);
     logger.debug('Created client and server');
 
     env = createEnv({client, server, config, logger});
     logger.debug('Created env');
+
+    await client.set({
+      onConsoleMessage: (arg) => logger.debug(arg),
+      onError: (arg) => logger.debug(arg),
+    });
 
     server.on('connection', (connection) => {
       logger.debug('Websocket connection established');
@@ -53,6 +59,9 @@ async function run() {
         finish(0);
       });
     });
+
+    await client.open('http://localhost:3000/');
+    logger.debug('Opened http://localhost:3000/');
   } catch (error) {
     console.error(error);
     await finish(1);
