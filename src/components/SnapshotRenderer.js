@@ -3,8 +3,8 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
-import ActionManager from './ActionManager';
-import {getPositionForNode} from './dom';
+import ActionManager from './utilities/ActionManager';
+import {getPositionForNode} from './utilities/dom';
 
 type Props = {
   snapshots: Object[],

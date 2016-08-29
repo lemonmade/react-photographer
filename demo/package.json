@@ -1,0 +1,10 @@
+{
+  "name": "react-snapshots-demo",
+  "private": true,
+  "description": "A working example of using react-snapshots",
+  "dependencies": {
+    "react": "15.3.0",
+    "react-dom": "15.3.0",
+    "react-snapshots": "file:../"
+  }
+}

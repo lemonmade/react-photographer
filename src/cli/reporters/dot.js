@@ -1,5 +1,5 @@
 import * as Events from '../events';
-import {colorForTest, successColor, errorColor, pendingColor} from '../utilities';
+import {colorForTest, successColor, errorColor, pendingColor} from '../utilities/color';
 
 const DOT = '.';
 

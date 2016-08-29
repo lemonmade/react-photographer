@@ -1,6 +1,6 @@
 import React from 'react';
+import Snapshot from 'react-snapshot';
 import Word from './Word';
-import Snapshot from '../../../src/lib/Snapshot';
 
 export default function WordSnapshotTest() {
   return (

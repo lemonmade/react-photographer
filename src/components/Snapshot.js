@@ -22,6 +22,7 @@ type Props = {
   cases?: CaseType[],
 };
 
-export default function Snapshot() {
+// eslint-disable-next-line no-unused-vars
+export default function Snapshot(props: Props) {
   return null;
 }
