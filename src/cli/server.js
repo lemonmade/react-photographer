@@ -1,8 +1,12 @@
+// @flow
+
 import fs from 'fs-extra';
 import path from 'path';
 import ejs from 'ejs';
 
 import http from 'http';
+import type {Server as HTTPServer} from 'http';
+
 import express from 'express';
 import {Server as WebSocketServer} from 'ws';
 import {EventEmitter} from 'events';
@@ -10,8 +14,18 @@ import {EventEmitter} from 'events';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 
-class Server extends EventEmitter {
-  constructor({httpServer, webSocketServer}) {
+import type {ConfigType} from './config';
+
+type ServerComponentsType = {
+  httpServer: HTTPServer,
+  webSocketServer: WebSocketServer,
+};
+
+export class Server extends EventEmitter {
+  httpServer: HTTPServer;
+  webSocketServer: WebSocketServer;
+
+  constructor({httpServer, webSocketServer}: ServerComponentsType) {
     super();
     this.httpServer = httpServer;
     this.webSocketServer = webSocketServer;
@@ -32,7 +46,7 @@ function renderTemplate(template, data) {
   );
 }
 
-export default async function createServer(config) {
+export default async function createServer(config: ConfigType): Promise<Server> {
   fs.mkdirpSync('.snapshots');
   fs.writeFileSync('.snapshots/index.js', renderTemplate(
     'test.js.ejs',

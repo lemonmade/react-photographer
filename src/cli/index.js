@@ -1,21 +1,26 @@
 // @flow
 
-import createClient from './client';
-import createServer from './server';
+import yargs from 'yargs';
+
+import createClient, {Client} from './client';
+import createServer, {Server} from './server';
 import loadConfig from './config';
+import type {ConfigType} from './config';
 import createRunner from './runner';
 import createLogger from './logger';
-import createEnv from './env';
+import type {EnvType} from '../types';
 
+import * as Events from './events';
 import dotReporter from './reporters/dot';
 
-const logger = createLogger();
+const argv = yargs.argv;
+const logger = createLogger({verbose: Boolean(argv.verbose)});
 
 async function run() {
-  let config;
-  let client;
-  let server;
-  let env;
+  let config: ConfigType;
+  let client: Client;
+  let server: Server;
+  let env: EnvType;
 
   async function finish(code) {
     if (client) {
@@ -41,7 +46,7 @@ async function run() {
     [client, server] = await Promise.all([createClient(config), createServer(config)]);
     logger.debug('Created client and server');
 
-    env = createEnv({client, server, config, logger});
+    env = {client, server, config, logger};
     logger.debug('Created env');
 
     await client.set({
@@ -49,19 +54,16 @@ async function run() {
       onError: (arg) => logger.debug(arg),
     });
 
-    server.on('connection', (connection) => {
-      logger.debug('Websocket connection established');
-      const runner = createRunner(connection, env);
-      dotReporter(runner);
+    await client.connectToServer(server);
+    logger.debug('Connected to server');
 
-      runner.on('end', () => {
-        logger.debug('Runner finished');
-        finish(0);
-      });
+    const runner = createRunner(env);
+    dotReporter(runner);
+
+    runner.on(Events.end, () => {
+      logger.debug('Runner finished');
+      finish(0);
     });
-
-    await client.open('http://localhost:3000/');
-    logger.debug('Opened http://localhost:3000/');
   } catch (error) {
     console.error(error);
     await finish(1);

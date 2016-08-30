@@ -28,7 +28,7 @@ function allChildrenAreSnapshots(element: React.Element): boolean {
 }
 
 const DEFAULT_CONFIG = {
-  record: true,
+  record: false,
   skip: false,
   exclusive: false,
   threshold: 0,

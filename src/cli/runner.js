@@ -1,68 +1,85 @@
+// @flow
+
 import fs from 'fs-extra';
 import path from 'path';
 import {EventEmitter} from 'events';
 
+import * as Events from './events';
 import compareFiles from './utilities/compare';
 import {Rect} from './utilities/geometry';
+import type {EnvType, MessageType} from '../types';
 
 class Runner extends EventEmitter {
   tests = [];
   results = [];
-  currentTestIndex = 0;
+  currentTestIndex: number = 0;
+  passCount: number = 0;
+  failCount: number = 0;
+  skipCount: number = 0;
+  env: EnvType;
 
-  constructor(connection, env) {
+  constructor(env: EnvType) {
     super();
 
-    this.connection = connection;
     this.env = env;
-
-    connection.on('message', (message) => {
-      env.logger.debug(`Received message: ${message}`);
-      this.handleMessage(JSON.parse(message));
+    env.client.on('message', (message) => {
+      env.logger.debug(`Received message: ${JSON.stringify(message)}`);
+      this.handleMessage(message);
     });
+  }
+
+  addResult(result) {
+    if (result.passed) {
+      this.passCount += 1;
+    } else if (result.skipped) {
+      this.skipCount += 1;
+    } else {
+      this.failCount += 1;
+    }
+
+    this.results.push(result);
+    this.emit(Events.test, result);
   }
 
   get currentTest() {
     return this.tests[this.currentTestIndex];
   }
 
-  get testCount() {
-    return this.tests.length;
-  }
-
   async runTest() {
-    const {currentTest, currentTestIndex, connection, env: {client}} = this;
+    const {currentTest, currentTestIndex, env: {client}} = this;
 
     if (currentTest == null) {
-      this.emit('end');
+      this.emit(Events.end, this);
       return;
     }
 
     if (currentTest.skip) {
       currentTest.skipped = true;
-      this.emit('test', currentTest);
-      this.results.push(currentTest);
+      this.addResult(currentTest);
       this.currentTestIndex += 1;
       this.runTest();
       return;
     }
 
     await client.set({viewportSize: currentTest.viewport});
-    connection.send(JSON.stringify({type: 'RUN_TEST', test: currentTestIndex}));
+    client.send({type: 'RUN_TEST', test: currentTestIndex});
   }
 
-  async handleMessage(message) {
+  async handleMessage(message: MessageType) {
     switch (message.type) {
       case 'TEST_DETAILS': {
         const {tests} = message;
         this.tests = tests;
         this.results = [];
         this.currentTestIndex = 0;
+        this.passCount = 0;
+        this.failCount = 0;
+        this.skipCount = 0;
         this.runTest();
         break;
       }
       case 'REQUEST_ACTION': {
-        await handleAction(message, this.connection, this.env);
+        await handleAction(message, this.env);
         break;
       }
       case 'READY_FOR_MY_CLOSEUP': {
@@ -71,7 +88,7 @@ class Runner extends EventEmitter {
         const viewportString = hasMultipleViewports ? `@${width}x${height}` : '';
         const {position} = message;
 
-        const snapshotRoot = path.join(__dirname, '..', '..', 'snapshots');
+        const snapshotRoot = path.join(__dirname, '../../snapshots');
         const dir = path.join(snapshotRoot, ...stack);
         fs.mkdirpSync(dir);
 
@@ -99,8 +116,7 @@ class Runner extends EventEmitter {
           result.diffImage = path.join('snapshots', ...stack, `${name}${viewportString}.diff.png`);
         }
 
-        this.emit('test', result);
-        this.results.push(result);
+        this.addResult(result);
         this.currentTestIndex += 1;
         this.runTest();
         break;
@@ -121,18 +137,18 @@ async function writeComparisonToFile(comparison, file) {
   });
 }
 
-async function handleHoverAction({position: pos}, connection, env) {
+async function handleHoverAction({position: pos}, {client}) {
   const center = new Rect(pos).center;
-  await env.client.page.sendEvent('mousemove', center.x, center.y);
-  connection.send(JSON.stringify({performedAction: 'hover'}));
+  await client.page.sendEvent('mousemove', center.x, center.y);
+  client.send({performedAction: 'hover'});
 }
 
 handleHoverAction.applies = ({action}) => action === 'hover';
 
-async function handleMousedownAction({position: pos}, connection, env) {
+async function handleMousedownAction({position: pos}, {client}) {
   const center = new Rect(pos).center;
-  await env.client.page.sendEvent('mousedown', center.x, center.y);
-  connection.send(JSON.stringify({performedAction: 'mousedown'}));
+  await client.page.sendEvent('mousedown', center.x, center.y);
+  client.send({performedAction: 'mousedown'});
 }
 
 handleMousedownAction.applies = ({action}) => action === 'mousedown';
