@@ -26,7 +26,7 @@ export default class SnapshotRenderer extends Component {
     const {snapshots} = this.props;
     const {currentSnapshot} = this.state;
     const {websocket} = this;
-    const {name, stack, action} = snapshots[currentSnapshot];
+    const {action} = snapshots[currentSnapshot];
     const node = ReactDOM.findDOMNode(this).children[0];
 
     const promise = Promise.resolve();
@@ -38,8 +38,6 @@ export default class SnapshotRenderer extends Component {
     promise.then(() => {
       websocket.send(JSON.stringify({
         type: 'READY_FOR_MY_CLOSEUP',
-        name,
-        stack,
         position: getPositionForNode(node),
       }));
     });

@@ -1,16 +1,13 @@
 // @flow
 
+import type {ViewportType} from '../types';
+
 type CaseType = {
   name: string,
   action?: () => void,
 }
 
-type ViewportType = {
-  height: number,
-  width: number,
-};
-
-type Props = {
+export type Props = {
   children?: any,
   component?: ReactClass,
   name?: string,

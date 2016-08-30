@@ -7,11 +7,11 @@ import {EventEmitter} from 'events';
 import * as Events from './events';
 import compareFiles from './utilities/compare';
 import {Rect} from './utilities/geometry';
-import type {EnvType, MessageType} from '../types';
+import type {EnvType, MessageType, TestType, TestResultType} from '../types';
 
 class Runner extends EventEmitter {
-  tests = [];
-  results = [];
+  tests: TestType[] = [];
+  results: TestResultType[] = [];
   currentTestIndex: number = 0;
   passCount: number = 0;
   failCount: number = 0;
@@ -28,7 +28,7 @@ class Runner extends EventEmitter {
     });
   }
 
-  addResult(result) {
+  addResult(result: TestResultType) {
     if (result.passed) {
       this.passCount += 1;
     } else if (result.skipped) {
@@ -41,7 +41,7 @@ class Runner extends EventEmitter {
     this.emit(Events.test, result);
   }
 
-  get currentTest() {
+  get currentTest(): ?TestType {
     return this.tests[this.currentTestIndex];
   }
 
@@ -84,17 +84,20 @@ class Runner extends EventEmitter {
       }
       case 'READY_FOR_MY_CLOSEUP': {
         const {currentTest, env: {client}} = this;
-        const {record, stack, name, threshold, viewport: {height, width}, hasMultipleViewports} = currentTest;
+
+        if (currentTest == null) { return; }
+
+        const {record, groups, component, name, threshold, viewport: {height, width}, hasMultipleViewports} = currentTest;
         const viewportString = hasMultipleViewports ? `@${width}x${height}` : '';
         const {position} = message;
 
         const snapshotRoot = path.join(__dirname, '../../snapshots');
-        const dir = path.join(snapshotRoot, ...stack);
+        const dir = path.join(snapshotRoot, component, ...groups);
         fs.mkdirpSync(dir);
 
         const result = {
           ...currentTest,
-          referenceImage: path.join('snapshots', ...stack, `${name}${viewportString}.reference.png`),
+          referenceImage: path.join('snapshots', component, ...groups, `${name}${viewportString}.reference.png`),
         };
 
         await client.set({clipRect: position});
@@ -112,8 +115,8 @@ class Runner extends EventEmitter {
 
           result.mismatch = comparisonResult.misMatchPercentage;
           result.passed = passed;
-          result.compareImage = path.join('snapshots', ...stack, `${name}${viewportString}.compare.png`);
-          result.diffImage = path.join('snapshots', ...stack, `${name}${viewportString}.diff.png`);
+          result.compareImage = path.join(dir, `${name}${viewportString}.compare.png`);
+          result.diffImage = path.join(dir, `${name}${viewportString}.diff.png`);
         }
 
         this.addResult(result);

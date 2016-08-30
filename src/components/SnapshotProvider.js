@@ -2,18 +2,23 @@
 
 import React, {Component, Children} from 'react';
 import SnapshotRenderer from './SnapshotRenderer';
+import type {Props as SnapshotProps} from './Snapshot';
+import type {SnapshotDescriptorType, ViewportType} from '../types';
 
 type Props = {
   tests: ReactClass[] | React.Element[],
   children?: any,
 };
 
-type SnapshotDescriptorType = {
-  name: string,
-  stack: string[],
-  children: React.Element,
-  action?: (action: Object) => void | Promise,
-};
+type BaseDescriptorType = {
+  record: boolean,
+  skip: boolean,
+  exclusive: boolean,
+  groups: string[],
+  threshold: number,
+  viewports: ViewportType[],
+  component?: string,
+}
 
 function allChildrenAreSnapshots(element: React.Element): boolean {
   if (Children.count(element.props.children) === 0) { return false; }
@@ -31,11 +36,15 @@ const DEFAULT_CONFIG = {
   record: false,
   skip: false,
   exclusive: false,
+  groups: [],
   threshold: 0,
   viewports: [{height: 400, width: 400}],
 };
 
-function getSnapshots(element: React.Element, stack = [], base = DEFAULT_CONFIG): SnapshotDescriptorType[] {
+function getSnapshots(
+  element: React.Element<{props: SnapshotProps}>,
+  base: BaseDescriptorType = DEFAULT_CONFIG
+): SnapshotDescriptorType[] {
   if (element.type.name !== 'Snapshot') {
     return [];
   }
@@ -43,34 +52,38 @@ function getSnapshots(element: React.Element, stack = [], base = DEFAULT_CONFIG)
   const {component, name, children, action, cases, record, skip, exclusive, viewports, threshold} = element.props;
   const finalViewports = viewports || base.viewports;
   const hasMultipleViewports = (finalViewports.length > 1);
-  const snapshotName = component ? component.name : name;
+
   const newBase = {
+    component: component == null ? base.component : component.name,
     record: record == null ? base.record : record,
     skip: skip == null ? base.skip : skip,
     exclusive: exclusive == null ? base.exclusive : exclusive,
     threshold: threshold == null ? base.threshold : threshold,
+    groups: base.groups,
   };
 
   if (allChildrenAreSnapshots(element)) {
-    const currentStack = [...stack, snapshotName];
+    newBase.groups = name == null ? base.groups : [...base.groups, name];
     const snapshots = [];
 
     Children.forEach(children, (child) => {
-      snapshots.push(...getSnapshots(child, currentStack, {...newBase, viewports: finalViewports}));
+      snapshots.push(...getSnapshots(child, {...newBase, viewports: finalViewports}));
     });
 
     return snapshots;
   }
 
   if (cases != null) {
-    const hasName = (snapshotName != null);
-    const currentStack = hasName ? [...stack, snapshotName] : stack;
+    const hasName = (name != null);
+
+    if (hasName) {
+      newBase.groups = [...base.groups, name];
+    }
+
     const starterCases = hasName
       ? finalViewports.map((viewport) => {
         return {
-          id: [...currentStack, 'base'].join('-'),
           name: 'base',
-          stack: currentStack,
           children,
           viewport,
           hasMultipleViewports,
@@ -82,12 +95,10 @@ function getSnapshots(element: React.Element, stack = [], base = DEFAULT_CONFIG)
     return starterCases.concat(...cases.map((aCase) => {
       return finalViewports.map((viewport) => {
         return {
-          id: [...currentStack, aCase.name].join('-'),
-          stack: currentStack,
+          ...aCase,
           children,
           viewport,
           hasMultipleViewports,
-          ...aCase,
           ...newBase,
         };
       });
@@ -96,11 +107,9 @@ function getSnapshots(element: React.Element, stack = [], base = DEFAULT_CONFIG)
 
   return finalViewports.map((viewport) => {
     return {
-      stack,
+      name,
       action,
       children,
-      name: snapshotName,
-      id: [...stack, snapshotName].join('-'),
       viewport,
       hasMultipleViewports,
       ...newBase,

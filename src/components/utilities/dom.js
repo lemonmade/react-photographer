@@ -1,3 +1,5 @@
+// @flow
+
 export function getPositionForNode(node: HTMLElement) {
   return {
     y: node.offsetTop,

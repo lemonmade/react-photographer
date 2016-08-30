@@ -23,13 +23,13 @@
   }
 
   &:active {
-    box-shadow: inset 0 0 2px black;
+    box-shadow: inset 0 0 4px rgba(color(black), 0.4);
   }
 }
 
 .primary {
   background-color: color(action);
-  border-color: color(action);
+  border-color: transparent;
   color: color(white);
 
   &:hover,
@@ -41,7 +41,7 @@
 
 .destructive {
   background-color: color(red);
-  border-color: color(red);
+  border-color: transparent;
   color: color(white);
 
   &:hover,
