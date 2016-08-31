@@ -97,7 +97,7 @@ function webpackConfigFactory({target, mode}, {json}) {
         main: removeEmpty([
           ifDevClient('react-hot-loader/patch'),
           ifDevClient(`webpack-hot-middleware/client?reload=true&path=http://localhost:${process.env.CLIENT_DEVSERVER_PORT}/__webpack_hmr`),
-          path.resolve(projectRoot, `./src/app/${target}/index.js`),
+          path.resolve(projectRoot, `./src/${target}/index.js`),
         ]),
       }
     ),
@@ -182,7 +182,7 @@ function webpackConfigFactory({target, mode}, {json}) {
               env: {
                 development: {
                   presets: [
-                    {plugins: ['./src/app/data/babel-relay-plugin']},
+                    {plugins: ['./src/data/babel-relay-plugin']},
                   ],
                   plugins: [
                     'react-hot-loader/babel',
@@ -192,7 +192,7 @@ function webpackConfigFactory({target, mode}, {json}) {
             },
             ifServer({
               presets: [
-                {plugins: ['./src/app/data/babel-relay-plugin']},
+                {plugins: ['./src/data/babel-relay-plugin']},
                 'stage-2',
                 'react',
               ],
@@ -205,7 +205,7 @@ function webpackConfigFactory({target, mode}, {json}) {
               // For our clients code we will need to transpile our JS into
               // ES5 code for wider browser/device compatability.
               presets: [
-                {plugins: ['./src/app/data/babel-relay-plugin']},
+                {plugins: ['./src/data/babel-relay-plugin']},
                 ['es2015', {modules: false}],
                 'stage-2',
                 'react',
@@ -273,7 +273,7 @@ function webpackConfigFactory({target, mode}, {json}) {
     ],
     sassLoader: {
       includePaths: [
-        path.resolve(projectRoot, './src/app/shared'),
+        path.resolve(projectRoot, './src/app'),
       ],
     },
   };

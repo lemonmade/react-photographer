@@ -1,6 +1,7 @@
 @import 'foundation/borders';
 @import 'foundation/colors';
 @import 'foundation/spacing';
+@import 'foundation/typography';
 
 .List,
 .GroupList {
@@ -50,7 +51,7 @@
 
 .Subtitle {
   font-size: 0.75rem;
-  color: color(slate, lightest);
+  @include text-emphasis-subdued;
 }
 
 .Layout {

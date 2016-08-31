@@ -8,6 +8,7 @@ import Header from '../../components/Header';
 import Badge from '../../components/Badge';
 import Sidebar from '../../components/Sidebar';
 import Frame from '../../components/Frame';
+import Text from '../../components/Text';
 
 import '../../components/index.scss';
 
@@ -17,7 +18,7 @@ type Props = {
 
 function App({children, viewer: {snapshots}}: Props) {
   const groupedSnapshots = snapshots.reduce((groups, snapshot) => {
-    const component = snapshot.stack[0];
+    const {component} = snapshot;
     groups[component] = groups[component] || [];
     groups[component].push(snapshot);
     return groups;
@@ -28,7 +29,7 @@ function App({children, viewer: {snapshots}}: Props) {
       <List>
         {Object.keys(groupedSnapshots).map((component, index) => {
           const groupDetails = groupedSnapshots[component].reduce((details, snapshot) => {
-            const prop = snapshot.skip ? 'neutral' : (snapshot.passed ? 'success' : 'failure');
+            const prop = snapshot.skipped ? 'neutral' : (snapshot.passed ? 'success' : 'failure');
             details[prop] = details[prop] || 0;
             details[prop] += 1;
             return details;
@@ -37,21 +38,28 @@ function App({children, viewer: {snapshots}}: Props) {
           return (
             <ListGroup key={index} title={component} accessory={<Badge status={groupDetails} />}>
               {groupedSnapshots[component].map((snapshot, snapshotIndex) => {
-                const {passed, skip, name, id, stack} = snapshot;
+                const {passed, skipped, name, id, groups, hasMultipleViewports, viewport} = snapshot;
                 let status;
+                let title;
 
                 if (passed) {
                   status = 'success';
-                } else if (!skip) {
+                } else if (!skipped) {
                   status = 'failure';
+                }
+
+                if (hasMultipleViewports) {
+                  title = <Text>{name}<Text subdued>@{viewport.width}x{viewport.width}</Text></Text>;
+                } else {
+                  title = name;
                 }
 
                 return (
                   <ListItem
                     key={snapshotIndex}
                     link={`/snapshot/${id}`}
-                    title={name}
-                    subtitle={stack.slice(1).join('/')}
+                    title={title}
+                    subtitle={groups.join('/')}
                     accessory={<Badge status={status} />}
                   />
                 );
@@ -77,9 +85,15 @@ export default Relay.createContainer(App, {
         snapshots {
           id
           name
-          skip
+          component
+          skipped
           passed
-          stack
+          groups
+          hasMultipleViewports
+          viewport {
+            height
+            width
+          }
         }
       }
     `,

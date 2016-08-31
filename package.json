@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "babel-node src/cli/index.js",
-    "dev": "node src/app/server/dev"
+    "dev": "node src/server/dev"
   },
   "repository": {
     "type": "git",

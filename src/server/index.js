@@ -14,7 +14,7 @@ import graphql from 'express-graphql';
 import schema from '../data/schema';
 
 import universalReactAppMiddleware from './middleware/universal-react-app';
-import clientConfigBuilder from '../../../config/webpack.client.config';
+import clientConfigBuilder from '../../config/webpack.client.config';
 
 // Create our express based server.
 const app = express();
@@ -50,7 +50,7 @@ app.use(compression());
 const webpackClientConfig = clientConfigBuilder({mode: process.env.NODE_ENV});
 
 app.use('/graphql', graphql({schema, pretty: true, graphiql: true}));
-app.use('/snapshots', express.static(path.join(__dirname, '../../../snapshots')));
+app.use('/snapshots', express.static(path.join(__dirname, '../../snapshots')));
 
 app.use(
   webpackClientConfig.output.publicPath,

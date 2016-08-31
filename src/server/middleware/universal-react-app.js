@@ -8,8 +8,8 @@ import createMemoryHistory from 'react-router/lib/createMemoryHistory';
 import match from 'react-router/lib/match';
 
 import render from '../html/render';
-import routes from '../../shared/routes';
-import createStore from '../../shared/store';
+import routes from '../../app/routes';
+import createStore from '../../app/store';
 
 /**
  * An express middleware that is capabable of doing React server side rendering.
@@ -27,7 +27,7 @@ function universalReactAppMiddleware(request, response, next) {
 
   const history = createMemoryHistory(request.originalUrl);
 
-  const networkLayer = new Relay.DefaultNetworkLayer('http://localhost:3000/graphql');
+  const networkLayer = new Relay.DefaultNetworkLayer(`http://localhost:${process.env.SERVER_PORT}/graphql`);
 
   // Server side handling of react-router.
   // Read more about this here:

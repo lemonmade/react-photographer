@@ -7,8 +7,8 @@ const shell = require('shelljs');
 const component = process.argv[2];
 const [componentSection, componentName = componentSection] = component.split('/');
 const componentDir = componentName === componentSection
-  ? path.join('src/app/shared/components', componentSection)
-  : path.join('src/app/shared/sections', componentSection, 'components', componentName);
+  ? path.join('src/app/components', componentSection)
+  : path.join('src/app/sections', componentSection, 'components', componentName);
 
 shell.mkdir('-p', componentDir);
 

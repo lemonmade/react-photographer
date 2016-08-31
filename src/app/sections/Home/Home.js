@@ -8,7 +8,7 @@ import styles from './Home.scss';
 function Home({viewer}) {
   const {snapshots} = viewer;
   const {passes, skips, failures} = snapshots.reduce((all, snapshot) => {
-    if (snapshot.skip) {
+    if (snapshot.skipped) {
       all.skips += 1;
     } else if (snapshot.passed) {
       all.passes += 1;
@@ -42,7 +42,7 @@ const HomeContainer = Relay.createContainer(Home, {
       fragment on Viewer {
         snapshots {
           passed
-          skip
+          skipped
         }
       }
     `,

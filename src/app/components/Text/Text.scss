@@ -1,0 +1,9 @@
+@import "foundation/typography";
+
+.Text {
+
+}
+
+.subdued {
+  @include text-emphasis-subdued;
+}

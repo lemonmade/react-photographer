@@ -8,7 +8,7 @@ import {
   GraphQLInt,
 } from 'graphql';
 
-import data from '../../../snapshots/data.json';
+import data from '../../snapshots/data.json';
 
 const ViewportType = new GraphQLObjectType({
   name: 'Viewport',
@@ -23,16 +23,19 @@ const SnapshotType = new GraphQLObjectType({
   fields: {
     id: {type: GraphQLString},
     name: {type: GraphQLString},
-    stack: {type: new GraphQLList(GraphQLString)},
+    component: {type: GraphQLString},
+    groups: {type: new GraphQLList(GraphQLString)},
     passed: {type: GraphQLBoolean},
-    record: {type: GraphQLBoolean},
-    skip: {type: GraphQLBoolean},
-    exclusive: {type: GraphQLBoolean},
+    failed: {type: GraphQLBoolean},
+    recorded: {type: GraphQLBoolean},
+    skipped: {type: GraphQLBoolean},
     threshold: {type: GraphQLFloat},
     mismatch: {type: GraphQLFloat},
     referenceImage: {type: GraphQLString},
     compareImage: {type: GraphQLString},
     diffImage: {type: GraphQLString},
+    viewport: {type: ViewportType},
+    hasMultipleViewports: {type: GraphQLBoolean},
   },
 });
 

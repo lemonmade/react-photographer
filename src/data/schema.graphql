@@ -10,18 +10,26 @@ type Query {
 type Snapshot {
   id: String
   name: String
-  stack: [String]
+  component: String
+  groups: [String]
   passed: Boolean
-  record: Boolean
-  skip: Boolean
-  exclusive: Boolean
+  failed: Boolean
+  recorded: Boolean
+  skipped: Boolean
   threshold: Float
   mismatch: Float
   referenceImage: String
   compareImage: String
   diffImage: String
+  viewport: Viewport
+  hasMultipleViewports: Boolean
 }
 
 type Viewer {
   snapshots: [Snapshot]
+}
+
+type Viewport {
+  height: Int
+  width: Int
 }

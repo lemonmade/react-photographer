@@ -48,9 +48,9 @@ export type TestResultType = {
   recorded: boolean,
   viewport: ViewportType,
   referenceImage: string,
-  compareImage: string,
-  diffImage: string,
+  compareImage?: string,
+  diffImage?: string,
   threshold: number,
-  mismatch: number,
+  mismatch?: number,
   message?: string,
 };

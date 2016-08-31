@@ -11,8 +11,8 @@ import Router from 'react-router/lib/Router';
 import browserHistory from 'react-router/lib/browserHistory';
 import match from 'react-router/lib/match';
 
-import initialRoutes from '../shared/routes';
-import createStore from '../shared/store';
+import initialRoutes from '../app/routes';
+import createStore from '../app/store';
 
 const environment = new Relay.Environment();
 environment.injectNetworkLayer(new Relay.DefaultNetworkLayer('/graphql'));
@@ -53,8 +53,8 @@ renderApp(initialRoutes);
 // The following is needed so that we can hot reload our App.
 if (module.hot) {
   module.hot.accept('./index.js');
-  module.hot.accept('../shared/routes.js', () => {
-    const newRoutes = require('../shared/routes.js').default;
+  module.hot.accept('../app/routes.js', () => {
+    const newRoutes = require('../app/routes.js').default;
 
     renderApp(newRoutes);
   });

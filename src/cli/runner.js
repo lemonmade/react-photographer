@@ -1,4 +1,4 @@
-// @flow
+// flow
 
 import fs from 'fs-extra';
 import path from 'path';
@@ -49,13 +49,14 @@ class Runner extends EventEmitter {
     const {currentTest, currentTestIndex, env: {client}} = this;
 
     if (currentTest == null) {
+      fs.writeFileSync(path.join(__dirname, '../../snapshots/data.json'), JSON.stringify({snapshots: this.results}, null, 2));
       this.emit(Events.end, this);
       return;
     }
 
     if (currentTest.skip) {
-      currentTest.skipped = true;
-      this.addResult(currentTest);
+      const result = baseResultForTest(currentTest);
+      this.addResult(result);
       this.currentTestIndex += 1;
       this.runTest();
       return;
@@ -87,18 +88,16 @@ class Runner extends EventEmitter {
 
         if (currentTest == null) { return; }
 
-        const {record, groups, component, name, threshold, viewport: {height, width}, hasMultipleViewports} = currentTest;
-        const viewportString = hasMultipleViewports ? `@${width}x${height}` : '';
+        const {record, groups, component, name, threshold} = currentTest;
+        const viewportString = viewportStringForTest(currentTest);
         const {position} = message;
 
         const snapshotRoot = path.join(__dirname, '../../snapshots');
-        const dir = path.join(snapshotRoot, component, ...groups);
+        const snapshotPath = path.join(component, ...groups);
+        const dir = path.join(snapshotRoot, snapshotPath);
         fs.mkdirpSync(dir);
 
-        const result = {
-          ...currentTest,
-          referenceImage: path.join('snapshots', component, ...groups, `${name}${viewportString}.reference.png`),
-        };
+        const result = baseResultForTest(currentTest);
 
         await client.set({clipRect: position});
         await client.page.render(path.join(dir, `${name}${viewportString}.${record ? 'reference' : 'compare'}.png`));
@@ -115,8 +114,9 @@ class Runner extends EventEmitter {
 
           result.mismatch = comparisonResult.misMatchPercentage;
           result.passed = passed;
-          result.compareImage = path.join(dir, `${name}${viewportString}.compare.png`);
-          result.diffImage = path.join(dir, `${name}${viewportString}.diff.png`);
+          result.failed = !passed;
+          result.compareImage = path.join('snapshots', snapshotPath, `${name}${viewportString}.compare.png`);
+          result.diffImage = path.join('snapshots', snapshotPath, `${name}${viewportString}.diff.png`);
         }
 
         this.addResult(result);
@@ -126,6 +126,30 @@ class Runner extends EventEmitter {
       }
     }
   }
+}
+
+function viewportStringForTest({hasMultipleViewports, viewport: {height, width}}: TestType): string {
+  return hasMultipleViewports ? `@${width}x${height}` : '';
+}
+
+function baseResultForTest(test: TestType): TestResultType {
+  const {record, groups, component, name, threshold, viewport, skip, hasMultipleViewports} = test;
+  const viewportString = viewportStringForTest(test);
+
+  return {
+    id: [component, ...groups, name, viewportString.substring(1)].filter((part) => Boolean(part)).join('-'),
+    name,
+    component,
+    groups,
+    viewport,
+    threshold,
+    hasMultipleViewports,
+    skipped: skip,
+    passed: false,
+    failed: false,
+    recorded: record,
+    referenceImage: path.join('snapshots', component, ...groups, `${name}${viewportString}.reference.png`),
+  };
 }
 
 async function writeComparisonToFile(comparison, file) {
@@ -161,7 +185,6 @@ async function handleAction(message, ...args) {
   if (action == null) { return; }
   await action(message, ...args);
 }
-
 
 export default function runner(...args) {
   return new Runner(...args);

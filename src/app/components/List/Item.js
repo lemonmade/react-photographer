@@ -9,7 +9,7 @@ import Layout from './Layout';
 type Props = {
   children?: any,
   link?: string,
-  title: string,
+  title: any,
   subtitle?: string,
   accessory?: React.Element,
 };

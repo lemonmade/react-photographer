@@ -1,4 +1,5 @@
 @import 'foundation/borders';
+@import 'foundation/spacing';
 
 .Sidebar {
   display: flex;
@@ -15,4 +16,5 @@
   flex: 1 1 auto;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: spacing(loose);
 }
