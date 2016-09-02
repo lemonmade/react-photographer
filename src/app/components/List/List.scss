@@ -2,6 +2,7 @@
 @import 'foundation/colors';
 @import 'foundation/spacing';
 @import 'foundation/typography';
+@import 'foundation/utilities';
 
 .List,
 .GroupList {
@@ -20,12 +21,12 @@
 
 .GroupTitle {
   margin-left: -1 * spacing();
-  padding: spacing(tight) spacing();
   border-bottom: border();
   position: sticky;
   top: 0;
   left: 0;
   background: color(sky, light);
+  font-size: 1.15rem;
 }
 
 .GroupList > .Item > .ContentWrapper {
@@ -42,19 +43,20 @@
 
 .ContentWrapper {
   display: block;
-  padding: spacing(tight) spacing();
 }
 
 .Title {
-  font-size: 0.9rem;
+  font-size: 1.15rem;
 }
 
 .Subtitle {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   @include text-emphasis-subdued;
 }
 
 .Layout {
+  padding: spacing(tight) spacing();
+  min-height: rem(40px);
   display: flex;
   align-items: center;
 }

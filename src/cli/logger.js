@@ -18,6 +18,14 @@ export class Logger {
     if (!this.verbose) { return; }
     console.log(`${chalk.gray('[debug]')} ${message}`);
   }
+
+  log(message?: string) {
+    console.log(message);
+  }
+
+  error(message: string) {
+    console.error(message);
+  }
 }
 
 export default function logger(options: LoggerOptionsType = {}) {

@@ -36,7 +36,18 @@ async function run() {
     process.exit(code);
   }
 
-  process.on('SIGINT', () => finish(1));
+  process.on('SIGINT', async () => await finish(1));
+
+  process.on('uncaughtException', async (error) => {
+    logger.error(error);
+    await finish(1);
+  });
+
+  process.on('unhandledRejection', async (reason) => {
+    logger.log('\n');
+    logger.error(reason);
+    await finish(1);
+  });
 
   try {
     config = await loadConfig();

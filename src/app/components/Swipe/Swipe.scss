@@ -1,0 +1,56 @@
+
+
+.Swipe {
+  display: flex;
+  justify-content: center;
+}
+
+.ImageContainer {
+  position: relative;
+  pointer-events: none;
+}
+
+.Image {
+  white-space: nowrap;
+  overflow: hidden;
+  display: flex;
+}
+
+.reference {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.Bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-right: 2px solid black;
+}
+
+.Bar:hover {
+  cursor: col-resize;
+}
+
+.Bar::after,
+.Bar::before {
+  content: '';
+  display: block;
+  position: absolute;
+  height: 0.8rem;
+  width: 0.8rem;
+  background: black;
+  left: calc(-0.4rem + 1px);
+  border-radius: 50%;
+}
+
+.Bar::before {
+  top: -0.8rem;
+}
+
+.Bar::after {
+  bottom: -0.8rem;
+}

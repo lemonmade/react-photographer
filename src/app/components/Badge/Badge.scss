@@ -3,11 +3,11 @@
 @import 'foundation/spacing';
 
 .Badge {
-  height: 1rem;
-  min-width: 1rem;
+  height: 1.2rem;
+  min-width: 1.2rem;
   display: block;
-  display: inline-flex;
-  border-radius: 0.5rem;
+  display: flex;
+  border-radius: 0.6rem;
   overflow: hidden;
   background: color(sky, darker);
   line-height: 0;
@@ -23,10 +23,10 @@
 }
 
 .Segment {
-  height: 1rem;
-  font-size: 0.7rem;
+  height: 1.2rem;
+  font-size: 0.85rem;
   flex: 1 1 auto;
-  line-height: 1rem;
+  line-height: 1.2rem;
   padding: 0 spacing(extra-tight);
 }
 

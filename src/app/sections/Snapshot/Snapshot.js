@@ -1,13 +1,25 @@
+// @flow
+
 import React from 'react';
 import Relay from 'react-relay';
 
-function Snapshot({snapshot: {id, referenceImage, compareImage, diffImage}}) {
+import Swipe from '../../components/Swipe';
+import OnionSkin from '../../components/OnionSkin';
+
+function Snapshot({snapshot: {id, referenceImage, compareImage, passed}}) {
+  const component = passed
+    ? <img src={`/${referenceImage}`} alt="Reference" />
+    : (
+      <OnionSkin
+        comparisonImage={`/${compareImage}`}
+        referenceImage={`/${referenceImage}`}
+      />
+    );
+
   return (
     <div>
-      <h1>{id}</h1>
-      <img src={`/${referenceImage}`} alt="reference"></img>
-      <img src={`/${compareImage}`} alt="compare"></img>
-      <img src={`/${diffImage}`} alt="diff"></img>
+      <h1>{id} ({passed ? 'passed' : 'failed'})</h1>
+      {component}
     </div>
   );
 }
@@ -17,6 +29,7 @@ export default Relay.createContainer(Snapshot, {
     snapshot: () => Relay.QL`
       fragment on Snapshot {
         id
+        passed
         referenceImage
         compareImage
         diffImage

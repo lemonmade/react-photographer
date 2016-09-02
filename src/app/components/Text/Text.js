@@ -20,7 +20,6 @@ export default function Text(props: Props) {
 }
 
 function classNameForText({subdued}) {
-  console.log(styles);
   return css([
     styles.Text,
     subdued && styles.subdued,
