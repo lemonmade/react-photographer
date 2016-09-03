@@ -2,7 +2,6 @@
 
 import fs from 'fs-extra';
 import path from 'path';
-import ejs from 'ejs';
 
 import http from 'http';
 import type {Server as HTTPServer} from 'http';
@@ -12,9 +11,9 @@ import {Server as WebSocketServer} from 'ws';
 import {EventEmitter} from 'events';
 
 import webpack from 'webpack';
-import webpackDevMiddleware from 'webpack-dev-middleware';
 
-import type {ConfigType} from './config';
+import generateAssets from './assets';
+import type {ConfigType} from '../config';
 
 type ServerComponentsType = {
   httpServer: HTTPServer,
@@ -39,37 +38,15 @@ export class Server extends EventEmitter {
   }
 }
 
-function renderTemplate(template, data) {
-  return ejs.render(
-    fs.readFileSync(path.join(__dirname, `templates/${template}`), 'utf8'),
-    data
-  );
-}
-
 export default async function createServer(config: ConfigType): Promise<Server> {
-  fs.mkdirpSync('.snapshots');
-
-  fs.writeFileSync('.snapshots/index.js', renderTemplate('test.js.ejs', {
-    testComponents: config.files.map((test, index) => ({
-      name: `SnapshotTestComponent${index}`,
-      path: path.relative(path.resolve('./.snapshots'), test),
-    })),
-  }));
-
-  fs.writeFileSync('.snapshots/index.html', renderTemplate('test.html.ejs', {
-    scripts: ['<script type="text/javascript" src="/static/main.js"></script>'],
-    styles: ['<link rel="stylesheet" href="/static/main.css"></link>'],
-  }));
+  await generateAssets(config);
 
   const app = express();
 
-  app.use(webpackDevMiddleware(webpack(config.webpack), {
-    noInfo: true,
-    publicPath: config.webpack.output.publicPath,
-  }));
+  app.use(config.webpack.output.publicPath, express.static(config.assetPath));
 
   app.get('/', (req, res) => {
-    res.sendFile(path.resolve(process.cwd(), './.snapshots/index.html'));
+    res.sendFile(path.join(config.buildPath, 'index.html'));
   });
 
   const httpServer = http.createServer();

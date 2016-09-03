@@ -4,14 +4,14 @@
   <title>React snapshot tests</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <% styles.forEach(function(style) { %>
-    <%- style %>
+    <link rel="stylesheet" href="<%- style %>"></link>
   <% }); %>
 </head>
 
 <body>
   <div id="root"></div>
   <% scripts.forEach(function(script) { %>
-    <%- script %>
+    <script type="text/javascript" src="<%- script %>"></script>
   <% }); %>
 </body>
 </html>
