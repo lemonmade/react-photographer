@@ -22,31 +22,31 @@ async function run() {
   let server: Server;
   let env: EnvType;
 
-  async function finish(code) {
+  function finish(code) {
     if (client) {
-      await client.close();
+      client.close();
       logger.debug('Closed client');
     }
 
     if (server) {
-      await server.close();
+      server.close();
       logger.debug('Closed server');
     }
 
     process.exit(code);
   }
 
-  process.on('SIGINT', async () => await finish(1));
+  process.on('SIGINT', () => finish(1));
 
-  process.on('uncaughtException', async (error) => {
+  process.on('uncaughtException', (error) => {
     logger.error(error);
-    await finish(1);
+    finish(1);
   });
 
-  process.on('unhandledRejection', async (reason) => {
+  process.on('unhandledRejection', (reason) => {
     logger.log('\n');
     logger.error(reason);
-    await finish(1);
+    finish(1);
   });
 
   try {

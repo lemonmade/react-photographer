@@ -33,7 +33,7 @@ export class Server extends EventEmitter {
     });
   }
 
-  async close() {
+  close() {
     this.httpServer.close();
   }
 }

@@ -27,9 +27,8 @@ export class Client extends EventEmitter {
     );
   }
 
-  async close() {
-    await this.page.close();
-    await this.phantom.exit();
+  close() {
+    this.phantom.exit();
   }
 
   async connectToServer(server) {
