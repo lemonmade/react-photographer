@@ -52,7 +52,6 @@ async function run() {
   try {
     config = await loadConfig();
     logger.debug('Loaded config');
-    // logger.debug(JSON.stringify(config));
 
     [client, server] = await Promise.all([createClient(config), createServer(config)]);
     logger.debug('Created client and server');
@@ -60,10 +59,8 @@ async function run() {
     env = {client, server, config, logger};
     logger.debug('Created env');
 
-    await client.set({
-      onConsoleMessage: (arg) => logger.debug(arg),
-      onError: (arg) => logger.debug(arg),
-    });
+    client.on('onConsoleMessage', (arg) => logger.debug(arg));
+    client.on('onError', (arg) => logger.debug(arg));
 
     await client.connectToServer(server);
     logger.debug('Connected to server');
