@@ -7,6 +7,7 @@ import type {SnapshotDescriptorType, ViewportType} from '../types';
 
 type Props = {
   tests: ReactClass[] | React.Element[],
+  config: Object,
   children?: any,
 };
 
@@ -32,18 +33,9 @@ function allChildrenAreSnapshots(element: React.Element): boolean {
   return allSnapshots;
 }
 
-const DEFAULT_CONFIG = {
-  record: false,
-  skip: false,
-  exclusive: false,
-  groups: [],
-  threshold: 0,
-  viewports: [{height: 400, width: 400}],
-};
-
 function getSnapshots(
   element: React.Element<{props: SnapshotProps}>,
-  base: BaseDescriptorType = DEFAULT_CONFIG
+  base: BaseDescriptorType
 ): SnapshotDescriptorType[] {
   if (element.type.name !== 'Snapshot') {
     return [];
@@ -134,9 +126,18 @@ export default class SnapshotProvider extends Component {
 
   render() {
     let hasExclusiveTest = false;
-    const {tests} = this.props;
+    const {tests, config: {record, threshold, viewports}} = this.props;
+    const baseDescriptor = {
+      record,
+      threshold,
+      viewports,
+      skip: false,
+      exclusive: false,
+      groups: [],
+    };
+
     const snapshots = tests.reduce((all, Test) => {
-      const newSnapshots = getSnapshots(getWrappedTests(Test));
+      const newSnapshots = getSnapshots(getWrappedTests(Test), baseDescriptor);
       if (!hasExclusiveTest) {
         hasExclusiveTest = newSnapshots.some((snapshot) => snapshot.exclusive);
       }

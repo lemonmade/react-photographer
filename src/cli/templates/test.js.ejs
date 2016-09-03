@@ -12,7 +12,8 @@ function snapshotInteropRequire(mod) {
 
 ReactDOM.render(
 React.createElement(SnapshotProvider, {
-  tests: [<%= testComponents.map(function(testComponent) { return testComponent.name }).join(', ') %>]
+  tests: [<%= testComponents.map(function(testComponent) { return testComponent.name }).join(', ') %>],
+  config: <%- JSON.stringify(config) %>
 }),
 document.getElementById('root')
 );

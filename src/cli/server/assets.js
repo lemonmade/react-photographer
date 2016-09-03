@@ -17,19 +17,22 @@ type AssetListingType = {
 };
 
 export default async function generateAssets(config: ConfigType): Promise {
-  const {assetPath, buildPath} = config;
+  const {assetPath, buildPath, files} = config;
+
+  const {webpack: webpackConfig, ...rest} = config;
 
   fs.mkdirpSync(assetPath);
 
   fs.writeFileSync(path.join(buildPath, 'index.js'), renderTemplate('test.js.ejs', {
-    testComponents: config.files.map((test, index) => ({
+    config: rest,
+    testComponents: files.map((test, index) => ({
       name: `SnapshotTestComponent${index}`,
       path: path.relative(buildPath, test),
     })),
   }));
 
   await new Promise((resolve, reject) => {
-    webpack(config.webpack).run((err) => {
+    webpack(webpackConfig).run((err) => {
       if (err != null) {
         reject(err);
         return;

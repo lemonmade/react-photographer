@@ -3,6 +3,7 @@
 import {EventEmitter} from 'events';
 import {create as createPhantom} from 'phantom';
 import type {WebSocket} from 'ws';
+import type {Server} from './server';
 
 export class Client extends EventEmitter {
   phantom: Object;
@@ -15,11 +16,11 @@ export class Client extends EventEmitter {
     this.page = page;
   }
 
-  async open(...args) {
-    await this.page.open(...args);
+  async open(url: string) {
+    await this.page.open(url);
   }
 
-  async set(props) {
+  async set(props: {[key: string]: any}) {
     await Promise.all(
       Object
         .keys(props)
@@ -31,12 +32,12 @@ export class Client extends EventEmitter {
     this.phantom.exit();
   }
 
-  async connectToServer(server) {
+  async connectToServer(server: Server) {
     const connectionPromise = new Promise((resolve) => {
       server.on('connection', resolve);
     });
 
-    await this.open('http://localhost:3000/');
+    await this.open('http://localhost:3000/run');
     this.connection = await connectionPromise;
     this.connection.on('message', (message: string) => {
       this.emit('message', JSON.parse(message));

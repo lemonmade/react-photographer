@@ -45,7 +45,7 @@ export default async function createServer(config: ConfigType): Promise<Server> 
 
   app.use(config.webpack.output.publicPath, express.static(config.assetPath));
 
-  app.get('/', (req, res) => {
+  app.get('/run', (req, res) => {
     res.sendFile(path.join(config.buildPath, 'index.html'));
   });
 

@@ -26,6 +26,9 @@ export default async function getConfig(): Promise<ConfigType> {
   finalConfig.assetPath = config.assetPath || path.join(finalConfig.buildPath, 'assets');
   finalConfig.webpack = createWebpackConfig(finalConfig);
   finalConfig.files = glob.sync(config.files || []);
+  finalConfig.threshold = config.threshold == null ? 0 : config.threshold;
+  finalConfig.record = config.record == null ? false : config.record;
+  finalConfig.viewports = config.viewports || [{height: 400, width: 400}];
 
   return finalConfig;
 }
