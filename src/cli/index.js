@@ -13,14 +13,14 @@ import type {EnvType} from '../types';
 import * as Events from './events';
 import dotReporter from './reporters/dot';
 
-const argv = yargs.argv;
-const logger = createLogger({verbose: Boolean(argv.verbose)});
-
-async function run() {
+export default async function cli() {
   let config: ConfigType;
   let client: Client;
   let server: Server;
   let env: EnvType;
+
+  const argv = yargs.argv;
+  const logger = createLogger({verbose: Boolean(argv.verbose)});
 
   function finish(code) {
     if (client) {
@@ -77,5 +77,3 @@ async function run() {
     await finish(1);
   }
 }
-
-run();

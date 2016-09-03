@@ -5,7 +5,7 @@
 build/
 public/
 snapshots/
-.snapshots/
+lib/
 
 # Webpack build output of the js client
 backend/assets/client/
