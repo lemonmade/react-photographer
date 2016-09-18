@@ -127,7 +127,7 @@ function webpackConfigFactory({target, mode}, {json}) {
           NODE_ENV: JSON.stringify(mode),
           SERVER_PORT: JSON.stringify(process.env.SERVER_PORT),
           CLIENT_DEVSERVER_PORT: JSON.stringify(process.env.CLIENT_DEVSERVER_PORT),
-          DISABLE_SSR: process.env.DISABLE_SSR,
+          DISABLE_SSR: process.env.DISABLE_SSR === 'true',
         },
       }),
 
@@ -192,27 +192,16 @@ function webpackConfigFactory({target, mode}, {json}) {
             },
             ifServer({
               presets: [
-                {plugins: ['./src/data/babel-relay-plugin']},
-                'stage-2',
-                'react',
-              ],
-              plugins: [
-                'transform-class-properties',
-                'transform-export-extensions',
+                'shopify/node',
+                'shopify/react',
               ],
             }),
             ifClient({
               // For our clients code we will need to transpile our JS into
               // ES5 code for wider browser/device compatability.
               presets: [
-                {plugins: ['./src/data/babel-relay-plugin']},
-                ['es2015', {modules: false}],
-                'stage-2',
-                'react',
-              ],
-              plugins: [
-                'transform-class-properties',
-                'transform-export-extensions',
+                ['shopify/web', {modules: false}],
+                'shopify/react',
               ],
             })
           ),

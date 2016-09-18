@@ -19,7 +19,7 @@ export default async function cli() {
   let server: Server;
   let env: EnvType;
 
-  const argv = yargs.argv;
+  const argv = yargs.help().argv;
   const logger = createLogger({verbose: Boolean(argv.verbose)});
 
   function finish(code) {

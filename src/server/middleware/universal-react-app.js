@@ -15,16 +15,6 @@ import createStore from '../../app/store';
  * An express middleware that is capabable of doing React server side rendering.
  */
 function universalReactAppMiddleware(request, response, next) {
-  if (process.env.DISABLE_SSR) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('==> 🐌  Handling react route without SSR');  // eslint-disable-line no-console
-    }
-
-    const html = render();
-    response.status(200).send(html);
-    return;
-  }
-
   const history = createMemoryHistory(request.originalUrl);
 
   const networkLayer = new Relay.DefaultNetworkLayer(`http://localhost:${process.env.SERVER_PORT}/graphql`);
