@@ -10,7 +10,14 @@ const rootDir = __dirname;
 
 module.exports = {
   files: 'demo/**/*.snapshot.js',
+  record: true,
   webpack: {
+    resolve: {
+      modules: [
+        path.join(rootDir, 'demo'),
+        'node_modules',
+      ],
+    },
     module: {
       loaders: [
         {

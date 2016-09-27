@@ -5,6 +5,7 @@ import glob from 'globby';
 import path from 'path';
 
 import createWebpackConfig from './webpack';
+import createReportConfig from './report';
 
 export type UserConfigType = {
   files?: string[],
@@ -25,6 +26,7 @@ export default async function getConfig(): Promise<ConfigType> {
   finalConfig.buildPath = config.buildPath || path.join(finalConfig.snapshotRoot, 'build');
   finalConfig.assetPath = config.assetPath || path.join(finalConfig.buildPath, 'assets');
   finalConfig.webpack = createWebpackConfig(finalConfig);
+  finalConfig.report = createReportConfig(finalConfig);
   finalConfig.files = glob.sync(config.files || []);
   finalConfig.threshold = config.threshold == null ? 0 : config.threshold;
   finalConfig.record = config.record == null ? false : config.record;
