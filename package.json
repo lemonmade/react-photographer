@@ -7,7 +7,10 @@
     "node": "~6.3.0"
   },
   "scripts": {
-    "build": "rm -rf lib src/build && babel-node src/scripts/build && babel src --ignore src/app,src/scripts,src/build --out-dir lib && cp -R src/build lib && cp -R src/cli/templates lib/cli/templates",
+    "clean": "rm -rf lib build snapshots src/build",
+    "build:scripts": "babel src --ignore src/report/app,src/build --out-dir lib >/dev/null",
+    "build:copy": "cp -R src/build lib && cp -R src/run/templates lib/run/templates",
+    "build": "npm run clean && babel-node scripts/build && npm run build:scripts && npm run build:copy",
     "start": "node lib/cli/commands/report/index.js",
     "dev": "node src/server/dev"
   },

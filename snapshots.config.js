@@ -7,10 +7,8 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const rootDir = __dirname;
 
-
 module.exports = {
   files: 'demo/**/*.snapshot.js',
-  record: true,
   webpack: {
     resolve: {
       modules: [
@@ -54,7 +52,6 @@ module.exports = {
       ],
     },
     plugins: [
-      new webpack.NoErrorsPlugin(),
       new ExtractTextPlugin({filename: '[name].css', allChunks: true}),
     ],
   },

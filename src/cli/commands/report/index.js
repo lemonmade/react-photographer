@@ -1,14 +1,13 @@
-// import createServer from '../../../app/server';
-//
+// @flow
 
-import {resolve} from 'path';
-import loadConfig from '../../config';
+import report from '../../../report';
+import loadConfig from '../../../config';
 
-(async () => {
-  const {report: config} = await loadConfig();
+export const command = 'report';
+export const describe = 'Open a report for the last snapshot test';
+export const builder = {};
 
-  const server = require(
-    resolve(__dirname, '../../../build/server/main')
-  ).default;
-  server(config).listen(config.serverPort);
-})().catch((err) => console.error(err));
+export async function handler() {
+  const config = await loadConfig();
+  report(config);
+}

@@ -5,7 +5,7 @@ import path from 'path';
 import ejs from 'ejs';
 import webpack from 'webpack';
 
-import type {ConfigType} from '../config';
+import type {ConfigType} from '../../config';
 
 type AssetDetailsType = {
   js?: string[],
@@ -32,9 +32,12 @@ export default async function generateAssets(config: ConfigType): Promise {
   }));
 
   await new Promise((resolve, reject) => {
-    webpack(webpackConfig).run((err) => {
+    webpack(webpackConfig).run((err, stats) => {
       if (err != null) {
         reject(err);
+        return;
+      } else if (stats.hasErrors()) {
+        reject(new Error(stats.toString()));
         return;
       }
 

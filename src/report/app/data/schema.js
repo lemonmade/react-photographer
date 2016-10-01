@@ -8,7 +8,13 @@ import {
   GraphQLInt,
 } from 'graphql';
 
-import data from '../../../snapshots/data.json';
+let data;
+
+try {
+  data = require('../../../snapshots/data.json');
+} catch (err) {
+  data = {snapshots: []};
+}
 
 const ViewportType = new GraphQLObjectType({
   name: 'Viewport',
