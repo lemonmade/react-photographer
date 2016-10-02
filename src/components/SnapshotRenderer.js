@@ -45,7 +45,12 @@ export default class SnapshotRenderer extends Component {
 
   handleWebSocketOpen() {
     const snapshots = this.props.snapshots.map((snapshot) => {
+
+      // We want to leave these unused because we just want to extract the
+      // serializable parts of the config for the test.
+      // eslint-disable-next-line no-unused-vars
       const {children, action, ...rest} = snapshot;
+
       return rest;
     });
 

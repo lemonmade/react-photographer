@@ -12,8 +12,25 @@ import Text from 'components/Text';
 
 import './App.scss';
 
+type SnapshotType = {
+  id: string,
+  name: string,
+  component: string,
+  skipped: boolean,
+  passed: boolean,
+  groups: string[],
+  hasMultipleViewports: boolean,
+  viewport: {
+    height: number,
+    width: number,
+  },
+};
+
 type Props = {
   children?: any,
+  viewer: {
+    snapshots: SnapshotType[],
+  },
 };
 
 function App({children, viewer: {snapshots}}: Props) {
@@ -29,7 +46,7 @@ function App({children, viewer: {snapshots}}: Props) {
       <List>
         {Object.keys(groupedSnapshots).map((component, index) => {
           const groupDetails = groupedSnapshots[component].reduce((details, snapshot) => {
-            const prop = snapshot.skipped ? 'neutral' : (snapshot.passed ? 'success' : 'failure');
+            const prop = getLabelForSnapshot(snapshot);
             details[prop] = details[prop] || 0;
             details[prop] += 1;
             return details;
@@ -99,3 +116,19 @@ export default Relay.createContainer(App, {
     `,
   },
 });
+
+const Labels = {
+  skipped: 'neutral',
+  passed: 'success',
+  failed: 'failure',
+};
+
+function getLabelForSnapshot(snapshot) {
+  if (snapshot.skipped) {
+    return Labels.skipped;
+  } else if (snapshot.passed) {
+    return Labels.passed;
+  } else {
+    return Labels.failed;
+  }
+}

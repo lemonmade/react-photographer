@@ -3,18 +3,24 @@
 import React from 'react';
 import Relay from 'react-relay';
 
-import Swipe from 'components/Swipe';
 import OnionSkin from 'components/OnionSkin';
 
-function Snapshot({snapshot: {id, referenceImage, compareImage, passed}}) {
+type Props = {
+  snapshot: {
+    id: string,
+    referenceImage: string,
+    compareImage: string,
+    passed: boolean,
+  },
+};
+
+function Snapshot({snapshot: {id, referenceImage, compareImage, passed}}: Props) {
   const component = passed
-    ? <img src={`/${referenceImage}`} alt="Reference" />
-    : (
-      <OnionSkin
-        comparisonImage={`/${compareImage}`}
-        referenceImage={`/${referenceImage}`}
-      />
-    );
+    ? <img src={`/${referenceImage}`} alt="Reference snapshot" />
+    : <OnionSkin
+      comparisonImage={`/${compareImage}`}
+      referenceImage={`/${referenceImage}`}
+      />;
 
   return (
     <div>

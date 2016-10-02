@@ -1,5 +1,7 @@
+// @flow
+
 import run from '../../../run';
-import report from '../../../report'
+import runReport from '../../../report';
 import loadConfig from '../../../config';
 
 export const builder = {
@@ -13,7 +15,12 @@ export const builder = {
   },
 };
 
-export async function handler({record, report}) {
+type RunOptionsType = {
+  record?: boolean,
+  report?: boolean,
+};
+
+export async function handler({record, report}: RunOptionsType) {
   const config = await loadConfig();
 
   if (record != null) {
@@ -21,5 +28,10 @@ export async function handler({record, report}) {
   }
 
   await run(config);
-  process.exit(0);
+
+  if (report) {
+    runReport(config);
+  } else {
+    process.exit(0);
+  }
 }

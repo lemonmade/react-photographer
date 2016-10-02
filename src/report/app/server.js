@@ -1,3 +1,5 @@
+// @flow
+
 import createServer from '@lemonmade/react-universal/lib/server';
 
 import schema from 'data/schema';

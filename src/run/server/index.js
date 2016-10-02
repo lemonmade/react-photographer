@@ -1,6 +1,5 @@
 // @flow
 
-import fs from 'fs-extra';
 import path from 'path';
 
 import http from 'http';
@@ -8,12 +7,10 @@ import type {Server as HTTPServer} from 'http';
 
 import express from 'express';
 import {Server as WebSocketServer} from 'ws';
-import {EventEmitter} from 'events';
-
-import webpack from 'webpack';
+import EventEmitter from 'events';
 
 import generateAssets from './assets';
-import type {ConfigType} from '../config';
+import type {ConfigType} from '../../config';
 
 type ServerComponentsType = {
   httpServer: HTTPServer,
@@ -23,6 +20,7 @@ type ServerComponentsType = {
 export class Server extends EventEmitter {
   httpServer: HTTPServer;
   webSocketServer: WebSocketServer;
+  closed: boolean = false;
 
   constructor({httpServer, webSocketServer}: ServerComponentsType) {
     super();
@@ -34,6 +32,9 @@ export class Server extends EventEmitter {
   }
 
   close() {
+    if (this.closed) { return; }
+
+    this.closed = true;
     this.httpServer.close();
   }
 }
@@ -53,7 +54,8 @@ export default async function createServer(config: ConfigType): Promise<Server> 
   httpServer.on('request', app);
 
   await new Promise((resolve) => {
-    httpServer.listen(3000, () => { resolve(); });
+    httpServer.on('listening', () => resolve());
+    httpServer.listen(3000);
   });
 
   const webSocketServer = new WebSocketServer({server: httpServer});

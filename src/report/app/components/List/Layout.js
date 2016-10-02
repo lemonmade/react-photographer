@@ -6,7 +6,7 @@ import styles from './List.scss';
 
 type Props = {
   children?: any,
-  accessory?: React.Element,
+  accessory?: React$Element<*>,
 };
 
 export default function Layout({children, accessory}: Props) {

@@ -5,8 +5,8 @@ import styles from './Frame.scss';
 
 type Props = {
   children?: any,
-  sidebar: React.Element,
-  header: React.Element,
+  sidebar: React$Element<*>,
+  header: React$Element<*>,
 };
 
 export default function Frame({children, sidebar, header}: Props) {

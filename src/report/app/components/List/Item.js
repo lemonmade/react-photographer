@@ -1,4 +1,5 @@
 // @flow
+/* eslint react/forbid-component-props: off */
 
 import React from 'react';
 import Link from 'react-router/lib/Link';
@@ -11,7 +12,7 @@ type Props = {
   link?: string,
   title: any,
   subtitle?: string,
-  accessory?: React.Element,
+  accessory?: React$Element<*>,
 };
 
 export default function ListItem({title, link, accessory, subtitle}: Props) {

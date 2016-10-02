@@ -1,0 +1,13 @@
+declare class phantom$Page {
+  open(url: string): Promise<void>;
+  property(prop: boolean, value: any): Promise<void>;
+}
+
+declare class phantom$Phantom {
+  exit(): void;
+  createPage(): Promise<phantom$Page>;
+}
+
+declare module phantom {
+  declare export function create(): Promise<phantom$Phantom>;
+}

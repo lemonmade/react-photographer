@@ -1,6 +1,6 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-var SnapshotProvider = snapshotInteropRequire(require('react-snapshots/components/SnapshotProvider'));
+var SnapshotProvider = snapshotInteropRequire(require('react-snapshots/lib/components/SnapshotProvider'));
 
 <% testComponents.forEach(function(testComponent) { %>
   var <%= testComponent.name %> = snapshotInteropRequire(require('<%= testComponent.path %>'))

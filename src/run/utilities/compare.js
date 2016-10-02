@@ -1,6 +1,8 @@
+// @flow
+
 import resemble from 'node-resemble-js';
 
-export default function compareFiles(fileOne, fileTwo) {
+export default function compareFiles(fileOne: string, fileTwo: string) {
   return new Promise((resolve) => {
     resemble(fileOne)
       .compareTo(fileTwo)

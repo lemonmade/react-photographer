@@ -1,3 +1,6 @@
+// @flow
+/* eslint-env node */
+
 import createClientRenderer from '@lemonmade/react-universal/lib/client';
 
 import initialRoutes from 'sections';

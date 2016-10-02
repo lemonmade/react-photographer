@@ -1,12 +1,10 @@
-// @flow
-
 import React, {Component, Children} from 'react';
 import SnapshotRenderer from './SnapshotRenderer';
 import type {Props as SnapshotProps} from './Snapshot';
 import type {SnapshotDescriptorType, ViewportType} from '../types';
 
 type Props = {
-  tests: ReactClass[] | React.Element[],
+  tests: React$Component<*>[] | React$Element<{props: SnapshotProps}>[],
   config: Object,
   children?: any,
 };
@@ -21,7 +19,7 @@ type BaseDescriptorType = {
   component?: string,
 }
 
-function allChildrenAreSnapshots(element: React.Element): boolean {
+function allChildrenAreSnapshots(element: React$Element<>): boolean {
   if (Children.count(element.props.children) === 0) { return false; }
 
   let allSnapshots = true;
@@ -34,7 +32,7 @@ function allChildrenAreSnapshots(element: React.Element): boolean {
 }
 
 function getSnapshots(
-  element: React.Element<{props: SnapshotProps}>,
+  element: React$Element<{props: SnapshotProps}>,
   base: BaseDescriptorType
 ): SnapshotDescriptorType[] {
   if (element.type.name !== 'Snapshot') {
@@ -109,7 +107,7 @@ function getSnapshots(
   });
 }
 
-function getWrappedTests(Comp): React.Element {
+function getWrappedTests(Comp): React$Element<*> {
   if (Comp.render) {
     return Comp.render();
   } else if (Comp.prototype.render) {

@@ -1,8 +1,11 @@
+// @flow
+
 import {resolve} from 'path';
 
 export default function createReportServerConfig() {
   const projectRoot = resolve(__dirname, '..');
   const appDir = resolve(projectRoot, './report/app');
+
   return {
     projectRoot,
     appDir,

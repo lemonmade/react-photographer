@@ -1,7 +1,9 @@
-import type {Client} from './cli/client';
-import type {Server} from './cli/server';
-import type {Logger} from './cli/logger';
-import type {ConfigType} from './cli/config';
+// @flow
+
+import type {Client} from './run/client';
+import type {Server} from './run/server';
+import type {Logger} from './run/logger';
+import type {ConfigType} from './config';
 
 export type EnvType = {
   client: Client,
@@ -33,8 +35,8 @@ export type TestType = {
 };
 
 export type SnapshotDescriptorType = TestType & {
-  children: React.Element,
-  action?: (action: Object) => void | Promise,
+  children: React$Element<any>,
+  action?: (action: Object) => void | Promise<any>,
 };
 
 export type TestResultType = {

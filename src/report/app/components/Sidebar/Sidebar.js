@@ -5,7 +5,7 @@ import styles from './Sidebar.scss';
 
 type Props = {
   children?: any,
-  header: React.Element,
+  header: React$Element<*>,
 };
 
 export default function Sidebar({children, header}: Props) {

@@ -1,0 +1,14 @@
+// copied from https://github.com/facebook/flow/blob/2600ed9b43d6b8af461d3713889e5c8d2cdbd069/lib/core.js to add hot properties
+
+declare var module: {
+  exports: any,
+  require(id: string): any,
+  id: string,
+  filename: string,
+  loaded: boolean,
+  parent: any,
+  children: Array<any>,
+  hot: {
+    accept: (id: string, callback?: () => void) => void,
+  },
+};

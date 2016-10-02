@@ -1,6 +1,6 @@
 // @flow
 
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
 import {css} from 'utilities/styles';
 import styles from './Swipe.scss';
 
@@ -50,14 +50,14 @@ export default class Swipe extends Component {
           ref={this.setImageContainer}
         >
           <div className={styles.Image}>
-            <img src={comparisonImage} />
+            <img src={comparisonImage} alt="comparison snapshot" />
           </div>
 
           <div
             className={css([styles.Image, styles.reference])}
             style={{width: proportionAsPercentage}}
           >
-            <img src={referenceImage} />
+            <img src={referenceImage} alt="reference snapshot" />
           </div>
 
           <SwipeBar position={proportionRevealed} />

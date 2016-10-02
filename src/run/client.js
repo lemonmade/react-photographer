@@ -1,6 +1,6 @@
 // @flow
 
-import {EventEmitter} from 'events';
+import EventEmitter from 'events';
 import {create as createPhantom} from 'phantom';
 import type {WebSocket} from 'ws';
 import type {Server} from './server';
@@ -9,8 +9,9 @@ export class Client extends EventEmitter {
   phantom: Object;
   page: Object;
   connection: ?WebSocket;
+  closed: boolean = false;
 
-  constructor(phantom, page) {
+  constructor(phantom: phantom$Phantom, page: phantom$Page) {
     super();
     this.phantom = phantom;
     this.page = page;
@@ -21,6 +22,7 @@ export class Client extends EventEmitter {
   }
 
   async set(props: {[key: string]: any}) {
+    this.page.property('foo', 2);
     await Promise.all(
       Object
         .keys(props)
@@ -29,6 +31,9 @@ export class Client extends EventEmitter {
   }
 
   close() {
+    if (this.closed) { return; }
+
+    this.closed = true;
     this.phantom.exit();
   }
 

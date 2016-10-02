@@ -1,17 +1,16 @@
 // @flow
-/* eslint shopify/require-flow: 0 */
 
 import React, {isValidElement, Children} from 'react';
 import {render, unmountComponentAtNode} from 'react-dom';
 
-export function wrapWithComponent(element: ?React.Element, Component: ReactClass, props?: Object) {
+export function wrapWithComponent(element: ?React$Element, Component: React$Component, props?: Object) {
   if (element == null) { return element; }
   return isElementOfType(element, Component)
     ? element
     : <Component {...props}>{element}</Component>;
 }
 
-export function isElementOfType(element: ?React.Element, Components: ReactClass | ReactClass[]) {
+export function isElementOfType(element: ?React$Element, Components: React$Component | React$Component[]) {
   if (element == null || !isValidElement(element)) { return false; }
 
   const stringifiedComponent = element.type.toString();
@@ -23,14 +22,14 @@ export function isElementOfType(element: ?React.Element, Components: ReactClass 
 export function elementChildren(
   children: mixed,
   predicate: (() => boolean) = () => true
-): React.Element[] {
+): React$Element[] {
   return Children.toArray(children).filter((child) => isValidElement(child) && predicate(child));
 }
 
 export function augmentComponent(
-  Component: ReactClass,
+  Component: React$Component,
   methods: {[key: string]: Function}
-): ReactClass {
+): React$Component {
   for (const [name, method] of Object.entries(methods)) {
     if (typeof method !== 'function') { continue; }
 
@@ -51,7 +50,7 @@ export function layeredComponent({idPrefix = 'Layer'}: {idPrefix?: string}) {
     return `${idPrefix}${layerIndex++}`;
   }
 
-  return function createLayeredComponent(Component: ReactClass) {
+  return function createLayeredComponent(Component: React$Component) {
     return augmentComponent(Component, {
       componentWillMount() {
         const node = document.createElement('div');

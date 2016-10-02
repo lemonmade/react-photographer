@@ -5,7 +5,18 @@ import Relay from 'react-relay';
 
 import styles from './Home.scss';
 
-function Home({viewer}) {
+type SnapshotType = {
+  skipped: boolean,
+  passed: boolean,
+};
+
+type Props = {
+  viewer: {
+    snapshots: SnapshotType[],
+  },
+};
+
+function Home({viewer}: Props) {
   const {snapshots} = viewer;
   const {passes, skips, failures} = snapshots.reduce((all, snapshot) => {
     if (snapshot.skipped) {

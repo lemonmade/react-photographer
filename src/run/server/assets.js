@@ -16,7 +16,7 @@ type AssetListingType = {
   [key: string]: AssetDetailsType,
 };
 
-export default async function generateAssets(config: ConfigType): Promise {
+export default async function generateAssets(config: ConfigType): Promise<void> {
   const {assetPath, buildPath, files} = config;
 
   const {webpack: webpackConfig, ...rest} = config;

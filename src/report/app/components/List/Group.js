@@ -1,13 +1,13 @@
 // @flow
 
-import React, {Children} from 'react';
+import React from 'react';
 import styles from './List.scss';
 import Layout from './Layout';
 
 type Props = {
   children?: any,
   title: string,
-  accessory?: React.Element,
+  accessory?: React$Element<*>,
 };
 
 export default function ListGroup({children, title, accessory}: Props) {

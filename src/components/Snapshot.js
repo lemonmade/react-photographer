@@ -9,7 +9,7 @@ type CaseType = {
 
 export type Props = {
   children?: any,
-  component?: ReactClass,
+  component?: React$Component<*>,
   name?: string,
   record?: boolean,
   skip?: boolean,

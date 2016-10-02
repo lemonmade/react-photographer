@@ -29,7 +29,7 @@ export default function createWebpackConfig(config: ConfigType) {
 
   webpack.resolve = webpack.resolve || {};
   webpack.resolve.alias = webpack.resolve.alias || {};
-  webpack.resolve.alias['react-snapshots'] = path.resolve(__dirname, '..');
+  webpack.resolve.alias['react-snapshots'] = path.resolve(__dirname, '..', '..');
 
   return webpack;
 }

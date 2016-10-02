@@ -1,15 +1,15 @@
-// flow
+// @flow
 
 import fs from 'fs-extra';
 import path from 'path';
-import {EventEmitter} from 'events';
+import EventEmitter from 'events';
 
 import * as Events from './events';
 import compareFiles from './utilities/compare';
-import {Rect} from './utilities/geometry';
+import {Rect} from '../utilities/geometry';
 import type {EnvType, MessageType, TestType, TestResultType} from '../types';
 
-class Runner extends EventEmitter {
+export class Runner extends EventEmitter {
   tests: TestType[] = [];
   results: TestResultType[] = [];
   currentTestIndex: number = 0;
@@ -148,6 +148,8 @@ function baseResultForTest(test: TestType): TestResultType {
     passed: false,
     failed: false,
     recorded: record,
+
+    /* $FlowIssue: doesn't understand the spread for groups, but it definitely works */
     referenceImage: path.join('snapshots', component, ...groups, `${name}${viewportString}.reference.png`),
   };
 }
@@ -186,6 +188,6 @@ async function handleAction(message, ...args) {
   await action(message, ...args);
 }
 
-export default function runner(...args) {
-  return new Runner(...args);
+export default function runner(env: EnvType) {
+  return new Runner(env);
 }

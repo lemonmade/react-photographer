@@ -1,3 +1,8 @@
+// @flow
+
+import fs from 'fs-extra';
+import {resolve} from 'path';
+
 import {
   GraphQLObjectType,
   GraphQLSchema,
@@ -11,7 +16,7 @@ import {
 let data;
 
 try {
-  data = require('../../../snapshots/data.json');
+  data = fs.readJSONSync(resolve(process.cwd(), 'snapshots/data.json'));
 } catch (err) {
   data = {snapshots: []};
 }

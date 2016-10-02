@@ -1,6 +1,6 @@
 // @flow
 
-import React, {Children} from 'react';
+import React from 'react';
 import styles from './List.scss';
 
 type Props = {

@@ -1,21 +1,22 @@
 // @flow
 
 import {getPositionForNode} from './dom';
+import type {Rect} from '../../utilities/geometry';
 
 export default class ActionManager {
   node: HTMLElement;
   websocket: WebSocket;
 
-  constructor({node, websocket}) {
+  constructor({node, websocket}: {node: HTMLElement, websocket: WebSocket}) {
     this.node = node;
     this.websocket = websocket;
   }
 
-  get position() {
+  get position(): Rect {
     return getPositionForNode(this.node);
   }
 
-  performAction(action) {
+  performAction(action: string) {
     const {websocket} = this;
 
     return new Promise((resolve) => {

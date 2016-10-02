@@ -4,7 +4,15 @@ import React from 'react';
 import {css, variation} from 'utilities/styles';
 import styles from './Badge.scss';
 
-type StatusType = 'success' | 'failure' | 'neutral';
+const Statuses = {
+  success: 'success',
+  failure: 'failure',
+  neutral: 'neutral',
+};
+
+type StatusType = $Keys<typeof Statuses>;
+
+const statusMap: {[key: string]: ?StatusType} = Statuses;
 
 type SplitStatusType = {
   [key: StatusType]: number,
@@ -15,24 +23,29 @@ type Props = {
 };
 
 export default function Badge({status}: Props) {
-  if (status == null || typeof status === 'string') {
-    return <div className={classNameForBadge({status})} />;
+  if (typeof status === 'object') {
+    return (
+      <div className={styles.Badge}>
+        {Object.keys(status).map((key) => {
+          if (statusMap[key]) {
+            return (
+              <div
+                key={key}
+                className={classNameForBadgeSegment({status: key})}
+              >
+                {/* $FlowIssue: flow doesn't like it, but it's fine */}
+                {status[key]}
+              </div>
+            );
+          }
+
+          return null;
+        })}
+      </div>
+    );
   }
 
-  return (
-    <div className={styles.Badge}>
-      {Object.keys(status).map((key) => {
-        return (
-          <div
-            key={key}
-            className={classNameForBadgeSegment({status: key})}
-          >
-            {status[key]}
-          </div>
-        );
-      })}
-    </div>
-  );
+  return <div className={classNameForBadge({status})} />;
 }
 
 function classNameForBadgeSegment({status}) {
