@@ -23,13 +23,8 @@ module.exports = {
           exclude: [/node_modules/],
           query: {
             presets: [
-              'es2015',
-              'stage-2',
-              'react',
-            ],
-            plugins: [
-              'transform-class-properties',
-              'transform-export-extensions',
+              'shopify/web',
+              'shopify/react',
             ],
           },
         },

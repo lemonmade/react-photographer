@@ -1,9 +1,9 @@
 // @flow
 
-import build from '@lemonmade/react-universal-dev/lib/build';
+import build from '@lemonmade/react-universal-dev/build';
 import loadConfig from '../src/config';
 
 (async () => {
   const {report: config} = await loadConfig();
-  await build({mode: 'production'}, config);
+  await build(config, {mode: 'production'});
 })();

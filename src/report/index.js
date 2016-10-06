@@ -1,13 +1,8 @@
 // @flow
 
-import {resolve} from 'path';
+import {start} from '@lemonmade/react-universal/server';
 import type {ConfigType} from '../config';
 
-export default function report({report: config}: ConfigType) {
-  // $FlowIgnore: sorry, need the dynamic require.
-  const server = require(
-    resolve(__dirname, '../build/server/main')
-  ).default;
-
-  server(config).listen(config.serverPort);
+export default function report(config: ConfigType) {
+  start(config.report, config);
 }

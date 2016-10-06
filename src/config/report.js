@@ -1,8 +1,9 @@
 // @flow
 
+import type {ConfigType} from '@lemonmade/react-universal-config';
 import {resolve} from 'path';
 
-export default function createReportServerConfig() {
+export default function createReportServerConfig(): ConfigType {
   const projectRoot = resolve(__dirname, '..');
   const appDir = resolve(projectRoot, './report/app');
 

@@ -1,7 +1,5 @@
 [ignore]
 <PROJECT_ROOT>/node_modules/fbjs
-<PROJECT_ROOT>/node_modules/@lemonmade/react-universal-dev
-<PROJECT_ROOT>/node_modules/@lemonmade/react-universal
 <PROJECT_ROOT>/demo
 
 [libs]
