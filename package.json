@@ -10,16 +10,17 @@
     "lint": "eslint . --max-warnings 0",
     "flow": "flow",
     "check": "npm run lint && npm run flow",
-    "clean": "rm -rf lib build snapshots src/build",
+    "clean": "rm -rf lib build src/build",
     "build:app": "babel-node scripts/build",
     "build:scripts": "babel src --ignore src/report/app,src/build --out-dir lib >/dev/null",
     "build:copy": "cp -R src/build lib && cp -R src/run/templates lib/run",
     "build": "npm run clean && npm run build:app && npm run build:scripts && npm run build:copy",
     "start": "node lib/cli/commands/report/index.js",
+    "example:custom": "pushd examples/custom-webpack-config && npm test && popd",
     "dev": "node src/server/dev"
   },
   "bin": {
-    "snapshots": "./bin/snapshots"
+    "photographer": "./bin/photographer"
   },
   "repository": {
     "type": "git",
@@ -84,7 +85,7 @@
     "babel-cli": "^6.16.0",
     "babel-preset-shopify": "file:../javascript/packages/babel-preset-shopify",
     "babel-relay-plugin": "^0.9.3",
-    "eslint": "^3.3.1",
+    "eslint": "^3.5.0",
     "eslint-plugin-shopify": "^14.0.0",
     "extract-text-webpack-plugin": "^2.0.0-beta.3",
     "flow-bin": "^0.33.0",

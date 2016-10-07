@@ -1,77 +1,80 @@
 // @flow
 
 import fs from 'fs-extra';
-import {resolve} from 'path';
+import {join} from 'path';
 
-import {
-  GraphQLObjectType,
-  GraphQLSchema,
-  GraphQLString,
-  GraphQLList,
-  GraphQLBoolean,
-  GraphQLFloat,
-  GraphQLInt,
-} from 'graphql';
+import {buildSchema} from 'graphql';
 
-let data;
+export async function createRootValue({detailsFile, resultsFile}) {
+  let snapshotDetails;
+  let snapshotResults;
 
-try {
-  data = fs.readJSONSync(resolve(process.cwd(), 'snapshots/data.json'));
-} catch (err) {
-  data = {snapshots: []};
+  try {
+    snapshotDetails = fs.readJSONSync(detailsFile)
+  } catch (error) {
+    snapshotDetails = {snapshots: []};
+  }
+
+  try {
+    snapshotResults = fs.readJSONSync(resultsFile);
+  } catch (error) {
+    snapshotResults = {};
+  }
+
+  return {
+    snapshots() { return []; },
+    snapshot({id}) {},
+    acceptSnapshot({id}) {},
+  };
 }
 
-const ViewportType = new GraphQLObjectType({
-  name: 'Viewport',
-  fields: {
-    height: {type: GraphQLInt},
-    width: {type: GraphQLInt},
-  },
-});
+export const schema = buildSchema(`
+  type Viewport {
+    height: Int!
+    width: Int!
+  }
 
-const SnapshotType = new GraphQLObjectType({
-  name: 'Snapshot',
-  fields: {
-    id: {type: GraphQLString},
-    name: {type: GraphQLString},
-    component: {type: GraphQLString},
-    groups: {type: new GraphQLList(GraphQLString)},
-    passed: {type: GraphQLBoolean},
-    failed: {type: GraphQLBoolean},
-    recorded: {type: GraphQLBoolean},
-    skipped: {type: GraphQLBoolean},
-    threshold: {type: GraphQLFloat},
-    mismatch: {type: GraphQLFloat},
-    referenceImage: {type: GraphQLString},
-    compareImage: {type: GraphQLString},
-    diffImage: {type: GraphQLString},
-    viewport: {type: ViewportType},
-    hasMultipleViewports: {type: GraphQLBoolean},
-  },
-});
+  type Image {
+    src: String!
+    height: Float!
+    width: Float!
+  }
 
-const ViewerType = new GraphQLObjectType({
-  name: 'Viewer',
-  fields: {
-    snapshots: {type: new GraphQLList(SnapshotType)},
-  },
-});
+  type Result {
+    passed: Boolean!
+    failed: Boolean!
+    recorded: Boolean!
+    skipped: Boolean!
+    threshold: Float!
+    mismatch: Float!
+    compareImage: Image
+    diffImage: Image
+    viewport: Viewport!
+    hasMultipleViewports: Boolean!
+  }
 
-export default new GraphQLSchema({
-  query: new GraphQLObjectType({
-    name: 'Query',
-    fields: {
-      viewer: {
-        type: ViewerType,
-        resolve: () => data,
-      },
-      snapshot: {
-        type: SnapshotType,
-        args: {
-          id: {type: GraphQLString},
-        },
-        resolve: (_, {id}) => data.snapshots.find((snapshot) => snapshot.id === id),
-      },
-    },
-  }),
-});
+  enum Status {
+    TESTED
+    UNTESTED
+    ACCEPTED
+  }
+
+  type Snapshot {
+    id: ID!
+    name: String!
+    component: String!
+    groups: [String!]!
+    status: Status!
+    referenceImage: Image
+    lastResult: Result
+  }
+
+  type Query {
+    snapshots: [Snapshot!]!
+    snapshot(id: ID!): Snapshot
+  }
+
+  type Mutation {
+    acceptSnapshot(id: ID!): Snapshot
+  }
+`);

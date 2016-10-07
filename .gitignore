@@ -1,6 +1,8 @@
 lib/
-snapshots/
 src/build/
+snapshots/
+!snapshots/reference
+.photographer/
 
 node_modules
 *.log

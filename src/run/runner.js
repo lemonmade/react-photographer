@@ -46,10 +46,11 @@ export class Runner extends EventEmitter {
   }
 
   async runTest() {
-    const {currentTest, currentTestIndex, env: {client}} = this;
+    const {currentTest, currentTestIndex, env: {client, config}} = this;
 
     if (currentTest == null) {
-      fs.writeFileSync(path.join(__dirname, '../../snapshots/data.json'), JSON.stringify({snapshots: this.results}, null, 2));
+      fs.mkdirpSync(path.dirname(config.detailsFile));
+      fs.writeFileSync(config.detailsFile, JSON.stringify({snapshots: this.results}, null, 2));
       this.emit(Events.end, this);
       return;
     }
@@ -84,7 +85,7 @@ export class Runner extends EventEmitter {
         break;
       }
       case 'READY_FOR_MY_CLOSEUP': {
-        const {currentTest, env: {client}} = this;
+        const {currentTest, env: {client, config}} = this;
 
         if (currentTest == null) { return; }
 
@@ -92,31 +93,47 @@ export class Runner extends EventEmitter {
         const viewportString = viewportStringForTest(currentTest);
         const {position} = message;
 
-        const snapshotRoot = path.join(__dirname, '../../snapshots');
+        const {snapshotRoot} = config;
         const snapshotPath = path.join(component, ...groups);
-        const dir = path.join(snapshotRoot, snapshotPath);
-        fs.mkdirpSync(dir);
+        const paths = {
+          reference: path.join(snapshotRoot, 'reference', snapshotPath, `${name}${viewportString}.reference.png`),
+          compare: path.join(snapshotRoot, 'compare', snapshotPath, `${name}${viewportString}.compare.png`),
+          diff: path.join(snapshotRoot, 'diff', snapshotPath, `${name}${viewportString}.diff.png`),
+        };
 
         const result = baseResultForTest(currentTest);
+        let referenceExists: boolean;
 
-        await client.set({clipRect: position});
-        await client.page.render(path.join(dir, `${name}${viewportString}.${record ? 'reference' : 'compare'}.png`));
+        try {
+          referenceExists = fs.statSync(paths.reference).isFile();
+        } catch (error) {
+          referenceExists = false;
+        }
+
+        if (!record && !referenceExists) {
+          result.passed = false;
+          result.failed = true;
+          result.reason = 'Missing reference snapshot';
+        } else {
+          fs.mkdirpSync(path.dirname(record ? paths.reference : paths.compare));
+          await client.set({clipRect: position});
+          await client.page.render(record ? paths.reference : paths.compare);
+        }
+
         await client.page.sendEvent('mousemove', 10000, 10000);
         await client.page.sendEvent('mouseup');
 
-        if (!record) {
-          const comparisonResult = await compareFiles(
-            path.join(dir, `${name}${viewportString}.compare.png`),
-            path.join(dir, `${name}${viewportString}.reference.png`)
-          );
+        if (!record && referenceExists) {
+          const comparisonResult = await compareFiles(paths.compare, paths.reference);
           const passed = (comparisonResult.misMatchPercentage <= threshold);
-          await writeComparisonToFile(comparisonResult, path.join(dir, `${name}${viewportString}.diff.png`));
+          fs.mkdirpSync(path.dirname(paths.diff));
+          await writeComparisonToFile(comparisonResult, paths.diff);
 
           result.mismatch = comparisonResult.misMatchPercentage;
           result.passed = passed;
           result.failed = !passed;
-          result.compareImage = path.join('snapshots', snapshotPath, `${name}${viewportString}.compare.png`);
-          result.diffImage = path.join('snapshots', snapshotPath, `${name}${viewportString}.diff.png`);
+          result.compareImage = paths.compare;
+          result.diffImage = paths.diff;
         }
 
         this.addResult(result);
@@ -153,6 +170,8 @@ function baseResultForTest(test: TestType): TestResultType {
     referenceImage: path.join('snapshots', component, ...groups, `${name}${viewportString}.reference.png`),
   };
 }
+
+
 
 async function writeComparisonToFile(comparison, file) {
   await new Promise((resolve) => {

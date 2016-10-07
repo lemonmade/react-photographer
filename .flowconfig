@@ -3,7 +3,7 @@
 <PROJECT_ROOT>/demo
 
 [libs]
-interfaces/modules
+flow/modules
 
 [options]
 suppress_type=$FlowIssue
@@ -16,4 +16,4 @@ esproposal.class_instance_fields=enable
 unsafe.enable_getters_and_setters=true
 module.system.node.resolve_dirname=node_modules
 module.system.node.resolve_dirname=src/report/app
-module.name_mapper.extension='scss' -> '<PROJECT_ROOT>/interfaces/css.js.flow'
+module.name_mapper.extension='scss' -> '<PROJECT_ROOT>/flow/css.js.flow'

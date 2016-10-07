@@ -8,16 +8,22 @@ import compression from 'compression';
 
 import type {ConfigType} from '@lemonmade/react-universal-config';
 
-import schema from 'data/schema';
+import {schema, createRootValue} from 'data/schema';
 import routes from 'sections';
 import createStore from 'store';
 
 import type {ConfigType as SnapshotConfigType} from '../../config';
 
-export default function createServer(config: ConfigType, {snapshotRoot}: SnapshotConfigType) {
+export default async function createServer(config: ConfigType, snapshotConfig: SnapshotConfigType) {
   const store = createStore();
   const {publicPath, buildDir} = config;
-  const universalReactAppMiddleware = createUniversalReactAppMiddleware({schema, routes, store}, config);
+  const {snapshotRoot} = snapshotConfig;
+  const universalReactAppMiddleware = createUniversalReactAppMiddleware({
+    schema,
+    rootValue: await createRootValue(config),
+    routes,
+    store,
+  }, config);
 
   // Create our express based server.
   const app = express();
@@ -28,6 +34,7 @@ export default function createServer(config: ConfigType, {snapshotRoot}: Snapsho
   app.use('/graphql', graphql({schema, pretty: true, graphiql: true}));
 
   app.use(
+    // TODO
     `/${path.basename(snapshotRoot)}`,
     express.static(snapshotRoot)
   );

@@ -7,11 +7,11 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const rootDir = __dirname;
 
 module.exports = {
-  files: 'demo/**/*.snapshot.js',
+  files: 'app/**/*.snapshot.js',
   webpack: {
     resolve: {
       modules: [
-        path.join(rootDir, 'demo'),
+        path.join(rootDir, 'app'),
         'node_modules',
       ],
     },
@@ -42,7 +42,7 @@ module.exports = {
     },
     sassLoader: {
       includePaths: [
-        path.join(rootDir, 'demo'),
+        path.join(rootDir, 'app'),
       ],
     },
     plugins: [

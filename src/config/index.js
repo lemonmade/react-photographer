@@ -11,7 +11,7 @@ export type UserConfigType = {
   files?: string[],
   snapshotRoot?: string,
   buildPath?: string,
-  assetPath?: string,
+  webpack?: Object,
 };
 
 export type ConfigType = {
@@ -19,12 +19,14 @@ export type ConfigType = {
 };
 
 export default async function getConfig(): Promise<ConfigType> {
-  const {config}: {config: UserConfigType} = await cosmiconfig('snapshots');
+  const {config}: {config: UserConfigType} = await cosmiconfig('photographer');
   const finalConfig = {...config};
 
   finalConfig.snapshotRoot = config.snapshotRoot || path.resolve('./snapshots');
-  finalConfig.buildPath = config.buildPath || path.join(finalConfig.snapshotRoot, 'build');
+  finalConfig.detailsFile = config.detailsFile || path.join(finalConfig.snapshotRoot, 'details.json');
+  finalConfig.buildPath = config.buildPath || path.resolve('./.photographer');
   finalConfig.assetPath = config.assetPath || path.join(finalConfig.buildPath, 'assets');
+  finalConfig.resultsFile = config.resultsFile || path.join(finalConfig.buildPath, 'results.json');
   finalConfig.webpack = createWebpackConfig(finalConfig);
   finalConfig.report = createReportConfig(finalConfig);
   finalConfig.files = glob.sync(config.files || []);

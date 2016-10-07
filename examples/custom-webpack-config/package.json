@@ -2,6 +2,9 @@
   "name": "react-snapshots-demo",
   "private": true,
   "description": "A working example of using react-snapshots",
+  "scripts": {
+    "test": "../../bin/photographer"
+  },
   "dependencies": {
     "react": "15.3.0",
     "react-dom": "15.3.0",
