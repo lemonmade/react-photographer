@@ -11,7 +11,8 @@ import type {EnvType, MessageType, TestType, TestResultType} from '../types';
 
 export class Runner extends EventEmitter {
   tests: TestType[] = [];
-  results: TestResultType[] = [];
+  details = [];
+  results = {};
   currentTestIndex: number = 0;
   passCount: number = 0;
   failCount: number = 0;
@@ -28,7 +29,7 @@ export class Runner extends EventEmitter {
     });
   }
 
-  addResult(result: TestResultType) {
+  addResult(details, result: TestResultType) {
     if (result.passed) {
       this.passCount += 1;
     } else if (result.skipped) {
@@ -37,7 +38,8 @@ export class Runner extends EventEmitter {
       this.failCount += 1;
     }
 
-    this.results.push(result);
+    this.details.push(details);
+    this.results[details.id] = result;
     this.emit(Events.test, result);
   }
 
@@ -50,14 +52,15 @@ export class Runner extends EventEmitter {
 
     if (currentTest == null) {
       fs.mkdirpSync(path.dirname(config.detailsFile));
-      fs.writeFileSync(config.detailsFile, JSON.stringify({snapshots: this.results}, null, 2));
+      fs.mkdirpSync(path.dirname(config.resultsFile));
+      fs.writeFileSync(config.detailsFile, JSON.stringify({snapshots: this.details}, null, 2));
+      fs.writeFileSync(config.resultsFile, JSON.stringify(this.results, null, 2));
       this.emit(Events.end, this);
       return;
     }
 
     if (currentTest.skip) {
-      const result = baseResultForTest(currentTest);
-      this.addResult(result);
+      this.addResult(baseDetailsForTest(currentTest, config), baseResultForTest(currentTest));
       this.currentTestIndex += 1;
       this.runTest();
       return;
@@ -72,7 +75,8 @@ export class Runner extends EventEmitter {
       case 'TEST_DETAILS': {
         const {tests} = message;
         this.tests = tests;
-        this.results = [];
+        this.details = [];
+        this.results = {};
         this.currentTestIndex = 0;
         this.passCount = 0;
         this.failCount = 0;
@@ -89,8 +93,8 @@ export class Runner extends EventEmitter {
 
         if (currentTest == null) { return; }
 
-        const {record, groups, component, name, threshold} = currentTest;
-        const viewportString = viewportStringForTest(currentTest);
+        const {record, groups, component, name, threshold, viewport} = currentTest;
+        const viewportString = `@${viewport.width}x${viewport.height}`;
         const {position} = message;
 
         const {snapshotRoot} = config;
@@ -101,7 +105,9 @@ export class Runner extends EventEmitter {
           diff: path.join(snapshotRoot, 'diff', snapshotPath, `${name}${viewportString}.diff.png`),
         };
 
+        const details = baseDetailsForTest(currentTest, config);
         const result = baseResultForTest(currentTest);
+
         let referenceExists: boolean;
 
         try {
@@ -118,6 +124,7 @@ export class Runner extends EventEmitter {
           fs.mkdirpSync(path.dirname(record ? paths.reference : paths.compare));
           await client.set({clipRect: position});
           await client.page.render(record ? paths.reference : paths.compare);
+          details.image = {src: path.relative(path.dirname(config.snapshotRoot), paths.reference)};
         }
 
         await client.page.sendEvent('mousemove', 10000, 10000);
@@ -132,11 +139,11 @@ export class Runner extends EventEmitter {
           result.mismatch = comparisonResult.misMatchPercentage;
           result.passed = passed;
           result.failed = !passed;
-          result.compareImage = paths.compare;
-          result.diffImage = paths.diff;
+          result.image = {src: path.relative(path.dirname(config.snapshotRoot), paths.compare)};
+          result.diff = {src: path.relative(path.dirname(config.snapshotRoot), paths.diff)};
         }
 
-        this.addResult(result);
+        this.addResult(details, result);
         this.currentTestIndex += 1;
         this.runTest();
         break;
@@ -145,29 +152,28 @@ export class Runner extends EventEmitter {
   }
 }
 
-function viewportStringForTest({hasMultipleViewports, viewport: {height, width}}: TestType): string {
-  return hasMultipleViewports ? `@${width}x${height}` : '';
+function baseResultForTest({record, skip, threshold}: TestType) {
+  return {
+    recorded: record,
+    skipped: skip,
+    passed: false,
+    failed: false,
+    threshold,
+    mismatch: 0,
+  };
 }
 
-function baseResultForTest(test: TestType): TestResultType {
-  const {record, groups, component, name, threshold, viewport, skip, hasMultipleViewports} = test;
-  const viewportString = viewportStringForTest(test);
+function baseDetailsForTest(test: TestType, config): TestResultType {
+  const {name, component, groups, viewport, hasMultipleViewports} = test;
+  const parts = [component, ...groups, `${name}@${viewport.width}x${viewport.height}`];
 
   return {
-    id: [component, ...groups, name, viewportString.substring(1)].filter((part) => Boolean(part)).join('-'),
+    id: parts.join('-'),
     name,
     component,
     groups,
     viewport,
-    threshold,
     hasMultipleViewports,
-    skipped: skip,
-    passed: false,
-    failed: false,
-    recorded: record,
-
-    /* $FlowIssue: doesn't understand the spread for groups, but it definitely works */
-    referenceImage: path.join('snapshots', component, ...groups, `${name}${viewportString}.reference.png`),
   };
 }
 

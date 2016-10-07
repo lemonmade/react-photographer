@@ -47,10 +47,8 @@ export const schema = buildSchema(`
     skipped: Boolean!
     threshold: Float!
     mismatch: Float!
-    compareImage: Image
-    diffImage: Image
-    viewport: Viewport!
-    hasMultipleViewports: Boolean!
+    image: Image
+    diff: Image
   }
 
   enum Status {
@@ -65,8 +63,10 @@ export const schema = buildSchema(`
     component: String!
     groups: [String!]!
     status: Status!
-    referenceImage: Image
-    lastResult: Result
+    viewport: Viewport!
+    hasMultipleViewports: Boolean!
+    image: Image
+    result: Result
   }
 
   type Query {
