@@ -47,6 +47,7 @@ export const schema = buildSchema(`
     skipped: Boolean!
     threshold: Float!
     mismatch: Float!
+    duration: Float!
     image: Image
     diff: Image
   }

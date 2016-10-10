@@ -5,7 +5,7 @@ import path from 'path';
 import ejs from 'ejs';
 import webpack from 'webpack';
 
-import type {ConfigType} from '../../config';
+import type {ConfigType} from '../../../config';
 
 type AssetDetailsType = {
   js?: string[],
@@ -61,7 +61,7 @@ export default async function generateAssets(config: ConfigType): Promise<void> 
 
 function renderTemplate(template, data) {
   return ejs.render(
-    fs.readFileSync(path.join(__dirname, `../templates/${template}`), 'utf8'),
+    fs.readFileSync(path.join(__dirname, 'templates', template), 'utf8'),
     data
   );
 }

@@ -10,7 +10,7 @@ import {Server as WebSocketServer} from 'ws';
 import EventEmitter from 'events';
 
 import generateAssets from './assets';
-import type {ConfigType} from '../../config';
+import type {ConfigType} from '../../../config';
 
 type ServerComponentsType = {
   httpServer: HTTPServer,
@@ -21,14 +21,13 @@ export class Server extends EventEmitter {
   httpServer: HTTPServer;
   webSocketServer: WebSocketServer;
   closed: boolean = false;
+  address = 'http://localhost:3000/';
 
   constructor({httpServer, webSocketServer}: ServerComponentsType) {
     super();
     this.httpServer = httpServer;
     this.webSocketServer = webSocketServer;
-    this.webSocketServer.on('connection', (...args) => {
-      this.emit('connection', ...args);
-    });
+    this.webSocketServer.on('connection', this.emit.bind(this, 'connection'));
   }
 
   close() {
@@ -46,7 +45,7 @@ export default async function createServer(config: ConfigType): Promise<Server> 
 
   app.use(config.webpack.output.publicPath, express.static(config.assetPath));
 
-  app.get('/run', (req, res) => {
+  app.get('/', (req, res) => {
     res.sendFile(path.join(config.buildPath, 'index.html'));
   });
 

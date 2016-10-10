@@ -10,34 +10,34 @@ import {Rect} from '../utilities/geometry';
 import type {EnvType, MessageType, TestType, TestResultType} from '../types';
 
 export class Runner extends EventEmitter {
-  tests: TestType[] = [];
-  details = [];
-  results = {};
+  instructions = [];
+  tests = [];
   currentTestIndex: number = 0;
-  passCount: number = 0;
-  failCount: number = 0;
-  skipCount: number = 0;
   env: EnvType;
+
+  end = () => { throw new Error('Tried to end before starting!'); };
+
+  handleMessage = handleMessage.bind(this);
 
   constructor(env: EnvType) {
     super();
 
     this.env = env;
-    env.client.on('message', (message) => {
-      env.logger.debug(`Received message: ${JSON.stringify(message)}`);
-      this.handleMessage(message);
+    env.client.on('message', this.handleMessage);
+  }
+
+  async run() {
+    return new Promise((resolve) => {
+      this.end = () => {
+        this.emit(Events.end, calculateResults(this.tests));
+        resolve();
+      };
     });
+
+    await Promise.all()
   }
 
   addResult(details, result: TestResultType) {
-    if (result.passed) {
-      this.passCount += 1;
-    } else if (result.skipped) {
-      this.skipCount += 1;
-    } else {
-      this.failCount += 1;
-    }
-
     this.details.push(details);
     this.results[details.id] = result;
     this.emit(Events.test, result);
@@ -51,11 +51,7 @@ export class Runner extends EventEmitter {
     const {currentTest, currentTestIndex, env: {client, config}} = this;
 
     if (currentTest == null) {
-      fs.mkdirpSync(path.dirname(config.detailsFile));
-      fs.mkdirpSync(path.dirname(config.resultsFile));
-      fs.writeFileSync(config.detailsFile, JSON.stringify({snapshots: this.details}, null, 2));
-      fs.writeFileSync(config.resultsFile, JSON.stringify(this.results, null, 2));
-      this.emit(Events.end, this);
+      this.end();
       return;
     }
 
@@ -74,13 +70,9 @@ export class Runner extends EventEmitter {
     switch (message.type) {
       case 'TEST_DETAILS': {
         const {tests} = message;
-        this.tests = tests;
-        this.details = [];
-        this.results = {};
+        this.instructions = tests;
+        this.tests = [];
         this.currentTestIndex = 0;
-        this.passCount = 0;
-        this.failCount = 0;
-        this.skipCount = 0;
         this.runTest();
         break;
       }
@@ -152,6 +144,23 @@ export class Runner extends EventEmitter {
   }
 }
 
+function calculateResults(testResults) {
+  return Object
+    .keys(testResults)
+    .map((id) => testResults[id])
+    .reduce((results, {passed, skipped}) => {
+      if (skipped) {
+        results.skipCount += 1;
+      } else if (passed) {
+        results.passCount += 1;
+      } else {
+        results.failCount += 1;
+      }
+
+      return results;
+    }, {passCount: 0, failCount: 0, skipCount: 0});
+}
+
 function baseResultForTest({record, skip, threshold}: TestType) {
   return {
     recorded: record,
@@ -176,8 +185,6 @@ function baseDetailsForTest(test: TestType, config): TestResultType {
     hasMultipleViewports,
   };
 }
-
-
 
 async function writeComparisonToFile(comparison, file) {
   await new Promise((resolve) => {
