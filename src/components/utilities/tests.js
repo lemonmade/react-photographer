@@ -1,13 +1,10 @@
-import React, {Component, Children} from 'react';
-import SnapshotRenderer from './SnapshotRenderer';
-import type {Props as SnapshotProps} from './Snapshot';
-import type {SnapshotDescriptorType, ViewportType} from '../types';
+import {Children} from 'react';
 
-type Props = {
-  tests: React$Component<*>[] | React$Element<{props: SnapshotProps}>[],
-  config: Object,
-  children?: any,
-};
+import Snapshot from '../Snapshot';
+import type {Props as SnapshotProps} from '../Snapshot';
+import type {SnapshotDescriptorType, ViewportType} from '../../types';
+
+export type TestSourceType = React$Component<*>[] | React$Element<{props: SnapshotProps}>[];
 
 type BaseDescriptorType = {
   record: boolean,
@@ -19,23 +16,39 @@ type BaseDescriptorType = {
   component?: string,
 }
 
-function allChildrenAreSnapshots(element: React$Element<>): boolean {
-  if (Children.count(element.props.children) === 0) { return false; }
+/* eslint-env node */
 
-  let allSnapshots = true;
+export default function getTestInformation(sources: TestSourceType, {record, threshold, viewports}) {
+  let hasExclusiveTest = false;
+  const baseDescriptor = {
+    record,
+    threshold,
+    viewports,
+    skip: false,
+    exclusive: false,
+    groups: [],
+  };
 
-  Children.forEach(element.props.children, (child) => {
-    allSnapshots = allSnapshots && (child != null) && (child.type.name === 'Snapshot');
-  });
+  const tests = sources.reduce((all, Test) => {
+    const newTests = getTestInformationFromElement(getElement(Test), baseDescriptor);
+    if (!hasExclusiveTest) {
+      hasExclusiveTest = newTests.some((test) => test.exclusive);
+    }
+    return all.concat(newTests);
+  }, []);
 
-  return allSnapshots;
+  if (hasExclusiveTest) {
+    tests.forEach((test) => { test.skip = !test.exclusive; });
+  }
+
+  return tests;
 }
 
-function getSnapshots(
+function getTestInformationFromElement(
   element: React$Element<{props: SnapshotProps}>,
   base: BaseDescriptorType
 ): SnapshotDescriptorType[] {
-  if (element.type.name !== 'Snapshot') {
+  if (element.type !== Snapshot) {
     return [];
   }
 
@@ -57,7 +70,7 @@ function getSnapshots(
     const snapshots = [];
 
     Children.forEach(children, (child) => {
-      snapshots.push(...getSnapshots(child, {...newBase, viewports: finalViewports}));
+      snapshots.push(...getTestInformationFromElement(child, {...newBase, viewports: finalViewports}));
     });
 
     return snapshots;
@@ -70,11 +83,14 @@ function getSnapshots(
       newBase.groups = [...base.groups, name];
     }
 
+    const baseID = [newBase.component, ...newBase.groups].join('-');
+
     const starterCases = hasName
       ? finalViewports.map((viewport) => {
         return {
+          id: `${baseID}-base-${viewport.width}x${viewport.height}`,
           name: 'base',
-          children,
+          element: children,
           viewport,
           hasMultipleViewports,
           ...newBase,
@@ -85,8 +101,9 @@ function getSnapshots(
     return starterCases.concat(...cases.map((aCase) => {
       return finalViewports.map((viewport) => {
         return {
+          id: `${baseID}-${aCase.name}-${viewport.width}x${viewport.height}`,
           ...aCase,
-          children,
+          element: children,
           viewport,
           hasMultipleViewports,
           ...newBase,
@@ -95,11 +112,14 @@ function getSnapshots(
     }));
   }
 
+  const baseID = [newBase.component, ...newBase.groups, name].join('-');
+
   return finalViewports.map((viewport) => {
     return {
+      id: `${baseID}-${viewport.width}x${viewport.height}`,
       name,
       action,
-      children,
+      element: children,
       viewport,
       hasMultipleViewports,
       ...newBase,
@@ -107,7 +127,7 @@ function getSnapshots(
   });
 }
 
-function getWrappedTests(Comp): React$Element<*> {
+function getElement(Comp): React$Element<*> {
   if (Comp.render) {
     return Comp.render();
   } else if (Comp.prototype.render) {
@@ -119,35 +139,14 @@ function getWrappedTests(Comp): React$Element<*> {
   }
 }
 
-export default class SnapshotProvider extends Component {
-  props: Props;
+function allChildrenAreSnapshots(element: React$Element<>): boolean {
+  if (Children.count(element.props.children) === 0) { return false; }
 
-  render() {
-    let hasExclusiveTest = false;
-    const {tests, config: {record, threshold, viewports}} = this.props;
-    const baseDescriptor = {
-      record,
-      threshold,
-      viewports,
-      skip: false,
-      exclusive: false,
-      groups: [],
-    };
+  let allSnapshots = true;
 
-    const snapshots = tests.reduce((all, Test) => {
-      const newSnapshots = getSnapshots(getWrappedTests(Test), baseDescriptor);
-      if (!hasExclusiveTest) {
-        hasExclusiveTest = newSnapshots.some((snapshot) => snapshot.exclusive);
-      }
-      return [...all, ...newSnapshots];
-    }, []);
+  Children.forEach(element.props.children, (child) => {
+    allSnapshots = allSnapshots && (child != null) && (child.type === Snapshot);
+  });
 
-    if (hasExclusiveTest) {
-      snapshots.forEach((snapshot) => {
-        snapshot.skip = !snapshot.exclusive;
-      });
-    }
-
-    return <SnapshotRenderer snapshots={snapshots} />;
-  }
+  return allSnapshots;
 }

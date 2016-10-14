@@ -19,7 +19,14 @@ export type ConfigType = {
 };
 
 export default async function getConfig(): Promise<ConfigType> {
-  const {config}: {config: UserConfigType} = await cosmiconfig('photographer');
+  let config;
+
+  try {
+    config = (await cosmiconfig('photographer')).config;
+  } catch (error) {
+    config = {};
+  }
+
   const finalConfig = {...config};
 
   finalConfig.snapshotRoot = config.snapshotRoot || path.resolve('./snapshots');
@@ -33,6 +40,7 @@ export default async function getConfig(): Promise<ConfigType> {
   finalConfig.threshold = config.threshold == null ? 0 : config.threshold;
   finalConfig.record = config.record == null ? false : config.record;
   finalConfig.viewports = config.viewports || [{height: 400, width: 400}];
+  finalConfig.port = config.port || 3000;
 
   return finalConfig;
 }

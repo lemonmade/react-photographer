@@ -1,6 +1,7 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-var SnapshotProvider = snapshotInteropRequire(require('react-snapshots/lib/components/SnapshotProvider'));
+
+var Runner = snapshotInteropRequire(require('react-snapshots/lib/components/Runner'));
 
 <% testComponents.forEach(function(testComponent) { %>
   var <%= testComponent.name %> = snapshotInteropRequire(require('<%= testComponent.path %>'))
@@ -11,7 +12,7 @@ function snapshotInteropRequire(mod) {
 }
 
 ReactDOM.render(
-React.createElement(SnapshotProvider, {
+React.createElement(Runner, {
   tests: [<%= testComponents.map(function(testComponent) { return testComponent.name }).join(', ') %>],
   config: <%- JSON.stringify(config) %>
 }),

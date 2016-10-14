@@ -6,4 +6,8 @@ import loadConfig from '../src/config';
 (async () => {
   const {report: config} = await loadConfig();
   await build(config, {mode: 'production'});
-})();
+})()
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

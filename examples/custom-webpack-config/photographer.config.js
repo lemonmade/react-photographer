@@ -31,18 +31,33 @@ module.exports = {
         {
           test: /\.scss$/,
           loader: ExtractTextPlugin.extract({
-            notExtractLoader: 'style-loader',
-            loader: 'css-loader?modules&importLoaders=1&localIdentName=[path]___[name]__[local]___[hash:base64:5]!sass-loader!postcss-loader',
+            fallbackLoader: 'style-loader',
+            loader: [
+              {
+                loader: 'css-loader',
+                query: {
+                  modules: true,
+                  importLoaders: 1,
+                  localIdentName: '[path]___[name]__[local]___[hash:base64:5]',
+                },
+              },
+              {
+                loader: 'sass-loader',
+                query: {
+                  includePaths: [
+                    path.join(rootDir, 'app'),
+                  ],
+                },
+              },
+              {
+                loader: 'postcss-loader',
+                options: {
+                  plugins: [autoprefixer],
+                },
+              },
+            ],
           }),
         },
-      ],
-    },
-    postcss() {
-      return [autoprefixer];
-    },
-    sassLoader: {
-      includePaths: [
-        path.join(rootDir, 'app'),
       ],
     },
     plugins: [

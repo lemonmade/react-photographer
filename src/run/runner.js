@@ -17,7 +17,7 @@ export class Runner extends EventEmitter {
 
   end = () => { throw new Error('Tried to end before starting!'); };
 
-  handleMessage = handleMessage.bind(this);
+  handleMessage = this.handleMessage.bind(this);
 
   constructor(env: EnvType) {
     super();

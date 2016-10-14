@@ -1,5 +1,6 @@
 // @flow
 
+import url from 'url';
 import createClient from './client';
 import createServer from './server';
 
@@ -38,9 +39,9 @@ class Env {
     this.client = client;
   }
 
-  async connect(callback) {
+  async connect(handler) {
     const connection = await this.createConnection();
-    const result = await callback(connection);
+    const result = await handler(connection);
     this.releaseConnection(connection);
     return result;
   }
@@ -51,12 +52,20 @@ class Env {
     if (connection == null) {
       if (this.limit > 0) {
         this.limit -= 1;
+        const id = this.limit.toString();
 
         const connectionPromise = new Promise((resolve) => {
-          this.server.once('connection', (connection) => resolve(connection));
+          const handleConnection = (newConnection) => {
+            const {query} = url.parse(newConnection.upgradeReq.url, true);
+            if (query.connection !== id) { return; }
+            this.server.removeListener('connection', handleConnection);
+            resolve(newConnection);
+          };
+
+          this.server.on('connection', handleConnection);
         });
-        const page = await this.client.open(this.server.address);
-        const connection = await connectionPromise;
+        const page = await this.client.open(`${this.server.address}?connection=${id}`);
+        connection = await connectionPromise;
         return new Connection(connection, page);
       } else {
         return await new Promise((resolve) => {

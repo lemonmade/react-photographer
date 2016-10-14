@@ -54,7 +54,7 @@ export default async function createServer(config: ConfigType): Promise<Server> 
 
   await new Promise((resolve) => {
     httpServer.on('listening', () => resolve());
-    httpServer.listen(3000);
+    httpServer.listen(config.port);
   });
 
   const webSocketServer = new WebSocketServer({server: httpServer});

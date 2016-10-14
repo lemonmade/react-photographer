@@ -10,6 +10,10 @@ class Page {
     this.page = page;
   }
 
+  async render(...args) {
+    await this.page.render(...args);
+  }
+
   async open(...args) {
     await this.page.open(...args);
   }
@@ -18,7 +22,7 @@ class Page {
     await Promise.all(
       Object
         .keys(props)
-        .map((prop) => this.page.property(prop, props[prop]))
+        .map((prop) => this.page.property(prop, props[prop])),
     );
   }
 
@@ -39,6 +43,8 @@ export class Client {
   async open(url: string) {
     const page = new Page(await this.phantom.createPage());
     page.page.on('onConsoleMessage', function(msg) { console.log('CONSOLE', msg); });
+    page.page.on('onError', function(msg) { console.log('ERROR', msg); });
+    page.page.on('onResourceError', function(msg) { console.log('RESOURCE ERROR', msg); });
     await page.open(url);
     return page;
   }
