@@ -9,7 +9,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Badge/base@400x400.reference.png",
+        "height": 31,
+        "width": 67
+      }
     },
     {
       "id": "Badge-success-400x400",
@@ -20,7 +25,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Badge/success@400x400.reference.png",
+        "height": 31,
+        "width": 67
+      }
     },
     {
       "id": "Badge-subdued-400x400",
@@ -31,7 +41,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Badge/subdued@400x400.reference.png",
+        "height": 31,
+        "width": 67
+      }
     },
     {
       "id": "Badge-info-400x400",
@@ -42,7 +57,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Badge/info@400x400.reference.png",
+        "height": 31,
+        "width": 67
+      }
     },
     {
       "id": "Badge-attention-400x400",
@@ -53,7 +73,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Badge/attention@400x400.reference.png",
+        "height": 31,
+        "width": 67
+      }
     },
     {
       "id": "Badge-warning-400x400",
@@ -64,7 +89,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Badge/warning@400x400.reference.png",
+        "height": 31,
+        "width": 67
+      }
     },
     {
       "id": "Badge-critical-400x400",
@@ -75,7 +105,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Badge/critical@400x400.reference.png",
+        "height": 31,
+        "width": 67
+      }
     },
     {
       "id": "Button-base-base-400x400",
@@ -88,7 +123,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/base/base@400x400.reference.png",
+        "height": 38,
+        "width": 93
+      }
     },
     {
       "id": "Button-base-hover-400x400",
@@ -101,7 +141,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/base/hover@400x400.reference.png",
+        "height": 38,
+        "width": 93
+      }
     },
     {
       "id": "Button-base-active-400x400",
@@ -114,7 +159,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/base/active@400x400.reference.png",
+        "height": 38,
+        "width": 93
+      }
     },
     {
       "id": "Button-primary-base-400x400",
@@ -127,7 +177,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/primary/base@400x400.reference.png",
+        "height": 38,
+        "width": 93
+      }
     },
     {
       "id": "Button-primary-hover-400x400",
@@ -140,7 +195,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/primary/hover@400x400.reference.png",
+        "height": 38,
+        "width": 93
+      }
     },
     {
       "id": "Button-primary-active-400x400",
@@ -153,7 +213,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/primary/active@400x400.reference.png",
+        "height": 38,
+        "width": 93
+      }
     },
     {
       "id": "Button-destructive-base-400x400",
@@ -166,7 +231,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/destructive/base@400x400.reference.png",
+        "height": 38,
+        "width": 93
+      }
     },
     {
       "id": "Button-destructive-hover-400x400",
@@ -179,7 +249,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/destructive/hover@400x400.reference.png",
+        "height": 38,
+        "width": 93
+      }
     },
     {
       "id": "Button-destructive-active-400x400",
@@ -192,7 +267,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/destructive/active@400x400.reference.png",
+        "height": 38,
+        "width": 93
+      }
     },
     {
       "id": "Button-disabled-base-400x400",
@@ -205,7 +285,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/disabled/base@400x400.reference.png",
+        "height": 38,
+        "width": 93
+      }
     },
     {
       "id": "Button-disabled-hover-400x400",
@@ -218,7 +303,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/disabled/hover@400x400.reference.png",
+        "height": 38,
+        "width": 93
+      }
     },
     {
       "id": "Button-disabled-active-400x400",
@@ -231,7 +321,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/disabled/active@400x400.reference.png",
+        "height": 38,
+        "width": 93
+      }
     },
     {
       "id": "Button-link-base-400x400",
@@ -244,7 +339,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/link/base@400x400.reference.png",
+        "height": 34,
+        "width": 85
+      }
     },
     {
       "id": "Button-link-hover-400x400",
@@ -257,7 +357,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/link/hover@400x400.reference.png",
+        "height": 34,
+        "width": 85
+      }
     },
     {
       "id": "Button-link-active-400x400",
@@ -270,7 +375,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Button/link/active@400x400.reference.png",
+        "height": 34,
+        "width": 85
+      }
     },
     {
       "id": "Button-full-width-400x200",
@@ -281,7 +391,12 @@
         "height": 200,
         "width": 400
       },
-      "hasMultipleViewports": true
+      "hasMultipleViewports": true,
+      "image": {
+        "src": "snapshots/reference/Button/full-width@400x200.reference.png",
+        "height": 38,
+        "width": 400
+      }
     },
     {
       "id": "Button-full-width-200x200",
@@ -292,7 +407,12 @@
         "height": 200,
         "width": 200
       },
-      "hasMultipleViewports": true
+      "hasMultipleViewports": true,
+      "image": {
+        "src": "snapshots/reference/Button/full-width@200x200.reference.png",
+        "height": 38,
+        "width": 200
+      }
     },
     {
       "id": "Word-base-400x400",
@@ -303,7 +423,12 @@
         "height": 400,
         "width": 400
       },
-      "hasMultipleViewports": false
+      "hasMultipleViewports": false,
+      "image": {
+        "src": "snapshots/reference/Word/base@400x400.reference.png",
+        "height": 63,
+        "width": 400
+      }
     }
   ]
 }

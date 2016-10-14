@@ -48,8 +48,17 @@ export default async function run(config: ConfigType) {
   env = await createEnv(config);
   logger.debug('Created env');
 
+  let currentSnapshotDetails;
+
+  try {
+    currentSnapshotDetails = fs.readJSONSync(config.detailsFile).snapshots;
+  } catch (error) {
+    currentSnapshotDetails = [];
+  }
+
   async function runTest(test) {
     const {id, name, component, groups, viewport, hasMultipleViewports, threshold, record, skip} = test;
+    const currentSnapshotDetail = currentSnapshotDetails.find((snapshotDetail) => snapshotDetail.id === id) || {};
 
     const result = {
       passed: false,
@@ -59,6 +68,10 @@ export default async function run(config: ConfigType) {
       mismatch: 0,
       duration: 0,
       threshold,
+      reason: null,
+      details: null,
+      image: null,
+      diff: null,
     };
 
     const snapshot = {
@@ -69,6 +82,7 @@ export default async function run(config: ConfigType) {
       viewport,
       hasMultipleViewports,
       result,
+      image: currentSnapshotDetail.image,
     };
 
     let duration = 0;
@@ -223,6 +237,7 @@ export default async function run(config: ConfigType) {
 function writeResults(tests, {detailsFile, resultsFile}) {
   const [details, results] = tests.reduce((everything, test) => {
     const {result, ...detail} = test;
+    result.id = detail.id;
     everything[0].push(detail);
     everything[1].push(result);
     return everything;

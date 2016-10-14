@@ -260,10 +260,10 @@ async@^1.3.0, async@^1.5.0:
   resolved "https://registry.yarnpkg.com/async/-/async-1.5.2.tgz#ec6a61ae56480c0c3cb241c95618e20892f9672a"
 
 async@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/async/-/async-2.0.1.tgz#b709cc0280a9c36f09f4536be823c838a9049e25"
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/async/-/async-2.1.1.tgz#e11b6d10043f2254efb61a21163d840ccddb8d28"
   dependencies:
-    lodash "^4.8.0"
+    lodash "^4.14.0"
 
 async@~0.2.6:
   version "0.2.10"
@@ -284,14 +284,14 @@ asynckit@^0.4.0:
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
 
 autoprefixer@^6.3.1, autoprefixer@^6.5.0:
-  version "6.5.0"
-  resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-6.5.0.tgz#910de0aa0f22af4c7d50367cbc9d4d412945162f"
+  version "6.5.1"
+  resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-6.5.1.tgz#ae759a5221e709f3da17c2d656230e67c43cbb75"
   dependencies:
     browserslist "~1.4.0"
-    caniuse-db "^1.0.30000540"
+    caniuse-db "^1.0.30000554"
     normalize-range "^0.1.2"
     num2fraction "^1.2.2"
-    postcss "^5.2.2"
+    postcss "^5.2.4"
     postcss-value-parser "^3.2.3"
 
 aws-sign2@~0.6.0:
@@ -915,8 +915,8 @@ babel-preset-react@^6.16.0:
     babel-plugin-transform-react-jsx-source "^6.3.13"
 
 babel-preset-shopify@^15.0.0, babel-preset-shopify@15.0.x:
-  version "15.0.0"
-  resolved "https://registry.yarnpkg.com/babel-preset-shopify/-/babel-preset-shopify-15.0.0.tgz#7cbe6d2d37bf7e6b9fd71c8b5d980b00d4dc413c"
+  version "15.0.1"
+  resolved "https://registry.yarnpkg.com/babel-preset-shopify/-/babel-preset-shopify-15.0.1.tgz#90b2947ce0ceda115eee1e181d34defe2da7102f"
   dependencies:
     babel-plugin-syntax-flow "^6.13.0"
     babel-plugin-transform-es2015-destructuring "^6.16.0"
@@ -1014,11 +1014,7 @@ babel-types@^6.13.0, babel-types@^6.14.0, babel-types@^6.15.0, babel-types@^6.16
     lodash "^4.2.0"
     to-fast-properties "^1.0.1"
 
-babylon@^6.11.0:
-  version "6.11.4"
-  resolved "https://registry.yarnpkg.com/babylon/-/babylon-6.11.4.tgz#75e1f52187efa0cde5a541a7f7fdda38f6eb5bd2"
-
-babylon@^6.11.2:
+babylon@^6.11.0, babylon@^6.11.2:
   version "6.11.6"
   resolved "https://registry.yarnpkg.com/babylon/-/babylon-6.11.6.tgz#56dc52e624882841c7fe095257fbcb4a5bb61ae1"
 
@@ -1234,9 +1230,9 @@ camelize@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/camelize/-/camelize-1.0.0.tgz#164a5483e630fa4321e5af07020e531831b2609b"
 
-caniuse-db@^1.0.30000539, caniuse-db@^1.0.30000540:
-  version "1.0.30000554"
-  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000554.tgz#cd1dbe423d00b6203ba93f05973a476428dec919"
+caniuse-db@^1.0.30000539, caniuse-db@^1.0.30000554:
+  version "1.0.30000557"
+  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000557.tgz#4a36c82f81b06fdd78461bfb1d3dc35afaa6deae"
 
 caseless@~0.11.0:
   version "0.11.0"
@@ -1797,8 +1793,8 @@ dns-prefetch-control@0.1.0:
   resolved "https://registry.yarnpkg.com/dns-prefetch-control/-/dns-prefetch-control-0.1.0.tgz#60ddb457774e178f1f9415f0cabb0e85b0b300b2"
 
 doctrine@^1.2.2:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/doctrine/-/doctrine-1.4.0.tgz#e2db32defa752407b935b381e89f3740e469e599"
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/doctrine/-/doctrine-1.5.0.tgz#379dce730f6166f76cefa4e6707a159b02c5a6fa"
   dependencies:
     esutils "^2.0.2"
     isarray "^1.0.0"
@@ -2646,15 +2642,15 @@ graceful-fs@^4.1.2, graceful-fs@^4.1.4, graceful-fs@^4.1.6:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/graceful-readlink/-/graceful-readlink-1.0.1.tgz#4cafad76bc62f02fa039b2f94e9a3dd3a391a725"
 
-graphql, graphql@^0.7.0:
-  version "0.7.2"
-  resolved "https://registry.yarnpkg.com/graphql/-/graphql-0.7.2.tgz#cc894a32823399b8a0cb012b9e9ecad35cd00f72"
-  dependencies:
-    iterall "1.0.2"
-
 graphql@^0.6.0:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/graphql/-/graphql-0.6.2.tgz#19cdcb17e5862d64396a0684f92f7be64e90e7af"
+  dependencies:
+    iterall "1.0.2"
+
+graphql@^0.7.0, graphql@^0.7.2:
+  version "0.7.2"
+  resolved "https://registry.yarnpkg.com/graphql/-/graphql-0.7.2.tgz#cc894a32823399b8a0cb012b9e9ecad35cd00f72"
   dependencies:
     iterall "1.0.2"
 
@@ -2843,6 +2839,10 @@ ignore@^3.0.11, ignore@^3.1.5:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-3.2.0.tgz#8d88f03c3002a0ac52114db25d2c673b0bf1e435"
 
+image-size@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/image-size/-/image-size-0.5.0.tgz#be7aed1c37b5ac3d9ba1d66a24b4c47ff8397651"
+
 immutable@^3.7.6:
   version "3.8.1"
   resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.1.tgz#200807f11ab0f72710ea485542de088075f68cd2"
@@ -2870,8 +2870,8 @@ indexof@0.0.1:
   resolved "https://registry.yarnpkg.com/indexof/-/indexof-0.0.1.tgz#82dc336d232b9062179d05ab3293a66059fd435d"
 
 inflight@^1.0.4:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/inflight/-/inflight-1.0.5.tgz#db3204cd5a9de2e6cd890b85c6e2f66bcf4f620a"
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/inflight/-/inflight-1.0.6.tgz#49bd6331d7d02d0c09bc910a1075ba8165b56df9"
   dependencies:
     once "^1.3.0"
     wrappy "1"
@@ -3435,7 +3435,7 @@ lodash.words@^3.0.0:
   dependencies:
     lodash._root "^3.0.0"
 
-lodash@^4.0.0, lodash@^4.13.1, lodash@^4.15.0, lodash@^4.2.0, lodash@^4.2.1, lodash@^4.3.0, lodash@^4.6.1, lodash@^4.7.0, lodash@^4.8.0, lodash@^4.9.0:
+lodash@^4.0.0, lodash@^4.13.1, lodash@^4.14.0, lodash@^4.15.0, lodash@^4.2.0, lodash@^4.2.1, lodash@^4.3.0, lodash@^4.6.1, lodash@^4.7.0, lodash@^4.9.0:
   version "4.16.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.16.4.tgz#01ce306b9bad1319f2a5528674f88297aeb70127"
 
@@ -4283,7 +4283,7 @@ postcss-zindex@^2.0.1:
     postcss "^5.0.4"
     uniqs "^2.0.0"
 
-postcss@^5.0.0, postcss@^5.0.10, postcss@^5.0.11, postcss@^5.0.12, postcss@^5.0.13, postcss@^5.0.14, postcss@^5.0.16, postcss@^5.0.2, postcss@^5.0.4, postcss@^5.0.5, postcss@^5.0.6, postcss@^5.0.8, postcss@^5.2.0, postcss@^5.2.2:
+postcss@^5.0.0, postcss@^5.0.10, postcss@^5.0.11, postcss@^5.0.12, postcss@^5.0.13, postcss@^5.0.14, postcss@^5.0.16, postcss@^5.0.2, postcss@^5.0.4, postcss@^5.0.5, postcss@^5.0.6, postcss@^5.0.8, postcss@^5.2.0, postcss@^5.2.4:
   version "5.2.4"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-5.2.4.tgz#8eb4bee3e5c4e091585b116df32d8db24a535f21"
   dependencies:
@@ -4448,7 +4448,7 @@ react-dom@^0.14.0:
   version "15.3.2"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-15.3.2.tgz#c46b0aa5380d7b838e7a59c4a7beff2ed315531f"
 
-react-helmet:
+react-helmet@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/react-helmet/-/react-helmet-3.1.0.tgz#63486194682f33004826f3687dc49a138b557050"
   dependencies:
@@ -4475,7 +4475,7 @@ react-proxy@^3.0.0-alpha.0:
   dependencies:
     lodash "^4.6.1"
 
-react-redux:
+react-redux@^4.4.5:
   version "4.4.5"
   resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-4.4.5.tgz#f509a2981be2252d10c629ef7c559347a4aec457"
   dependencies:
@@ -5097,8 +5097,8 @@ svgo@^0.7.0:
     whet.extend "~0.9.9"
 
 symbol-observable@^1.0.2:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.0.3.tgz#0fdb005e84f346a899d492beba23068b32d1525a"
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.0.4.tgz#29bf615d4aa7121bdd898b22d4b3f9bc4e2aa03d"
 
 table@^3.7.8:
   version "3.8.0"

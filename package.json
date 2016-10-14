@@ -33,11 +33,11 @@
   },
   "babel": {
     "presets": [
-      "shopify/node",
+      [
+        "shopify/node",
+        "5.7.0"
+      ],
       "shopify/react"
-    ],
-    "plugins": [
-      "transform-es2015-destructuring"
     ]
   },
   "eslintConfig": {
