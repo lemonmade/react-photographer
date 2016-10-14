@@ -1,22 +1,20 @@
 import fs from 'fs-extra';
 import path from 'path';
-import createDebug from 'debug';
 import getImageSize from 'image-size';
 
 import compareFiles from '../utilities/compare';
+import {debug} from '../utilities/console';
 import {Rect} from '../../utilities/geometry';
 
-const debug = createDebug('photographer');
-
 const actionHandlers = {
-  async hover({position}, {page}) {
+  async hover({position}, {client}) {
     const center = new Rect(position).center;
-    await page.performAction('mousemove', center);
+    await client.mouse.move(center);
   },
 
-  async mousedown({position}, {page}) {
+  async mousedown({position}, {client}) {
     const center = new Rect(position).center;
-    await page.performAction('mousemove', center);
+    await client.mouse.down(center);
   },
 };
 
@@ -54,12 +52,12 @@ export default async function run(test, {config, server}) {
   let duration = 0;
   const start = Date.now();
 
-  const {page} = connection;
-  await page.set({viewportSize: test.viewport});
+  const {client} = connection;
+  await client.set({viewportSize: test.viewport});
   debug(`Set viewport for ${id} to ${JSON.stringify(test.viewport)}`);
 
-  await page.performAction('mousemove', {x: 10000, y: 10000});
-  await page.performAction('mouseup');
+  await client.mouse.move({x: 10000, y: 10000});
+  await client.mouse.up();
 
   connection.send({type: 'RUN_TEST', test: id});
 
@@ -73,8 +71,10 @@ export default async function run(test, {config, server}) {
       debug(`Requested snapshot for: ${id}, at position ${JSON.stringify(position)}`);
 
       fs.mkdirpSync(path.dirname(record ? paths.reference : paths.compare));
-      await page.set({clipRect: position});
-      await page.render(record ? paths.reference : paths.compare);
+      await client.snapshot({
+        output: record ? paths.reference : paths.compare,
+        clip: position,
+      });
       const imageSize = getImageSize(record ? paths.reference : paths.compare);
 
       const newImage = {

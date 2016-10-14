@@ -12,18 +12,16 @@ import EventEmitter from 'events';
 import generateAssets from './assets';
 import type {ConfigType} from '../../../config';
 
-type ServerComponentsType = {
-  httpServer: HTTPServer,
-  webSocketServer: WebSocketServer,
-};
-
-export class Server extends EventEmitter {
+export class App extends EventEmitter {
   httpServer: HTTPServer;
   webSocketServer: WebSocketServer;
   closed: boolean = false;
   address = 'http://localhost:3000/';
 
-  constructor({httpServer, webSocketServer}: ServerComponentsType) {
+  constructor(
+    httpServer: HTTPServer,
+    webSocketServer: WebSocketServer,
+  ) {
     super();
     this.httpServer = httpServer;
     this.webSocketServer = webSocketServer;
@@ -38,7 +36,7 @@ export class Server extends EventEmitter {
   }
 }
 
-export default async function createServer(config: ConfigType): Promise<Server> {
+export default async function createApp(config: ConfigType): Promise<App> {
   await generateAssets(config);
 
   const app = express();
@@ -58,6 +56,5 @@ export default async function createServer(config: ConfigType): Promise<Server> 
   });
 
   const webSocketServer = new WebSocketServer({server: httpServer});
-  const server = new Server({httpServer, webSocketServer});
-  return server;
+  return new App(httpServer, webSocketServer);
 }

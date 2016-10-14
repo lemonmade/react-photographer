@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import EventEmitter from 'events';
 
 import runTest from './test';
-import createServer from '../env';
+import createServer from '../server';
 import {debug} from '../utilities/console';
 
 class Runner extends EventEmitter {

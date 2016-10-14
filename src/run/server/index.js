@@ -1,15 +1,15 @@
 // @flow
 
 import url from 'url';
-import createClient from './client';
-import createServer from './server';
+import createBrowser from './browser';
+import createApp from './app';
 import createPool from '../pool';
 
 class Connection {
-  constructor(socket, page, env) {
+  constructor(socket, client, release) {
     this.socket = socket;
-    this.page = page;
-    this.env = env;
+    this.client = client;
+    this.handleRelease = release;
   }
 
   send(message: Object) {
@@ -17,7 +17,7 @@ class Connection {
   }
 
   release() {
-    this.env.release(this);
+    this.handleRelease(this);
   }
 
   awaitMessage(type) {
@@ -35,10 +35,10 @@ class Connection {
   }
 }
 
-class Env {
-  constructor(client, server) {
-    this.server = server;
-    this.client = client;
+class Server {
+  constructor(browser, app) {
+    this.app = app;
+    this.browser = browser;
 
     this.connectionPool = createPool(async (id) => {
       return await createConnection(this, id);
@@ -57,30 +57,34 @@ class Env {
   }
 
   close() {
-    this.server.close();
-    this.client.close();
+    this.app.close();
+    this.browser.close();
   }
 }
 
-async function createConnection(env, id) {
-  const {server, client} = env;
+async function createConnection(server, id) {
+  const {app, browser} = server;
 
   const socketPromise = new Promise((resolve) => {
-    server.on('connection', function handleConnection(newConnection) {
+    app.on('connection', function handleConnection(newConnection) {
       const {query} = url.parse(newConnection.upgradeReq.url, true);
       if (query.connection !== id) { return; }
-      server.removeListener('connection', handleConnection);
+      app.removeListener('connection', handleConnection);
       resolve(newConnection);
     });
   });
 
-  const page = await client.open(`${server.address}?connection=${id}`);
+  const page = await browser.open(`${app.address}?connection=${id}`);
   const socket = await socketPromise;
 
-  return new Connection(socket, page, env);
+  return new Connection(socket, page, server.release.bind(server));
 }
 
-export default async function createEnv(config) {
-  const [client, server] = await Promise.all([createClient(config), createServer(config)]);
-  return new Env(client, server);
+export default async function createServer(config) {
+  const [browser, app] = await Promise.all([
+    createBrowser(config),
+    createApp(config),
+  ]);
+
+  return new Server(browser, app);
 }
