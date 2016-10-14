@@ -36,14 +36,14 @@ class Connection {
 }
 
 class Server {
-  constructor(browser, app) {
+  constructor(browser, app, {workers}) {
     this.app = app;
     this.browser = browser;
 
     this.connectionPool = createPool(async (id) => {
       return await createConnection(this, id);
     }, {
-      limit: 5,
+      limit: workers,
     });
   }
 
@@ -86,5 +86,5 @@ export default async function createServer(config) {
     createApp(config),
   ]);
 
-  return new Server(browser, app);
+  return new Server(browser, app, config);
 }

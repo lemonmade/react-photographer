@@ -6,9 +6,10 @@ import path from 'path';
 import type {ConfigType} from '../config';
 import createRunner from './runner';
 import dotReporter from './reporters/dot';
-import {createLogger} from './utilities/console';
+import {createLogger, debug} from './utilities/console';
 
 export default async function run(config: ConfigType) {
+  const start = Date.now();
   const logger = createLogger(dotReporter());
   const runner = await createRunner(config);
   runner.on('test', logger.test.bind(logger));
@@ -16,6 +17,7 @@ export default async function run(config: ConfigType) {
   const results = await runner.run();
 
   writeResults(results, config);
+  debug(`Finished running in ${Date.now() - start} with ${config.workers} workers`);
   logger.end();
 }
 

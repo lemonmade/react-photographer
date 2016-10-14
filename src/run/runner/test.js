@@ -20,7 +20,6 @@ const actionHandlers = {
 
 export default async function run(test, {config, server}) {
   const {id, threshold, record, skip} = test;
-  // const currentSnapshotDetail = currentSnapshotDetails.find((snapshotDetail) => snapshotDetail.id === id) || {};
 
   const result = {
     passed: !record,

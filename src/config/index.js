@@ -41,6 +41,7 @@ export default async function getConfig(): Promise<ConfigType> {
   finalConfig.record = config.record == null ? false : config.record;
   finalConfig.viewports = config.viewports || [{height: 400, width: 400}];
   finalConfig.port = config.port || 3000;
+  finalConfig.workers = config.workers || 4;
 
   return finalConfig;
 }

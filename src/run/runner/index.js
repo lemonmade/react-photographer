@@ -21,12 +21,7 @@ class Runner extends EventEmitter {
     process.on('uncaughtException', cleanup);
     process.on('unhandledRejection', cleanup);
 
-    const initialConnection = await server.connect();
-    const messagePromise = initialConnection.awaitMessage('TEST_DETAILS');
-    initialConnection.send({type: 'SEND_DETAILS'});
-    const {tests} = await messagePromise;
-    initialConnection.release();
-
+    const tests = await getTests(server);
     debug(`Received test details: ${JSON.stringify(tests, null, 2)}`);
 
     const existingSnapshots = loadExistingSnapshots(config);
@@ -57,6 +52,15 @@ class Runner extends EventEmitter {
 
 export default function createRunner(config) {
   return new Runner(config);
+}
+
+async function getTests(server) {
+  const initialConnection = await server.connect();
+  const messagePromise = initialConnection.awaitMessage('TEST_DETAILS');
+  initialConnection.send({type: 'SEND_DETAILS'});
+  const {tests} = await messagePromise;
+  initialConnection.release();
+  return tests;
 }
 
 function loadExistingSnapshots({detailsFile}) {
