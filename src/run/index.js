@@ -12,6 +12,7 @@ export default async function run(config: ConfigType) {
   const start = Date.now();
   const logger = createLogger(dotReporter());
   const runner = await createRunner(config);
+  runner.on('start', logger.start.bind(logger));
   runner.on('test', logger.test.bind(logger));
 
   const results = await runner.run();

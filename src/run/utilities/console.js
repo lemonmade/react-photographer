@@ -7,6 +7,12 @@ export class Logger {
     this.reporter = reporter;
   }
 
+  start(...args) {
+    if (typeof this.reporter.start === 'function') {
+      this.reporter.start(...args);
+    }
+  }
+
   test(...args) {
     if (typeof this.reporter.test === 'function') {
       this.reporter.test(...args);

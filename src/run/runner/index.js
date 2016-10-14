@@ -5,6 +5,30 @@ import runTest from './test';
 import createServer from '../server';
 import {debug} from '../utilities/console';
 
+class Progress {
+  results = [];
+
+  constructor(tests) {
+    this.tests = tests;
+  }
+
+  add(result) {
+    this.results.push(result);
+  }
+
+  get total() {
+    return this.tests.length;
+  }
+
+  get complete() {
+    return this.results.length;
+  }
+
+  get percentComplete() {
+    return this.complete / this.total;
+  }
+}
+
 class Runner extends EventEmitter {
   constructor(config) {
     super();
@@ -22,7 +46,10 @@ class Runner extends EventEmitter {
     process.on('unhandledRejection', cleanup);
 
     const tests = await getTests(server);
+    const progress = new Progress(tests);
     debug(`Received test details: ${JSON.stringify(tests, null, 2)}`);
+
+    this.emit('start', progress);
 
     const existingSnapshots = loadExistingSnapshots(config);
     const env = {server, config};
@@ -39,13 +66,15 @@ class Runner extends EventEmitter {
         }
 
         snapshot.result = result;
-        this.emit('test', snapshot);
+        progress.add(snapshot);
+        this.emit('test', snapshot, progress);
 
         return snapshot;
       }),
     );
 
     debug(`Finished all tests: ${JSON.stringify(snapshots, null, 2)}`);
+    this.emit('end', progress);
     return snapshots;
   }
 }
