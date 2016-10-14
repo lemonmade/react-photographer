@@ -26,6 +26,10 @@ class Page {
     );
   }
 
+  async performAction(action, {x, y} = {}) {
+    await this.page.sendEvent(action, x, y);
+  }
+
   on(...args) {
     return this.page.on(...args);
   }

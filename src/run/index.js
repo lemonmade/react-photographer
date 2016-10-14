@@ -8,9 +8,25 @@ import getImageSize from 'image-size';
 import type {ConfigType} from '../config';
 import createEnv from './env';
 import createLogger from './logger';
+import compareFiles from './utilities/compare';
 
 import * as Events from './events';
 import dotReporter from './reporters/dot';
+
+import {Rect} from '../utilities/geometry';
+
+const actionHandlers = {
+  async hover({position}, {page}) {
+    const center = new Rect(position).center;
+    await page.performAction('mousemove', center);
+  },
+
+  async mousedown({position}, {page}) {
+    const center = new Rect(position).center;
+    await page.performAction('mousemove', center);
+  },
+};
+
 
 export default async function run(config: ConfigType) {
   let env;
@@ -23,10 +39,10 @@ export default async function run(config: ConfigType) {
   process.on('unhandledRejection', cleanup);
 
   function cleanup() {
-    if (env) {
-      env.close();
-      logger.debug('closed env');
-    }
+    if (env == null) { return; }
+
+    env.close();
+    logger.debug('closed env');
   }
 
   env = await createEnv(config);
@@ -35,36 +51,70 @@ export default async function run(config: ConfigType) {
   async function runTest(test) {
     const {id, name, component, groups, viewport, hasMultipleViewports, threshold, record, skip} = test;
 
-    return await env.connect(async (connection) => {
+    const result = {
+      passed: false,
+      failed: false,
+      skipped: skip,
+      recorded: record,
+      mismatch: 0,
+      duration: 0,
+      threshold,
+    };
+
+    const snapshot = {
+      id,
+      name,
+      component,
+      groups,
+      viewport,
+      hasMultipleViewports,
+      result,
+    };
+
+    let duration = 0;
+
+    if (skip) { return snapshot; }
+
+    const viewportString = `@${viewport.width}x${viewport.height}`;
+
+    const {snapshotRoot} = config;
+    const snapshotPath = path.join(component, ...groups);
+    const paths = {
+      reference: path.join(snapshotRoot, 'reference', snapshotPath, `${name}${viewportString}.reference.png`),
+      compare: path.join(snapshotRoot, 'compare', snapshotPath, `${name}${viewportString}.compare.png`),
+      diff: path.join(snapshotRoot, 'diff', snapshotPath, `${name}${viewportString}.diff.png`),
+    };
+
+    let missingReference = !record;
+
+    if (missingReference) {
+      try {
+        missingReference = !fs.statSync(paths.reference).isFile();
+      } catch (error) {
+        // still missing
+      }
+    }
+
+    if (missingReference) {
+      result.passed = false;
+      result.failed = true;
+      result.reason = 'Missing reference snapshot';
+      return snapshot;
+    }
+
+    await env.connect(async (connection) => {
       logger.debug(`Started running test: ${JSON.stringify(test)}`);
-
-      const result = {
-        passed: false,
-        failed: false,
-        skipped: skip,
-        recorded: record,
-        mismatch: 0,
-        duration: 0,
-        threshold,
-      };
-
-      const snapshot = {
-        id,
-        name,
-        component,
-        groups,
-        viewport,
-        hasMultipleViewports,
-        result,
-      };
-
-      if (skip) { return snapshot; }
 
       const start = Date.now();
 
       const {page} = connection;
       await page.set({viewportSize: test.viewport});
       logger.debug(`Set viewport for ${id} to ${JSON.stringify(test.viewport)}`);
+
+      await page.performAction('mousemove', {x: 10000, y: 10000});
+      logger.debug('Did a clearing mousemove');
+      await page.performAction('mouseup');
+      logger.debug('Did a clearing mouseup');
 
       connection.send({type: 'RUN_TEST', test: id});
 
@@ -77,52 +127,75 @@ export default async function run(config: ConfigType) {
             const {position} = message;
             logger.debug(`Requested snapshot for: ${id}, at position ${JSON.stringify(position)}`);
 
-            const viewportString = `@${viewport.width}x${viewport.height}`;
+            fs.mkdirpSync(path.dirname(record ? paths.reference : paths.compare));
+            await page.set({clipRect: position});
+            await page.render(record ? paths.reference : paths.compare);
+            const imageSize = getImageSize(record ? paths.reference : paths.compare);
 
-            const {snapshotRoot} = config;
-            const snapshotPath = path.join(component, ...groups);
-            const paths = {
-              reference: path.join(snapshotRoot, 'reference', snapshotPath, `${name}${viewportString}.reference.png`),
-              compare: path.join(snapshotRoot, 'compare', snapshotPath, `${name}${viewportString}.compare.png`),
-              diff: path.join(snapshotRoot, 'diff', snapshotPath, `${name}${viewportString}.diff.png`),
+            const newImage = {
+              src: path.relative(path.dirname(config.snapshotRoot), paths.reference),
+              height: imageSize.height,
+              width: imageSize.width,
             };
 
-            let referenceExists: boolean;
-
-            try {
-              referenceExists = fs.statSync(paths.reference).isFile();
-            } catch (error) {
-              referenceExists = false;
-            }
-
-            if (!record && !referenceExists) {
-              result.passed = false;
-              result.failed = true;
-              result.reason = 'Missing reference snapshot';
+            if (record) {
+              snapshot.image = newImage;
             } else {
-              fs.mkdirpSync(path.dirname(record ? paths.reference : paths.compare));
-              await page.set({clipRect: position});
-              await page.render(record ? paths.reference : paths.compare);
-              const imageSize = getImageSize(record ? paths.reference : paths.compare);
-              snapshot.image = {
-                src: path.relative(path.dirname(config.snapshotRoot), paths.reference),
-                height: imageSize.height,
-                width: imageSize.width,
-              };
+              result.image = newImage;
             }
 
             result.passed = true;
-            result.duration = Date.now() - start;
+            duration += (Date.now() - start);
 
-            return snapshot;
+            return;
           }
           case 'REQUEST_ACTION': {
             logger.debug(`Received action request: ${message.action}, ${id}`);
+
+            const {action} = message;
+            const handler = actionHandlers[action];
+
+            // TODO: handle unavailable actions
+            if (typeof handler === 'function') {
+              await handler(message, connection);
+            }
+
             connection.send({type: 'PERFORMED_ACTION', action: message.action, id});
           }
         }
       }
     });
+
+    if (!record) {
+      const start = Date.now();
+      const comparisonResult = await compareFiles(paths.compare, paths.reference);
+      const passed = (comparisonResult.misMatchPercentage <= threshold);
+      fs.mkdirpSync(path.dirname(paths.diff));
+      await writeComparisonToFile(comparisonResult, paths.diff);
+
+      result.mismatch = comparisonResult.misMatchPercentage;
+      result.passed = passed;
+      result.failed = !passed;
+
+      const imageSize = getImageSize(paths.compare);
+      result.image = {
+        src: path.relative(path.dirname(config.snapshotRoot), paths.compare),
+        height: imageSize.height,
+        width: imageSize.width,
+      };
+
+      const diffImageSize = getImageSize(paths.diff);
+      result.diff = {
+        src: path.relative(path.dirname(config.snapshotRoot), paths.diff),
+        height: diffImageSize.height,
+        width: diffImageSize.width,
+      };
+
+      duration += (start - Date.now());
+    }
+
+    result.duration = duration;
+    return snapshot;
   }
 
   // client.on('onConsoleMessage', (arg) => logger.debug(`Client console message error: ${JSON.stringify(arg)}`));
@@ -159,4 +232,16 @@ function writeResults(tests, {detailsFile, resultsFile}) {
   fs.mkdirpSync(path.dirname(resultsFile));
   fs.writeFileSync(detailsFile, JSON.stringify({snapshots: details}, null, 2));
   fs.writeFileSync(resultsFile, JSON.stringify(results, null, 2));
+}
+
+async function writeComparisonToFile(comparison, file) {
+  await new Promise((resolve) => {
+    const writeStream = fs.createWriteStream(file);
+    writeStream.on('close', resolve);
+
+    comparison
+      .getDiffImage()
+      .pack()
+      .pipe(writeStream);
+  });
 }
