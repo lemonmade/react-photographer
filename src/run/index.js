@@ -2,59 +2,21 @@
 
 import fs from 'fs-extra';
 import path from 'path';
-import yargs from 'yargs';
-import createDebug from 'debug';
 
 import type {ConfigType} from '../config';
-import createEnv from './env';
-import createLogger from './logger';
-import runTests from './runner';
-import {debug} from './utilities/console';
-
+import createRunner from './runner';
 import dotReporter from './reporters/dot';
+import {createLogger} from './utilities/console';
 
 export default async function run(config: ConfigType) {
-  let server;
+  const logger = createLogger(dotReporter());
+  const runner = await createRunner(config);
+  runner.on('test', logger.test.bind(logger));
 
-  const argv = yargs.argv;
-  const logger = createLogger({verbose: Boolean(argv.verbose)});
-  logger.reporter = dotReporter();
+  const results = await runner.run();
 
-  process.on('SIGINT', cleanup);
-  process.on('uncaughtException', cleanup);
-  process.on('unhandledRejection', cleanup);
-
-  function cleanup() {
-    if (server == null) { return; }
-
-    server.close();
-    debug('closed env');
-  }
-
-  server = await createEnv(config);
-  debug('Created server');
-
-  const initialConnection = await server.connect();
-  const messagePromise = initialConnection.awaitMessage('TEST_DETAILS');
-  initialConnection.send({type: 'SEND_DETAILS'});
-  const testDetails = (await messagePromise).tests;
-  initialConnection.release();
-
-  debug(`Received test details: ${JSON.stringify(testDetails, null, 2)}`);
-
-  const tests = await runTests(testDetails, {
-    config,
-    server,
-    logger,
-  });
-  debug(`Finished all tests: ${JSON.stringify(tests, null, 2)}`);
-
-  writeResults(tests, config);
-  debug('Wrote test results');
-
+  writeResults(results, config);
   logger.end();
-
-  cleanup();
 }
 
 function writeResults(tests, {detailsFile, resultsFile}) {

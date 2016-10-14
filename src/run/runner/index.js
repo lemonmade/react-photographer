@@ -1,27 +1,62 @@
 import fs from 'fs-extra';
+import EventEmitter from 'events';
+
 import runTest from './test';
+import createServer from '../env';
+import {debug} from '../utilities/console';
 
-export default async function run(tests, env) {
-  const {config, logger} = env;
-  const existingSnapshots = loadExistingSnapshots(config);
+class Runner extends EventEmitter {
+  constructor(config) {
+    super();
+    this.config = config;
+  }
 
-  return await Promise.all(
-    tests.map(async (test) => {
-      const existingSnapshot = existingSnapshots[test.id];
-      const snapshot = getSnapshotDetailsFromTest(test, existingSnapshot);
-      const result = await runTest(test, env);
+  async run() {
+    const {config} = this;
+    const server = await createServer(config);
+    const cleanup = server.close.bind(server);
+    debug('Created server');
 
-      if (test.record) {
-        snapshot.image = result.image;
-        result.image = null;
-      }
+    process.on('SIGINT', cleanup);
+    process.on('uncaughtException', cleanup);
+    process.on('unhandledRejection', cleanup);
 
-      snapshot.result = result;
-      logger.test(snapshot);
+    const initialConnection = await server.connect();
+    const messagePromise = initialConnection.awaitMessage('TEST_DETAILS');
+    initialConnection.send({type: 'SEND_DETAILS'});
+    const {tests} = await messagePromise;
+    initialConnection.release();
 
-      return snapshot;
-    }),
-  );
+    debug(`Received test details: ${JSON.stringify(tests, null, 2)}`);
+
+    const existingSnapshots = loadExistingSnapshots(config);
+    const env = {server, config};
+
+    const snapshots = await Promise.all(
+      tests.map(async (test) => {
+        const existingSnapshot = existingSnapshots[test.id];
+        const snapshot = getSnapshotDetailsFromTest(test, existingSnapshot);
+        const result = await runTest(test, env);
+
+        if (test.record) {
+          snapshot.image = result.image;
+          result.image = null;
+        }
+
+        snapshot.result = result;
+        this.emit('test', snapshot);
+
+        return snapshot;
+      }),
+    );
+
+    debug(`Finished all tests: ${JSON.stringify(snapshots, null, 2)}`);
+    return snapshots;
+  }
+}
+
+export default function createRunner(config) {
+  return new Runner(config);
 }
 
 function loadExistingSnapshots({detailsFile}) {
