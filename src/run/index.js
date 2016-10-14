@@ -117,71 +117,71 @@ export default async function run(config: ConfigType) {
       return snapshot;
     }
 
-    await env.connect(async (connection) => {
-      logger.debug(`Started running test: ${JSON.stringify(test)}`);
+    const connection = await env.connect();
+    logger.debug(`Started running test: ${JSON.stringify(test)}`);
 
-      const start = Date.now();
+    const start = Date.now();
 
-      const {page} = connection;
-      await page.set({viewportSize: test.viewport});
-      logger.debug(`Set viewport for ${id} to ${JSON.stringify(test.viewport)}`);
+    const {page} = connection;
+    await page.set({viewportSize: test.viewport});
+    logger.debug(`Set viewport for ${id} to ${JSON.stringify(test.viewport)}`);
 
-      await page.performAction('mousemove', {x: 10000, y: 10000});
-      logger.debug('Did a clearing mousemove');
-      await page.performAction('mouseup');
-      logger.debug('Did a clearing mouseup');
+    await page.performAction('mousemove', {x: 10000, y: 10000});
+    logger.debug('Did a clearing mousemove');
+    await page.performAction('mouseup');
+    logger.debug('Did a clearing mouseup');
 
-      connection.send({type: 'RUN_TEST', test: id});
+    connection.send({type: 'RUN_TEST', test: id});
 
-      while (true) {
-        // TODO: async iterator
-        const message = await connection.awaitMessage();
+    while (true) {
+      // TODO: async iterator
+      const message = await connection.awaitMessage();
+      const {type} = message;
 
-        switch (message.type) {
-          case 'READY_FOR_MY_CLOSEUP': {
-            const {position} = message;
-            logger.debug(`Requested snapshot for: ${id}, at position ${JSON.stringify(position)}`);
+      if (type === 'READY_FOR_MY_CLOSEUP') {
+        const {position} = message;
+        logger.debug(`Requested snapshot for: ${id}, at position ${JSON.stringify(position)}`);
 
-            fs.mkdirpSync(path.dirname(record ? paths.reference : paths.compare));
-            await page.set({clipRect: position});
-            await page.render(record ? paths.reference : paths.compare);
-            const imageSize = getImageSize(record ? paths.reference : paths.compare);
+        fs.mkdirpSync(path.dirname(record ? paths.reference : paths.compare));
+        await page.set({clipRect: position});
+        await page.render(record ? paths.reference : paths.compare);
+        const imageSize = getImageSize(record ? paths.reference : paths.compare);
 
-            const newImage = {
-              src: path.relative(path.dirname(config.snapshotRoot), paths.reference),
-              height: imageSize.height,
-              width: imageSize.width,
-            };
+        const newImage = {
+          src: path.relative(path.dirname(config.snapshotRoot), paths.reference),
+          height: imageSize.height,
+          width: imageSize.width,
+        };
 
-            if (record) {
-              snapshot.image = newImage;
-            } else {
-              result.image = newImage;
-            }
-
-            duration += (Date.now() - start);
-
-            return;
-          }
-          case 'REQUEST_ACTION': {
-            logger.debug(`Received action request: ${message.action}, ${id}`);
-
-            const {action} = message;
-            const handler = actionHandlers[action];
-
-            // TODO: handle unavailable actions
-            if (typeof handler === 'function') {
-              await handler(message, connection);
-            }
-
-            connection.send({type: 'PERFORMED_ACTION', action: message.action, id});
-          }
+        if (record) {
+          snapshot.image = newImage;
+        } else {
+          result.image = newImage;
         }
+
+        duration += (Date.now() - start);
+
+        break;
+      } else if (type === 'REQUEST_ACTION') {
+        logger.debug(`Received action request: ${message.action}, ${id}`);
+
+        const {action} = message;
+        const handler = actionHandlers[action];
+
+        // TODO: handle unavailable actions
+        if (typeof handler === 'function') {
+          await handler(message, connection);
+        }
+
+        connection.send({type: 'PERFORMED_ACTION', action: message.action, id});
       }
-    });
+    }
+
+    connection.release();
+    logger.debug(`Finished with connection for ${id}`);
 
     if (!record) {
-      const start = Date.now();
+      const compareStart = Date.now();
       const comparisonResult = await compareFiles(paths.compare, paths.reference);
       const passed = (comparisonResult.misMatchPercentage <= threshold);
       fs.mkdirpSync(path.dirname(paths.diff));
@@ -205,7 +205,7 @@ export default async function run(config: ConfigType) {
         width: diffImageSize.width,
       };
 
-      duration += (start - Date.now());
+      duration += (compareStart - Date.now());
     }
 
     result.duration = duration;
@@ -216,12 +216,11 @@ export default async function run(config: ConfigType) {
   // client.on('onError', (arg) => logger.debug(`Received error: ${JSON.stringify(arg)}`));
   // client.on('message', (arg) => logger.debug(`Received message: ${JSON.stringify(arg)}`));
 
-  const testDetails = await env.connect(async (connection) => {
-    const messagePromise = connection.awaitMessage('TEST_DETAILS');
-    connection.send({type: 'SEND_DETAILS'});
-    const message = await messagePromise;
-    return message.tests;
-  });
+  const initialConnection = await env.connect();
+  const messagePromise = initialConnection.awaitMessage('TEST_DETAILS');
+  initialConnection.send({type: 'SEND_DETAILS'});
+  const testDetails = (await messagePromise).tests;
+  initialConnection.release();
 
   logger.debug(`Received test details: ${JSON.stringify(testDetails, null, 2)}`);
 
