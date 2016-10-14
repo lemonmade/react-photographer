@@ -14,6 +14,14 @@ export class Logger {
     this.verbose = verbose;
   }
 
+  test(...args) {
+    this.reporter && typeof this.reporter.test === 'function' && this.reporter.test(...args);
+  }
+
+  end(...args) {
+    this.reporter && typeof this.reporter.end === 'function' && this.reporter.end(...args);
+  }
+
   debug(message: string) {
     if (!this.verbose) { return; }
     console.log(`${chalk.gray('[debug]')} ${message}`);

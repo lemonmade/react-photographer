@@ -33,6 +33,7 @@ export default async function run(config: ConfigType) {
 
   const argv = yargs.argv;
   const logger = createLogger({verbose: Boolean(argv.verbose)});
+  logger.reporter = dotReporter();
 
   process.on('SIGINT', cleanup);
   process.on('uncaughtException', cleanup);
@@ -61,7 +62,7 @@ export default async function run(config: ConfigType) {
     const currentSnapshotDetail = currentSnapshotDetails.find((snapshotDetail) => snapshotDetail.id === id) || {};
 
     const result = {
-      passed: false,
+      passed: !record,
       failed: false,
       skipped: skip,
       recorded: record,
@@ -158,7 +159,6 @@ export default async function run(config: ConfigType) {
               result.image = newImage;
             }
 
-            result.passed = true;
             duration += (Date.now() - start);
 
             return;
@@ -225,7 +225,13 @@ export default async function run(config: ConfigType) {
 
   logger.debug(`Received test details: ${JSON.stringify(testDetails, null, 2)}`);
 
-  const tests = await Promise.all(testDetails.map(runTest));
+  const tests = await Promise.all(testDetails.map(async (detail) => {
+    const test = await runTest(detail);
+    logger.test(test);
+    return test;
+  }));
+
+  logger.end();
   logger.debug(`Finished all tests: ${JSON.stringify(tests, null, 2)}`);
 
   writeResults(tests, config);

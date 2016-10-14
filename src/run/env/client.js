@@ -46,9 +46,10 @@ export class Client {
 
   async open(url: string) {
     const page = new Page(await this.phantom.createPage());
-    page.page.on('onConsoleMessage', function(msg) { console.log('CONSOLE', msg); });
-    page.page.on('onError', function(msg) { console.log('ERROR', msg); });
-    page.page.on('onResourceError', function(msg) { console.log('RESOURCE ERROR', msg); });
+    // TODO: move these into the test runner
+    // page.page.on('onConsoleMessage', function(msg) { console.log('CONSOLE', msg); });
+    // page.page.on('onError', function(msg) { console.log('ERROR', msg); });
+    // page.page.on('onResourceError', function(msg) { console.log('RESOURCE ERROR', msg); });
     await page.open(url);
     return page;
   }
