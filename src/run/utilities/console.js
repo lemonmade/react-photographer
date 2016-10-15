@@ -7,6 +7,16 @@ export class Logger {
     this.reporter = reporter;
   }
 
+  clear() {
+    process.stdout.write('\x1B[2J\x1B[0f');
+  }
+
+  title(...args) {
+    if (typeof this.reporter.title === 'function') {
+      this.reporter.title(...args);
+    }
+  }
+
   start(...args) {
     if (typeof this.reporter.start === 'function') {
       this.reporter.start(...args);

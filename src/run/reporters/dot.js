@@ -1,14 +1,14 @@
 // @flow
 
-import * as Events from '../events';
+import chalk from 'chalk';
 import {colorForResult, successColor, errorColor, pendingColor} from '../utilities/color';
 
 import readline from 'readline';
 
-const DOT = '.';
-const DELAY = 60;
-const BARS = '█░'.split('');
 const CLEAR_WHOLE_LINE = 0;
+const PASS = chalk.inverse.bold.green(' PASS ');
+const FAIL = chalk.inverse.bold.red(' FAIL ');
+const SKIP = chalk.inverse.bold.yellow(' SKIP ');
 
 function clearLine(stdout) {
   readline.clearLine(stdout, CLEAR_WHOLE_LINE);
@@ -19,51 +19,64 @@ export function toStartOfLine(stdout) {
   readline.cursorTo(stdout, 0);
 }
 
-class ProgressBar {
-  current = 0;
+function getUI({testsTotal, testsCompleted, testsPassed, testsFailed, testsSkipped, componentsTotal, componentsCompleted, componentsPassed, componentsFailed, componentsSkipped}) {
+  const width = process.stdout.columns;
+  const completeWidth = Math.round(width * (testsCompleted / testsTotal));
 
-  constructor(total, stdout = process.stdout) {
-    this.total = total;
-    this.stdout = stdout;
-  }
+  const testString = [
+    testsFailed > 0 && chalk.bold.red(`${testsFailed} failed`),
+    testsSkipped > 0 && chalk.bold.yellow(`${testsSkipped} skipped`),
+    testsPassed > 0 && chalk.bold.green(`${testsPassed} passed`),
+    `${testsCompleted}/${testsTotal} total`,
+  ].filter(Boolean).join(', ');
 
-  tick() {
-    this.current += 1;
+  const componentString = [
+    componentsFailed > 0 && chalk.bold.red(`${componentsFailed} failed`),
+    componentsSkipped > 0 && chalk.bold.yellow(`${componentsSkipped} skipped`),
+    componentsPassed > 0 && chalk.bold.green(`${componentsPassed} passed`),
+    `${componentsCompleted}/${componentsTotal} total`,
+  ].filter(Boolean).join(', ');
 
-    if (!this.id) {
-      this.id = setTimeout((): void => this.render(), this.delay);
-    }
+  const progressBarColor = testsFailed > 0 ? chalk.red : chalk.green;
 
-    if (this.current >= this.total) {
-      clearTimeout(this.id);
-    }
-  }
+  return [
+    '',
+    `${chalk.bold('Components:')} ${componentString}`,
+    `${chalk.bold('Tests:')}      ${testString}`,
+    `${chalk.bold('Time:')}       1s`,
+    `${progressBarColor.inverse(' ').repeat(completeWidth)}${chalk.white.inverse(' ').repeat(width - completeWidth)}`,
+  ].join('\n');
+}
 
-  render() {
-    clearTimeout(this.id);
-    this.id = null;
-
-    let ratio = this.current / this.total;
-    ratio = Math.min(Math.max(ratio, 0), 1);
-
-    const label = ` ${this.current}/${this.total}`;
-    const width = Math.max(0, this.stdout.columns - label.length - 1);
-    const completeLength = Math.round(width * ratio);
-    const complete = BARS[0].repeat(completeLength);
-    const incomplete = BARS[1].repeat(width - completeLength);
-
-    toStartOfLine(this.stdout);
-    this.stdout.write(`${complete}${incomplete}${label}`);
-  }
+function getTestString({component, groups, name, hasMultipleViewports, viewport: {width, height}}) {
+  return `${chalk.dim(`${[component, ...groups].join(' > ')} >`)} ${chalk.bold(name)}${hasMultipleViewports ? chalk.dim(` @ ${width}x${height}`) : ''}`;
 }
 
 class Reporter {
-  start({total}) {
-    this.progressBar = new ProgressBar(total);
+  clear = '';
+
+  title(title, {icon}) {
+    console.log(`${icon}  ${chalk.bold(title)}\n`);
   }
 
-  test() {
-    this.progressBar.tick();
+  test(test, result, summary) {
+    const ui = getUI(summary);
+    const clear = '\r\x1B[K\r\x1B[1A'.repeat(ui.split('\n').length - 1);
+    const {failed, skipped} = result;
+
+    let prefix = PASS;
+
+    if (failed) {
+      prefix = FAIL;
+    } else if (skipped) {
+      prefix = SKIP;
+    }
+
+    process.stdout.write(this.clear);
+    console.log(`${prefix} ${getTestString(test)}`);
+    process.stdout.write(ui);
+
+    this.clear = clear;
   }
 
   end() {

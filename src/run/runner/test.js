@@ -22,8 +22,9 @@ export default async function run(test, {config, server}) {
   const {id, threshold, record, skip} = test;
 
   const result = {
-    passed: !record,
-    failed: false,
+    id,
+    passed: !skip && !record,
+    failed: !skip && record,
     skipped: skip,
     recorded: record,
     mismatch: 0,

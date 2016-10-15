@@ -4,28 +4,98 @@ import EventEmitter from 'events';
 import runTest from './test';
 import createServer from '../server';
 import {debug} from '../utilities/console';
+import Database from '../../database';
 
-class Progress {
-  results = [];
-
-  constructor(tests) {
-    this.tests = tests;
-  }
+class Component {
+  count = 0;
+  total = 0;
+  passCount = 0;
+  failCount = 0;
+  skipCount = 0;
 
   add(result) {
-    this.results.push(result);
+    const {skipped, passed} = result;
+
+    if (skipped) {
+      this.skipCount += 1;
+    } else if (passed) {
+      this.passCount += 1;
+    } else {
+      this.failCount += 1;
+    }
+
+    this.count += 1;
   }
 
-  get total() {
-    return this.tests.length;
+  get skipped() {
+    return this.skipCount === this.total;
+  }
+
+  get passed() {
+    return this.complete && this.failCount === 0 && this.passCount > 0;
+  }
+
+  get failed() {
+    return this.complete && this.failCount > 0;
   }
 
   get complete() {
-    return this.results.length;
+    return this.count === this.total;
+  }
+}
+
+class Progress {
+  testsPassed = 0;
+  testsFailed = 0;
+  testsSkipped = 0;
+  componentsPassed = 0;
+  componentsFailed = 0;
+  componentsSkipped = 0;
+
+  constructor(tests) {
+    this.testsTotal = tests.length;
+
+    this.components = tests.reduce((all, {component}) => {
+      all[component] = all[component] || new Component();
+      all[component].total += 1;
+      return all;
+    }, {});
+
+    this.componentsTotal = Object.keys(this.components).length;
   }
 
-  get percentComplete() {
-    return this.complete / this.total;
+  add(snapshot, result) {
+    const {component} = snapshot;
+    const {skipped, passed} = result;
+    const componentDetails = this.components[component];
+
+    if (skipped) {
+      this.testsSkipped += 1;
+    } else if (passed) {
+      this.testsPassed += 1;
+    } else {
+      this.testsFailed += 1;
+    }
+
+    if (!componentDetails.complete) {
+      componentDetails.add(result);
+
+      if (componentDetails.skipped) {
+        this.componentsSkipped += 1;
+      } else if (componentDetails.passed) {
+        this.componentsPassed += 1;
+      } else if (componentDetails.failed) {
+        this.componentsFailed += 1;
+      }
+    }
+  }
+
+  get componentsCompleted() {
+    return this.componentsPassed + this.componentsSkipped + this.componentsFailed;
+  }
+
+  get testsCompleted() {
+    return this.testsPassed + this.testsSkipped + this.testsFailed;
   }
 }
 
@@ -37,6 +107,7 @@ class Runner extends EventEmitter {
 
   async run() {
     const {config} = this;
+    const database = new Database(config);
     const server = await createServer(config);
     const cleanup = server.close.bind(server);
     debug('Created server');
@@ -51,31 +122,31 @@ class Runner extends EventEmitter {
 
     this.emit('start', progress);
 
-    const existingSnapshots = loadExistingSnapshots(config);
     const env = {server, config};
 
-    const snapshots = await Promise.all(
+    await Promise.all(
       tests.map(async (test) => {
-        const existingSnapshot = existingSnapshots[test.id];
+        const existingSnapshot = await database.getSnapshot({id: test.id});
         const snapshot = getSnapshotDetailsFromTest(test, existingSnapshot);
         const result = await runTest(test, env);
 
         if (test.record) {
           snapshot.image = result.image;
-          result.image = null;
+          delete result.image;
         }
 
-        snapshot.result = result;
-        progress.add(snapshot);
-        this.emit('test', snapshot, progress);
+        progress.add(snapshot, result);
+        this.emit('test', snapshot, result, progress);
 
-        return snapshot;
+        await Promise.all([
+          database.setSnapshot(snapshot),
+          database.setResult(result),
+        ]);
       }),
     );
 
-    debug(`Finished all tests: ${JSON.stringify(snapshots, null, 2)}`);
     this.emit('end', progress);
-    return snapshots;
+    return database;
   }
 }
 
@@ -90,20 +161,6 @@ async function getTests(server) {
   const {tests} = await messagePromise;
   initialConnection.release();
   return tests;
-}
-
-function loadExistingSnapshots({detailsFile}) {
-  const existingSnapshots = {};
-
-  try {
-    for (const snapshot of fs.readJSONSync(detailsFile).snapshots) {
-      existingSnapshots[snapshot.id] = snapshot;
-    }
-  } catch (error) {
-    // no file, just return empty details
-  }
-
-  return existingSnapshots;
 }
 
 function getSnapshotDetailsFromTest({
@@ -122,6 +179,5 @@ function getSnapshotDetailsFromTest({
     viewport,
     hasMultipleViewports,
     image,
-    result: null,
   };
 }
