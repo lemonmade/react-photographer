@@ -14,12 +14,12 @@ type Props = {
   },
 };
 
-function Snapshot({snapshot: {id, referenceImage, compareImage, passed}}: Props) {
+function Snapshot({snapshot: {id, image, result: {image: resultImage, passed}}}: Props) {
   const component = passed
-    ? <img src={`/${referenceImage}`} alt="Reference snapshot" />
+    ? <img src={`/${image.src}`} alt="Reference snapshot" />
     : <OnionSkin
-      comparisonImage={`/${compareImage}`}
-      referenceImage={`/${referenceImage}`}
+      comparisonImage={`/${resultImage.src}`}
+      referenceImage={`/${image.src}`}
       />;
 
   return (
@@ -35,10 +35,12 @@ export default Relay.createContainer(Snapshot, {
     snapshot: () => Relay.QL`
       fragment on Snapshot {
         id
-        passed
-        referenceImage
-        compareImage
-        diffImage
+        image {src}
+        result {
+          passed
+          image {src}
+          diff {src}
+        }
       }
     `,
   },

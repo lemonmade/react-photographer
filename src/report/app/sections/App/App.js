@@ -55,7 +55,7 @@ function App({children, viewer: {snapshots}}: Props) {
           return (
             <ListGroup key={index} title={component} accessory={<Badge status={groupDetails} />}>
               {groupedSnapshots[component].map((snapshot, snapshotIndex) => {
-                const {passed, skipped, name, id, groups, hasMultipleViewports, viewport} = snapshot;
+                const {result: {passed, skipped}, name, id, groups, hasMultipleViewports, viewport} = snapshot;
                 let status;
                 let title;
 
@@ -103,13 +103,15 @@ export default Relay.createContainer(App, {
           id
           name
           component
-          skipped
-          passed
           groups
           hasMultipleViewports
           viewport {
             height
             width
+          }
+          result {
+            skipped
+            passed
           }
         }
       }
@@ -123,10 +125,10 @@ const Labels = {
   failed: 'failure',
 };
 
-function getLabelForSnapshot(snapshot) {
-  if (snapshot.skipped) {
+function getLabelForSnapshot({result}) {
+  if (result.skipped) {
     return Labels.skipped;
-  } else if (snapshot.passed) {
+  } else if (result.passed) {
     return Labels.passed;
   } else {
     return Labels.failed;

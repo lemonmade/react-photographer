@@ -64,8 +64,8 @@ class Progress {
     this.componentsTotal = Object.keys(this.components).length;
   }
 
-  add(snapshot, result) {
-    const {component} = snapshot;
+  add(snapshot) {
+    const {component, result} = snapshot;
     const {skipped, passed} = result;
     const componentDetails = this.components[component];
 
@@ -126,22 +126,21 @@ class Runner extends EventEmitter {
 
     await Promise.all(
       tests.map(async (test) => {
-        const existingSnapshot = await database.getSnapshot({id: test.id});
+        const existingSnapshot = await database.get({id: test.id});
         const snapshot = getSnapshotDetailsFromTest(test, existingSnapshot);
         const result = await runTest(test, env);
+
+        snapshot.result = result;
 
         if (test.record) {
           snapshot.image = result.image;
           delete result.image;
         }
 
-        progress.add(snapshot, result);
-        this.emit('test', snapshot, result, progress);
+        progress.add(snapshot);
+        this.emit('test', snapshot, progress);
 
-        await Promise.all([
-          database.setSnapshot(snapshot),
-          database.setResult(result),
-        ]);
+        await database.set(snapshot);
       }),
     );
 

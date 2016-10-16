@@ -4,9 +4,9 @@
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/@lemonmade/react-universal-config/-/react-universal-config-0.7.0.tgz#4cde3ca424eca3458f6bf4f2cc4f38f63ce844bb"
 
-"@lemonmade/react-universal-dev@0.17.x":
-  version "0.17.0"
-  resolved "https://registry.yarnpkg.com/@lemonmade/react-universal-dev/-/react-universal-dev-0.17.0.tgz#1f0c81095f365d31152272deb56592bdd950ad13"
+"@lemonmade/react-universal-dev@0.18.x":
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/@lemonmade/react-universal-dev/-/react-universal-dev-0.18.0.tgz#83dcfa9de5316b4468118adcc9b9f654473d9fe8"
   dependencies:
     "@lemonmade/react-universal" "0.15.x"
     "@lemonmade/react-universal-config" "0.7.x"
@@ -44,6 +44,25 @@
 "@lemonmade/react-universal@0.15.x":
   version "0.15.0"
   resolved "https://registry.yarnpkg.com/@lemonmade/react-universal/-/react-universal-0.15.0.tgz#81b98133742c8e39cf3d12db2b33ecb99bb452f1"
+  dependencies:
+    "@lemonmade/react-universal-config" "0.7.x"
+    compression "^1.6.2"
+    core-js "^2.4.1"
+    express "^4.14.0"
+    express-graphql "^0.5.4"
+    graphql "^0.7.0"
+    helmet "^2.1.2"
+    hpp "^0.2.1"
+    isomorphic-relay "^0.7.1"
+    isomorphic-relay-router "^0.8.1"
+    react-hot-loader "3.0.0-beta.5"
+    serialize-javascript "^1.3.0"
+    source-map-support "^0.4.2"
+    yargs "^5.0.0"
+
+"@lemonmade/react-universal@0.18.x":
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/@lemonmade/react-universal/-/react-universal-0.18.0.tgz#26695232b87fd6efca6df66d2a85ef41dbc2e9dd"
   dependencies:
     "@lemonmade/react-universal-config" "0.7.x"
     compression "^1.6.2"

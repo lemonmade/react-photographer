@@ -18,9 +18,8 @@ export default async function createServer(config: ConfigType, snapshotConfig: S
   const store = createStore();
   const {publicPath, buildDir} = config;
   const {snapshotRoot} = snapshotConfig;
+  const rootValue = await createRootValue(snapshotConfig);
   const universalReactAppMiddleware = createUniversalReactAppMiddleware({
-    schema,
-    rootValue: await createRootValue(config),
     routes,
     store,
   }, config);
@@ -31,17 +30,17 @@ export default async function createServer(config: ConfigType, snapshotConfig: S
   // Response compression.
   app.use(compression());
 
-  app.use('/graphql', graphql({schema, pretty: true, graphiql: true}));
+  app.use('/graphql', graphql({schema, rootValue, pretty: true, graphiql: true}));
 
   app.use(
     // TODO
     `/${path.basename(snapshotRoot)}`,
-    express.static(snapshotRoot)
+    express.static(snapshotRoot),
   );
 
   app.use(
     publicPath,
-    express.static(path.join(buildDir, 'client'), {maxAge: '365d'})
+    express.static(path.join(buildDir, 'client'), {maxAge: '365d'}),
   );
 
   app.get('*', universalReactAppMiddleware);

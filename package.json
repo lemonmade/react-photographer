@@ -38,6 +38,10 @@
         "5.7.0"
       ],
       "shopify/react"
+    ],
+    "plugins": [
+      "syntax-object-rest-spread",
+      "transform-object-rest-spread"
     ]
   },
   "eslintConfig": {
@@ -53,7 +57,7 @@
   },
   "homepage": "https://github.com/lemonmade/blueprint-react",
   "dependencies": {
-    "@lemonmade/react-universal": "0.15.x",
+    "@lemonmade/react-universal": "0.18.x",
     "@lemonmade/react-universal-config": "0.7.x",
     "assets-webpack-plugin": "^3.4.0",
     "chalk": "^1.1.3",
@@ -79,7 +83,7 @@
     "yargs": "^5.0.0"
   },
   "devDependencies": {
-    "@lemonmade/react-universal-dev": "0.17.x",
+    "@lemonmade/react-universal-dev": "0.18.x",
     "babel-cli": "^6.16.0",
     "babel-preset-shopify": "15.0.x",
     "babel-relay-plugin": "^0.9.3",

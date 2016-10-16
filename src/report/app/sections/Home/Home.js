@@ -18,10 +18,10 @@ type Props = {
 
 function Home({viewer}: Props) {
   const {snapshots} = viewer;
-  const {passes, skips, failures} = snapshots.reduce((all, snapshot) => {
-    if (snapshot.skipped) {
+  const {passes, skips, failures} = snapshots.reduce((all, {result}) => {
+    if (result.skipped) {
       all.skips += 1;
-    } else if (snapshot.passed) {
+    } else if (result.passed) {
       all.passes += 1;
     } else {
       all.failures += 1;
@@ -52,8 +52,10 @@ const HomeContainer = Relay.createContainer(Home, {
     viewer: () => Relay.QL`
       fragment on Viewer {
         snapshots {
-          passed
-          skipped
+          result {
+            passed
+            skipped
+          }
         }
       }
     `,

@@ -43,7 +43,6 @@ function getUI({testsTotal, testsCompleted, testsPassed, testsFailed, testsSkipp
     '',
     `${chalk.bold('Components:')} ${componentString}`,
     `${chalk.bold('Tests:')}      ${testString}`,
-    `${chalk.bold('Time:')}       1s`,
     `${progressBarColor.inverse(' ').repeat(completeWidth)}${chalk.white.inverse(' ').repeat(width - completeWidth)}`,
   ].join('\n');
 }
@@ -59,10 +58,10 @@ class Reporter {
     console.log(`${icon}  ${chalk.bold(title)}\n`);
   }
 
-  test(test, result, summary) {
+  test(snapshot, summary) {
     const ui = getUI(summary);
     const clear = '\r\x1B[K\r\x1B[1A'.repeat(ui.split('\n').length - 1);
-    const {failed, skipped} = result;
+    const {result: {failed, skipped}} = snapshot;
 
     let prefix = PASS;
 
@@ -73,7 +72,7 @@ class Reporter {
     }
 
     process.stdout.write(this.clear);
-    console.log(`${prefix} ${getTestString(test)}`);
+    console.log(`${prefix} ${getTestString(snapshot)}`);
     process.stdout.write(ui);
 
     this.clear = clear;

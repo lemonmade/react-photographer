@@ -1,30 +1,48 @@
 // @flow
 
 import fs from 'fs-extra';
-import {join} from 'path';
-
 import {buildSchema} from 'graphql';
 
-export async function createRootValue({detailsFile, resultsFile}) {
-  let snapshotDetails;
-  let snapshotResults;
+import Database from '../../../database';
 
-  try {
-    snapshotDetails = fs.readJSONSync(detailsFile)
-  } catch (error) {
-    snapshotDetails = {snapshots: []};
-  }
-
-  try {
-    snapshotResults = fs.readJSONSync(resultsFile);
-  } catch (error) {
-    snapshotResults = {};
-  }
+export async function createRootValue(config) {
+  const database = new Database(config);
 
   return {
-    snapshots() { return []; },
-    snapshot({id}) {},
-    acceptSnapshot({id}) {},
+    viewer() {
+      return {
+        snapshots() {
+          return database.getAll();
+        },
+      };
+    },
+    snapshot({id}) {
+      return database.get({id});
+    },
+    async acceptSnapshot({id}) {
+      const snapshot = await database.get({id});
+      const {result, image: {src: referenceImagePath}} = snapshot;
+
+      const newResult = {
+        ...result,
+        passed: true,
+        failed: false,
+        skipped: false,
+      };
+
+      delete newResult.image;
+      delete newResult.diff;
+
+      const newSnapshot = {
+        ...snapshot,
+        status: 'ACCEPTED',
+        image: result.image,
+        result: newResult,
+      };
+
+      fs.copySync(newSnapshot.image.src, referenceImagePath);
+      return await database.set(newSnapshot, {dump: true});
+    },
   };
 }
 
@@ -49,13 +67,13 @@ export const schema = buildSchema(`
     mismatch: Float!
     duration: Float!
     reason: String
+    details: String
     image: Image
     diff: Image
   }
 
   enum Status {
-    TESTED
-    UNTESTED
+    UNCHANGED
     ACCEPTED
   }
 
@@ -64,15 +82,19 @@ export const schema = buildSchema(`
     name: String!
     component: String!
     groups: [String!]!
-    status: Status!
     viewport: Viewport!
     hasMultipleViewports: Boolean!
+    status: Status!
     image: Image
     result: Result
   }
 
-  type Query {
+  type Viewer {
     snapshots: [Snapshot!]!
+  }
+
+  type Query {
+    viewer: Viewer!
     snapshot(id: ID!): Snapshot
   }
 

@@ -9,7 +9,11 @@ export default class Database {
     let snapshots = {};
 
     try {
-      snapshots = fs.readJSONSync(config.detailsFile);
+      snapshots = fs.readJSONSync(config.detailsFile).snapshots.reduce((all, snapshot) => {
+        snapshot.status = 'UNCHANGED';
+        all[snapshot.id] = snapshot;
+        return all;
+      }, {});
     } catch (error) {
       // no file, just return empty details
     }
@@ -22,34 +26,41 @@ export default class Database {
       // no file, just return empty details
     }
 
+    Object.keys(results).forEach((id) => {
+      snapshots[id].result = results[id];
+    });
+
     this.snapshots = snapshots;
-    this.results = results;
   }
 
-  getSnapshot({id}) {
+  getAll() {
+    return Object.keys(this.snapshots).map((id) => this.snapshots[id]);
+  }
+
+  get({id}) {
     return this.snapshots[id];
   }
 
-  setSnapshot(snapshot) {
+  async set(snapshot, {dump = false} = {}) {
     const {id} = snapshot;
-    if (id == null) { return; }
     this.snapshots[id] = snapshot;
-  }
-
-  getResult({id}) {
-    return this.results[id];
-  }
-
-  setResult(result) {
-    const {id} = result;
-    if (id == null) { return; }
-    this.results[id] = result;
+    if (dump) { await this.dump(); }
+    return snapshot;
   }
 
   dump() {
-    const {config, snapshots, results} = this;
+    const {config, snapshots} = this;
 
-    fs.writeFileSync(config.detailsFile, JSON.stringify(snapshots, null, 2));
-    fs.writeFileSync(config.resultsFile, JSON.stringify(results, null, 2));
+    const snapshotContent = [];
+    const resultContent = {};
+
+    Object.keys(snapshots).map((key) => snapshots[key]).forEach((sourceSnapshot) => {
+      const {result, status, ...snapshot} = sourceSnapshot;
+      snapshotContent.push(snapshot);
+      resultContent[snapshot.id] = result;
+    });
+
+    fs.writeFileSync(config.detailsFile, JSON.stringify({snapshots: snapshotContent}, null, 2));
+    fs.writeFileSync(config.resultsFile, JSON.stringify(resultContent, null, 2));
   }
 }
