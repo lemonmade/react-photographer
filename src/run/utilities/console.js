@@ -11,6 +11,18 @@ export class Logger {
     process.stdout.write('\x1B[2J\x1B[0f');
   }
 
+  stepCount(...args) {
+    if (typeof this.reporter.stepCount === 'function') {
+      this.reporter.stepCount(...args);
+    }
+  }
+
+  step(...args) {
+    if (typeof this.reporter.step === 'function') {
+      this.reporter.step(...args);
+    }
+  }
+
   title(...args) {
     if (typeof this.reporter.title === 'function') {
       this.reporter.title(...args);

@@ -18,7 +18,7 @@ export type ConfigType = {
   [key: string]: any,
 };
 
-export default async function getConfig(): Promise<ConfigType> {
+export default async function getConfig(customConfig: UserConfigType = {}): Promise<ConfigType> {
   let config;
 
   try {
@@ -27,11 +27,12 @@ export default async function getConfig(): Promise<ConfigType> {
     config = {};
   }
 
-  const finalConfig = {...config};
+  const finalConfig = {...config, ...customConfig};
 
-  finalConfig.snapshotRoot = config.snapshotRoot || path.resolve('./snapshots');
+  finalConfig.root = finalConfig.root || process.cwd();
+  finalConfig.snapshotRoot = config.snapshotRoot || path.resolve(finalConfig.root, './snapshots');
   finalConfig.detailsFile = config.detailsFile || path.join(finalConfig.snapshotRoot, 'details.json');
-  finalConfig.buildPath = config.buildPath || path.resolve('./.photographer');
+  finalConfig.buildPath = config.buildPath || path.resolve(finalConfig.root, './.photographer');
   finalConfig.assetPath = config.assetPath || path.join(finalConfig.buildPath, 'assets');
   finalConfig.resultsFile = config.resultsFile || path.join(finalConfig.buildPath, 'results.json');
   finalConfig.webpack = createWebpackConfig(finalConfig);

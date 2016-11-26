@@ -5,19 +5,9 @@ import {colorForResult, successColor, errorColor, pendingColor} from '../utiliti
 
 import readline from 'readline';
 
-const CLEAR_WHOLE_LINE = 0;
 const PASS = chalk.inverse.bold.green(' PASS ');
 const FAIL = chalk.inverse.bold.red(' FAIL ');
 const SKIP = chalk.inverse.bold.yellow(' SKIP ');
-
-function clearLine(stdout) {
-  readline.clearLine(stdout, CLEAR_WHOLE_LINE);
-  toStartOfLine(stdout);
-}
-
-export function toStartOfLine(stdout) {
-  readline.cursorTo(stdout, 0);
-}
 
 function getUI({testsTotal, testsCompleted, testsPassed, testsFailed, testsSkipped, componentsTotal, componentsCompleted, componentsPassed, componentsFailed, componentsSkipped}) {
   const width = process.stdout.columns;
@@ -52,10 +42,42 @@ function getTestString({component, groups, name, hasMultipleViewports, viewport:
 }
 
 class Reporter {
-  clear = '';
+  clearTestUI = '';
+  clearStepUI = '';
+  lastStep = null;
+  totalSteps = 0;
+  currentStep = 0;
 
   title(title, {icon}) {
     console.log(`${icon}  ${chalk.bold(title)}\n`);
+  }
+
+  stepCount(count) {
+    this.totalSteps = count;
+  }
+
+  step({message}) {
+    this.currentStep += 1;
+
+    const {currentStep, totalSteps, clearStepUI, lastStep} = this;
+    const ui = `${chalk.dim(`[${currentStep}/${totalSteps}]`)} ${message}\n`;
+    const clear = '\r\x1B[K\r\x1B[1A'.repeat(ui.split('\n').length - 1);
+
+    process.stdout.write(clearStepUI);
+
+    if (lastStep) {
+      console.log(`${chalk.green(`[${currentStep - 1}/${totalSteps}]`)} ${lastStep}`);
+    }
+
+    process.stdout.write(ui);
+
+    this.lastStep = message;
+    this.clearStepUI = clear;
+  }
+
+  start() {
+    process.stdout.write(this.clearStepUI);
+    console.log(`${chalk.green(`[${this.currentStep}/${this.totalSteps}]`)} ${this.lastStep}\n`);
   }
 
   test(snapshot, summary) {
@@ -71,11 +93,11 @@ class Reporter {
       prefix = SKIP;
     }
 
-    process.stdout.write(this.clear);
+    process.stdout.write(this.clearTestUI);
     console.log(`${prefix} ${getTestString(snapshot)}`);
     process.stdout.write(ui);
 
-    this.clear = clear;
+    this.clearTestUI = clear;
   }
 
   end() {

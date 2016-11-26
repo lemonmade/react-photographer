@@ -9,7 +9,6 @@ import express from 'express';
 import {Server as WebSocketServer} from 'ws';
 import EventEmitter from 'events';
 
-import generateAssets from './assets';
 import type {ConfigType} from '../../../config';
 
 export class App extends EventEmitter {
@@ -37,8 +36,6 @@ export class App extends EventEmitter {
 }
 
 export default async function createApp(config: ConfigType): Promise<App> {
-  await generateAssets(config);
-
   const app = express();
 
   app.use(config.webpack.output.publicPath, express.static(config.assetPath));

@@ -16,6 +16,9 @@ export default async function run(config: ConfigType) {
   logger.title('React Photographer', {icon: '📷'});
 
   const runner = await createRunner(config);
+
+  runner.on('step:count', logger.stepCount.bind(logger));
+  runner.on('step', logger.step.bind(logger));
   runner.on('start', logger.start.bind(logger));
   runner.on('test', logger.test.bind(logger));
 

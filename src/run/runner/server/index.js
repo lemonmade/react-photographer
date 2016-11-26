@@ -3,7 +3,7 @@
 import url from 'url';
 import createBrowser from './browser';
 import createApp from './app';
-import createPool from '../pool';
+import createPool from '../../pool';
 
 class Connection {
   constructor(socket, client, release) {

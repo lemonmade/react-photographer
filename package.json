@@ -13,7 +13,7 @@
     "clean": "rm -rf lib build src/build",
     "build:app": "babel-node scripts/build",
     "build:scripts": "babel src --ignore src/report/app,src/build --out-dir lib >/dev/null",
-    "build:copy": "cp -R src/build lib && cp -R src/run/server/app/templates lib/run/server/app",
+    "build:copy": "cp -R src/build lib && cp -R src/run/runner/templates lib/run/runner",
     "build": "npm run clean && npm run build:app && npm run build:scripts && npm run build:copy",
     "start": "node lib/cli/commands/report/index.js",
     "example:custom": "pushd examples/custom-webpack-config && npm test && popd",
@@ -78,12 +78,12 @@
     "react-redux": "^4.4.5",
     "react-relay": "^0.9.3",
     "react-router": "^2.8.1",
-    "redux": "^3.6.0",
+    "redux": "^3.0.0",
     "ws": "^1.1.1",
     "yargs": "^5.0.0"
   },
   "devDependencies": {
-    "@lemonmade/react-universal-dev": "0.18.x",
+    "@lemonmade/react-universal-dev": "^0.24.0",
     "babel-cli": "^6.16.0",
     "babel-preset-shopify": "15.0.x",
     "babel-relay-plugin": "^0.9.3",
