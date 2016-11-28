@@ -1,8 +1,18 @@
-class Pool {
-  queue = [];
-  available = [];
+// @flow
 
-  constructor(creator, {limit}) {
+type Options = {
+  limit: number,
+};
+
+type Creator<T> = (id: string) => T | (id: string) => Promise<T>;
+
+class Pool<T> {
+  limit: number;
+  creator: Creator<T>;
+  queue: ((T) => T)[] = [];
+  available: T[] = [];
+
+  constructor(creator: Creator<T>, {limit}: Options) {
     this.limit = limit;
     this.creator = creator;
   }
@@ -25,7 +35,7 @@ class Pool {
     }
   }
 
-  release(object) {
+  release(object: T) {
     const nextQueued = this.queue.shift();
 
     if (nextQueued) {
@@ -36,6 +46,8 @@ class Pool {
   }
 }
 
-export default function createPool(creator, options) {
+export type {Pool};
+
+export default function createPool<T>(creator: Creator<T>, options: Options): Pool<T> {
   return new Pool(creator, options);
 }

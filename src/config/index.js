@@ -7,18 +7,18 @@ import path from 'path';
 import createWebpackConfig from './webpack';
 import createReportConfig from './report';
 
-export type UserConfigType = {
+export type UserConfig = {
   files?: string[],
   snapshotRoot?: string,
   buildPath?: string,
   webpack?: Object,
 };
 
-export type ConfigType = {
+export type Config = {
   [key: string]: any,
 };
 
-export default async function getConfig(customConfig: UserConfigType = {}): Promise<ConfigType> {
+export default async function getConfig(customConfig: UserConfig = {}): Promise<Config> {
   let config;
 
   try {

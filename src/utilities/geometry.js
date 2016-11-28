@@ -1,9 +1,6 @@
 // @flow
 
-type PointType = {
-  x: number,
-  y: number,
-};
+import type {Point} from '../types';
 
 export class Rect {
   x: number;
@@ -18,14 +15,14 @@ export class Rect {
     this.height = height;
   }
 
-  get center(): PointType {
+  get center(): Point {
     return {
       x: this.x + (this.width / 2),
       y: this.y + (this.height / 2),
     };
   }
 
-  get origin(): PointType {
+  get origin(): Point {
     return {
       x: this.x,
       y: this.y,

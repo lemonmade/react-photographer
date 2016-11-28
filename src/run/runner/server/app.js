@@ -9,9 +9,9 @@ import express from 'express';
 import {Server as WebSocketServer} from 'ws';
 import EventEmitter from 'events';
 
-import type {ConfigType} from '../../../config';
+import type {Config} from '../../../config';
 
-export class App extends EventEmitter {
+class App extends EventEmitter {
   httpServer: HTTPServer;
   webSocketServer: WebSocketServer;
   closed: boolean = false;
@@ -35,7 +35,9 @@ export class App extends EventEmitter {
   }
 }
 
-export default async function createApp(config: ConfigType): Promise<App> {
+export type {App};
+
+export default async function createApp(config: Config): Promise<App> {
   const app = express();
 
   app.use(config.webpack.output.publicPath, express.static(config.assetPath));

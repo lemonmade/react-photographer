@@ -3,9 +3,9 @@
 import path from 'path';
 import AssetsPlugin from 'assets-webpack-plugin';
 
-import type {ConfigType} from './';
+import type {Config} from './';
 
-export default function createWebpackConfig(config: ConfigType) {
+export default function createWebpackConfig(config: Config) {
   const {webpack = {}, buildPath, assetPath} = config;
 
   webpack.entry = [
@@ -24,7 +24,7 @@ export default function createWebpackConfig(config: ConfigType) {
     new AssetsPlugin({
       filename: 'assets.json',
       path: buildPath,
-    })
+    }),
   );
 
   webpack.resolve = webpack.resolve || {};

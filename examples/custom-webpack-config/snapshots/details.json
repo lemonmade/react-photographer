@@ -13,7 +13,7 @@
       "image": {
         "src": "snapshots/reference/Badge/base@400x400.reference.png",
         "height": 31,
-        "width": 67
+        "width": 68
       }
     },
     {
@@ -29,7 +29,7 @@
       "image": {
         "src": "snapshots/reference/Badge/success@400x400.reference.png",
         "height": 31,
-        "width": 67
+        "width": 68
       }
     },
     {
@@ -45,7 +45,7 @@
       "image": {
         "src": "snapshots/reference/Badge/subdued@400x400.reference.png",
         "height": 31,
-        "width": 67
+        "width": 68
       }
     },
     {
@@ -61,7 +61,7 @@
       "image": {
         "src": "snapshots/reference/Badge/info@400x400.reference.png",
         "height": 31,
-        "width": 67
+        "width": 68
       }
     },
     {
@@ -77,7 +77,7 @@
       "image": {
         "src": "snapshots/reference/Badge/attention@400x400.reference.png",
         "height": 31,
-        "width": 67
+        "width": 68
       }
     },
     {
@@ -93,7 +93,7 @@
       "image": {
         "src": "snapshots/reference/Badge/warning@400x400.reference.png",
         "height": 31,
-        "width": 67
+        "width": 68
       }
     },
     {
@@ -109,7 +109,7 @@
       "image": {
         "src": "snapshots/reference/Badge/critical@400x400.reference.png",
         "height": 31,
-        "width": 67
+        "width": 68
       }
     },
     {
@@ -343,7 +343,7 @@
       "image": {
         "src": "snapshots/reference/Button/link/base@400x400.reference.png",
         "height": 34,
-        "width": 85
+        "width": 84
       }
     },
     {
@@ -361,7 +361,7 @@
       "image": {
         "src": "snapshots/reference/Button/link/hover@400x400.reference.png",
         "height": 34,
-        "width": 85
+        "width": 84
       }
     },
     {
@@ -411,7 +411,7 @@
       "image": {
         "src": "snapshots/reference/Button/link/active@400x400.reference.png",
         "height": 34,
-        "width": 85
+        "width": 84
       }
     },
     {
@@ -426,7 +426,7 @@
       "hasMultipleViewports": false,
       "image": {
         "src": "snapshots/reference/Word/base@400x400.reference.png",
-        "height": 63,
+        "height": 57,
         "width": 400
       }
     }

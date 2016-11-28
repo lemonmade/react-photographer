@@ -1,58 +1,50 @@
 // @flow
 
-import type {Client} from './run/client';
-import type {Server} from './run/server';
-import type {Logger} from './run/logger';
-import type {ConfigType} from './config';
-
-export type EnvType = {
-  client: Client,
-  server: Server,
-  config: ConfigType,
-  logger: Logger,
+export type Point = {
+  x: number,
+  y: number,
 };
 
-export type MessageType = {
+export type Message = {
   type: string,
   [key: string]: any,
 };
 
-export type ViewportType = {
+export type Viewport = {
   height: number,
   width: number,
 };
 
-export type TestType = {
-  name: string,
-  component: string,
-  groups: string[],
-  skip: boolean,
-  exclusive: boolean,
-  record: boolean,
-  viewport: ViewportType,
-  hasMultipleViewports: boolean,
-  threshold: number,
+export type Image = {
+  src: string,
+  height: number,
+  width: number,
 };
 
-export type SnapshotDescriptorType = TestType & {
-  children: React$Element<any>,
-  action?: (action: Object) => void | Promise<any>,
-};
-
-export type TestResultType = {
+export type Snapshot = {
   id: string,
   name: string,
   component: string,
   groups: string[],
-  skipped: boolean,
+  viewport: Viewport,
+  hasMultipleViewports: boolean,
+};
+
+export type SnapshotTestDescriptor = Snapshot & {
+  element: React$Element<any>,
+  action?: (action: Object) => void | Promise<any>,
+};
+
+export type Result = {
   passed: boolean,
   failed: boolean,
   recorded: boolean,
-  viewport: ViewportType,
-  referenceImage: string,
-  compareImage?: string,
-  diffImage?: string,
+  skipped: boolean,
   threshold: number,
-  mismatch?: number,
-  message?: string,
+  mismatch: number,
+  duration: number,
+  reason: string,
+  details: string,
+  image: Image,
+  diff: Image,
 };

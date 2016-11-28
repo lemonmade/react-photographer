@@ -2,5 +2,4 @@
 /src/build
 node_modules
 /snapshots
-
-/demo
+/examples

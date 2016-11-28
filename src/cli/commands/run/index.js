@@ -15,12 +15,12 @@ export const builder = {
   },
 };
 
-type RunOptionsType = {
+type RunOptions = {
   record?: boolean,
   report?: boolean,
 };
 
-export async function handler({record, report}: RunOptionsType) {
+export async function handler({record, report}: RunOptions) {
   const config = await loadConfig();
 
   if (record != null) {

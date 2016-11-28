@@ -3,12 +3,12 @@
 import fs from 'fs-extra';
 import path from 'path';
 
-import type {ConfigType} from '../config';
+import type {Config} from '../config';
 import createRunner from './runner';
 import dotReporter from './reporters/dot';
 import {createLogger, debug} from './utilities/console';
 
-export default async function run(config: ConfigType) {
+export default async function run(config: Config) {
   const start = Date.now();
   const logger = createLogger(dotReporter());
 

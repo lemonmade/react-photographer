@@ -1,11 +1,11 @@
 // @flow
 
-import type {ViewportType} from '../types';
+import type {Viewport} from '../types';
 
-type CaseType = {
+type Case = {
   name: string,
   action?: () => void,
-}
+};
 
 export type Props = {
   children?: any,
@@ -14,9 +14,9 @@ export type Props = {
   record?: boolean,
   skip?: boolean,
   exclusive?: boolean,
-  viewports?: ViewportType[],
+  viewports?: Viewport[],
   action?: () => void,
-  cases?: CaseType[],
+  cases?: Case[],
 };
 
 // eslint-disable-next-line no-unused-vars

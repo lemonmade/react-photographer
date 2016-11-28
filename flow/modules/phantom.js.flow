@@ -1,6 +1,11 @@
+// @flow
+
 declare class phantom$Page {
+  on(event: string): void;
   open(url: string): Promise<void>;
-  property(prop: boolean, value: any): Promise<void>;
+  render(path: string): Promise<void>;
+  property(prop: string, value: any): Promise<void>;
+  sendEvent(event: string, x?: number, y?: number): Promise<void>;
 }
 
 declare class phantom$Phantom {

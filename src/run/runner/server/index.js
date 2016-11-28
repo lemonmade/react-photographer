@@ -2,13 +2,20 @@
 
 import url from 'url';
 import createBrowser from './browser';
+import type {Browser} from './browser';
 import createApp from './app';
+import type {App} from './app';
 import createPool from '../../pool';
+import type {Pool} from '../../pool';
+
+import type {Config} from '../../../config';
 
 class Connection {
-  constructor(socket, client, release) {
+  socket: ws$Socket;
+  handleRelease: (connection: Connection) => void;
+
+  constructor(socket, release) {
     this.socket = socket;
-    this.client = client;
     this.handleRelease = release;
   }
 
@@ -36,12 +43,16 @@ class Connection {
 }
 
 class Server {
-  constructor(browser, app, {workers}) {
+  browser: Browser;
+  app: App;
+  connectionPool: Pool<Connection>;
+
+  constructor(browser, app, {workers}: Config) {
     this.app = app;
     this.browser = browser;
 
-    this.connectionPool = createPool(async (id) => {
-      return await createConnection(this, id);
+    this.connectionPool = createPool((id): Promise<Connection> => {
+      return createConnection(this, id);
     }, {
       limit: workers,
     });
@@ -66,21 +77,21 @@ async function createConnection(server, id) {
   const {app, browser} = server;
 
   const socketPromise = new Promise((resolve) => {
-    app.on('connection', function handleConnection(newConnection) {
-      const {query} = url.parse(newConnection.upgradeReq.url, true);
+    app.on('connection', function handleConnection(newConnection: ws$Socket) {
+      const {query = {}} = url.parse(newConnection.upgradeReq.url, true);
       if (query.connection !== id) { return; }
       app.removeListener('connection', handleConnection);
       resolve(newConnection);
     });
   });
 
-  const page = await browser.open(`${app.address}?connection=${id}`);
+  await browser.open(`${app.address}?connection=${id}`);
   const socket = await socketPromise;
 
-  return new Connection(socket, page, server.release.bind(server));
+  return new Connection(socket, server.release.bind(server));
 }
 
-export default async function createServer(config) {
+export default async function createServer(config: Config) {
   const [browser, app] = await Promise.all([
     createBrowser(config),
     createApp(config),

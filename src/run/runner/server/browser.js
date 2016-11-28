@@ -1,14 +1,17 @@
 // @flow
 
 import {create as createPhantom} from 'phantom';
+import type {Point} from '../../../types';
 
 class Device {
+  client: Client;
+
   constructor(client) {
     this.client = client;
   }
 
-  async performAction(...args) {
-    return await this.client.performAction(...args);
+  async performAction(action: string, position?: Point) {
+    return await this.client.performAction(action, position);
   }
 }
 
@@ -17,15 +20,15 @@ class Keyboard extends Device {
 }
 
 class Mouse extends Device {
-  async down(position) {
+  async down(position: Point) {
     await this.performAction('mousedown', position);
   }
 
-  async up(position) {
+  async up(position: Point) {
     await this.performAction('mouseup', position);
   }
 
-  async move(position) {
+  async move(position: Point) {
     await this.performAction('mousemove', position);
   }
 
@@ -35,6 +38,10 @@ class Mouse extends Device {
 }
 
 class Client {
+  page: phantom$Page;
+  mouse: Mouse;
+  keyboard: Keyboard;
+
   constructor(page) {
     this.page = page;
     this.mouse = new Mouse(this);
@@ -57,7 +64,7 @@ class Client {
     );
   }
 
-  async performAction(action, {x, y} = {}) {
+  async performAction(action, {x, y}: Point = {}) {
     await this.page.sendEvent(action, x, y);
   }
 
@@ -66,7 +73,7 @@ class Client {
   }
 }
 
-export class Browser {
+class Browser {
   phantom: phantom$Phantom;
   closed = false;
 
@@ -87,6 +94,8 @@ export class Browser {
     this.phantom.exit();
   }
 }
+
+export type {Browser};
 
 export default async function createBrowser(): Promise<Browser> {
   const phantom = await createPhantom();

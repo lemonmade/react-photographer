@@ -3,17 +3,13 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
-type TestReadyDetailsType = {
-  node: HTMLElement,
-};
-
-type TestDetailsType = {
+type TestDetails = {
   node: HTMLElement,
 };
 
 type Props = {
-  children?: React$Element,
-  onTestReady?: (details: TestDetailsType) => any,
+  children?: React$Element<any>,
+  onTestReady?: (details: TestDetails) => any,
 };
 
 export default class Tester extends Component {

@@ -1,9 +1,7 @@
 // @flow
+/* eslint class-methods-use-this: off */
 
 import chalk from 'chalk';
-import {colorForResult, successColor, errorColor, pendingColor} from '../utilities/color';
-
-import readline from 'readline';
 
 const PASS = chalk.inverse.bold.green(' PASS ');
 const FAIL = chalk.inverse.bold.red(' FAIL ');
@@ -44,19 +42,19 @@ function getTestString({component, groups, name, hasMultipleViewports, viewport:
 class Reporter {
   clearTestUI = '';
   clearStepUI = '';
-  lastStep = null;
+  lastStep = 0;
   totalSteps = 0;
   currentStep = 0;
 
-  title(title, {icon}) {
+  title(title: string, {icon}: {icon: string}) {
     console.log(`${icon}  ${chalk.bold(title)}\n`);
   }
 
-  stepCount(count) {
+  stepCount(count: number) {
     this.totalSteps = count;
   }
 
-  step({message}) {
+  step({message}: {message: string}) {
     this.currentStep += 1;
 
     const {currentStep, totalSteps, clearStepUI, lastStep} = this;
@@ -106,13 +104,5 @@ class Reporter {
 }
 
 export default function dotReporter() {
-  // runner.on(Events.end, ({passCount, failCount, skipCount}) => {
-  //   console.log('\n');
-  //
-  //   console.log(successColor(`${passCount} passes`));
-  //   console.log(errorColor(`${failCount} failures`));
-  //   console.log(pendingColor(`${skipCount} skipped`));
-  // });
-
   return new Reporter();
 }

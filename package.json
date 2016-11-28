@@ -1,11 +1,8 @@
 {
-  "name": "blueprint-react",
+  "name": "react-photographer",
   "private": true,
   "version": "1.0.0",
   "description": "A blueprint for a React + Relay + Redux server-side rendered application.",
-  "engines": {
-    "node": "~6.3.0"
-  },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "flow": "flow",

@@ -1,24 +1,29 @@
+// @flow
+
 import {Children} from 'react';
 
 import Snapshot from '../Snapshot';
 import type {Props as SnapshotProps} from '../Snapshot';
-import type {SnapshotDescriptorType, ViewportType} from '../../types';
+import type {SnapshotDescriptor, Viewport} from '../../types';
 
-export type TestSourceType = React$Component<*>[] | React$Element<{props: SnapshotProps}>[];
+export type TestSource = Object[];
 
-type BaseDescriptorType = {
+type BaseDescriptor = {
   record: boolean,
   skip: boolean,
   exclusive: boolean,
   groups: string[],
   threshold: number,
-  viewports: ViewportType[],
+  viewports: Viewport[],
   component?: string,
-}
+};
 
 /* eslint-env node */
 
-export default function getTestInformation(sources: TestSourceType, {record, threshold, viewports}) {
+export default function getTestInformation(
+  sources: TestSource,
+  {record, threshold, viewports}: BaseDescriptor,
+) {
   let hasExclusiveTest = false;
   const baseDescriptor = {
     record,
@@ -46,8 +51,8 @@ export default function getTestInformation(sources: TestSourceType, {record, thr
 
 function getTestInformationFromElement(
   element: React$Element<{props: SnapshotProps}>,
-  base: BaseDescriptorType
-): SnapshotDescriptorType[] {
+  base: BaseDescriptor,
+): SnapshotDescriptor[] {
   if (element.type !== Snapshot) {
     return [];
   }
@@ -127,7 +132,7 @@ function getTestInformationFromElement(
   });
 }
 
-function getElement(Comp): React$Element<*> {
+function getElement(Comp: any): React$Element<*> {
   if (Comp.render) {
     return Comp.render();
   } else if (Comp.prototype.render) {

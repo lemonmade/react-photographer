@@ -1,9 +1,12 @@
 // @flow
 
 import fs from 'fs-extra';
+import type {Config} from '../config';
 
 export default class Database {
-  constructor(config) {
+  config: Config;
+
+  constructor(config: Config) {
     this.config = config;
 
     let snapshots = {};
@@ -55,6 +58,7 @@ export default class Database {
     const resultContent = {};
 
     Object.keys(snapshots).map((key) => snapshots[key]).forEach((sourceSnapshot) => {
+      // eslint-disable-next-line no-unused-vars
       const {result, status, ...snapshot} = sourceSnapshot;
       snapshotContent.push(snapshot);
       resultContent[snapshot.id] = result;
