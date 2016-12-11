@@ -2,7 +2,7 @@
 
 import url from 'url';
 import createBrowser from './browser';
-import type {Browser} from './browser';
+import type {Browser, Client} from './browser';
 import createApp from './app';
 import type {App} from './app';
 import createPool from '../../pool';
@@ -12,10 +12,12 @@ import type {Config} from '../../../config';
 
 class Connection {
   socket: ws$Socket;
+  client: Client;
   handleRelease: (connection: Connection) => void;
 
-  constructor(socket, release) {
+  constructor(socket: ws$Socket, client: Client, release) {
     this.socket = socket;
+    this.client = client;
     this.handleRelease = release;
   }
 
@@ -85,10 +87,10 @@ async function createConnection(server, id) {
     });
   });
 
-  await browser.open(`${app.address}?connection=${id}`);
+  const client = await browser.open(`${app.address}?connection=${id}`);
   const socket = await socketPromise;
 
-  return new Connection(socket, server.release.bind(server));
+  return new Connection(socket, client, server.release.bind(server));
 }
 
 export default async function createServer(config: Config) {

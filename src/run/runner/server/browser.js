@@ -95,7 +95,7 @@ class Browser {
   }
 }
 
-export type {Browser};
+export type {Browser, Client};
 
 export default async function createBrowser(): Promise<Browser> {
   const phantom = await createPhantom();
