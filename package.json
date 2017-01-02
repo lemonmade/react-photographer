@@ -6,12 +6,13 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "flow": "flow",
-    "check": "npm run lint && npm run flow",
+    "test": "yarn run build && yarn run example:custom",
+    "check": "yarn run lint && yarn run flow",
     "clean": "rm -rf lib build src/build",
     "build:app": "babel-node scripts/build",
     "build:scripts": "babel src --ignore src/report/app,src/build --out-dir lib >/dev/null",
     "build:copy": "cp -R src/build lib && cp -R src/run/runner/templates lib/run/runner",
-    "build": "npm run clean && npm run build:app && npm run build:scripts && npm run build:copy",
+    "build": "yarn run clean && yarn run build:app && yarn run build:scripts && yarn run build:copy",
     "start": "node lib/cli/commands/report/index.js",
     "example:custom": "pushd examples/custom-webpack-config && npm test && popd",
     "dev": "node src/server/dev"
