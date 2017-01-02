@@ -118,6 +118,8 @@ export default async function run(test, {config, server}) {
     result.passed = passed;
     result.failed = !passed;
 
+    console.log(JSON.stringify(result, null, 2));
+
     const imageSize = getImageSize(paths.compare);
     result.image = {
       src: path.relative(path.dirname(config.snapshotRoot), paths.compare),
