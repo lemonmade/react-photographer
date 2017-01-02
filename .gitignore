@@ -1,9 +1,2 @@
-lib/
-src/build/
-**/snapshots/compare
-**/snapshots/diff
-.photographer/
-
 node_modules
-*.log
-.DS_Store
+lib

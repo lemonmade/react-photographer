@@ -1,98 +1,60 @@
 {
   "name": "react-photographer",
-  "private": true,
-  "version": "1.0.0",
-  "description": "A blueprint for a React + Relay + Redux server-side rendered application.",
-  "scripts": {
-    "lint": "eslint . --max-warnings 0",
-    "flow": "flow",
-    "test": "yarn run build && yarn run example:custom",
-    "check": "yarn run lint && yarn run flow",
-    "clean": "rm -rf lib build src/build",
-    "build:app": "babel-node scripts/build",
-    "build:scripts": "babel src --ignore src/report/app,src/build --out-dir lib >/dev/null",
-    "build:copy": "cp -R src/build lib && cp -R src/run/runner/templates lib/run/runner",
-    "build": "yarn run clean && yarn run build:app && yarn run build:scripts && yarn run build:copy",
-    "start": "node lib/cli/commands/report/index.js",
-    "example:custom": "cd examples/custom-webpack-config && yarn test && cd ../..",
-    "dev": "node src/server/dev"
-  },
-  "bin": {
-    "photographer": "./bin/photographer"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/lemonmade/blueprint-react.git"
-  },
-  "author": "Chris Sauve <chrismsauve@gmail.com>",
+  "version": "0.0.1",
+  "description": "A visual regression testing tool for React.",
+  "main": "index.js",
+  "author": "Chris Sauve",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/lemonmade/blueprint-react/issues"
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc -watch",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
-  "babel": {
-    "presets": [
-      [
-        "shopify/node",
-        "5.7.0"
-      ],
-      "shopify/react"
+  "jest": {
+    "testPathDirs": [
+      "<rootDir>/src"
     ],
-    "plugins": [
-      "syntax-object-rest-spread",
-      "transform-object-rest-spread"
+    "testRegex": "/tests/.*\\.test\\.(ts|tsx|js)$",
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
     ]
   },
-  "eslintConfig": {
-    "extends": [
-      "plugin:shopify/react",
-      "plugin:shopify/node",
-      "plugin:shopify/flow"
-    ],
-    "rules": {
-      "promise/catch-or-return": "off",
-      "promise/always-return": "off"
-    }
-  },
-  "homepage": "https://github.com/lemonmade/blueprint-react",
-  "dependencies": {
-    "@lemonmade/react-universal": "0.18.x",
-    "@lemonmade/react-universal-config": "0.7.x",
-    "assets-webpack-plugin": "^3.4.0",
-    "chalk": "^1.1.3",
-    "compression": "^1.6.2",
-    "core-js": "^2.4.1",
-    "cosmiconfig": "^1.1.0",
-    "debug": "^2.2.0",
-    "ejs": "^2.5.1",
-    "express": "4.14.0",
-    "express-graphql": "^0.5.4",
-    "fs-extra": "^0.30.0",
-    "globby": "^6.0.0",
-    "graphql": "^0.7.2",
-    "image-size": "^0.5.0",
-    "node-resemble-js": "^0.1.1",
-    "phantom": "^2.1.17",
-    "react-helmet": "^3.1.0",
-    "react-redux": "^4.4.5",
-    "react-relay": "^0.9.3",
-    "react-router": "^2.8.1",
-    "redux": "^3.0.0",
-    "ws": "^1.1.1",
-    "yargs": "^5.0.0"
-  },
   "devDependencies": {
-    "@lemonmade/react-universal-dev": "^0.24.0",
-    "babel-cli": "^6.16.0",
-    "babel-preset-shopify": "15.0.x",
-    "babel-relay-plugin": "^0.9.3",
-    "eslint": "^3.5.0",
-    "eslint-plugin-shopify": "15.0.x",
-    "flow-bin": "^0.33.0",
-    "react": "^15.3.2",
-    "react-dom": "^15.3.2"
+    "@types/jest": "^16.0.2",
+    "ava": "^0.17.0",
+    "jest": "^18.0.0",
+    "react": "^15.4.1",
+    "react-dom": "^15.4.1",
+    "ts-jest": "^18.0.0",
+    "typescript": "^2.1.4"
   },
   "peerDependencies": {
-    "react": "^15.3.2",
-    "react-dom": "^15.3.2"
+    "react": "^15.4.1",
+    "react-dom": "^15.4.1"
+  },
+  "dependencies": {
+    "@types/core-decorators": "^0.10.30",
+    "@types/core-js": "^0.9.35",
+    "@types/express": "^4.0.34",
+    "@types/fs-extra": "^0.0.35",
+    "@types/glob": "^5.0.30",
+    "@types/phantom": "^0.0.30",
+    "@types/react": "^0.14.55",
+    "@types/react-dom": "^0.14.19",
+    "@types/ws": "^0.0.37",
+    "core-decorators": "^0.15.0",
+    "core-js": "^2.4.1",
+    "cosmiconfig": "^2.1.1",
+    "express": "^4.14.0",
+    "fs-extra": "^1.0.0",
+    "glob": "^7.1.1",
+    "phantom": "^3.2.1",
+    "ws": "^1.1.1"
   }
 }

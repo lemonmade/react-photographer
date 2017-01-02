@@ -1,7 +1,0 @@
-// @flow
-
-import EventEmitter from 'events';
-
-declare class ws$Socket extends EventEmitter {
-  upgradeReq: http$IncomingMessage;
-}
