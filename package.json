@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "flow": "flow",
-    "test": "yarn run build:scripts && yarn run example:custom",
+    "test": "yarn run clean && yarn run build:scripts && yarn run build:copy && yarn run example:custom",
     "check": "yarn run lint && yarn run flow",
     "clean": "rm -rf lib build src/build",
     "build:app": "babel-node scripts/build",
