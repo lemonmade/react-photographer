@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "flow": "flow",
-    "test": "yarn run build && yarn run example:custom",
+    "test": "yarn run build:scripts && yarn run example:custom",
     "check": "yarn run lint && yarn run flow",
     "clean": "rm -rf lib build src/build",
     "build:app": "babel-node scripts/build",
@@ -14,7 +14,7 @@
     "build:copy": "cp -R src/build lib && cp -R src/run/runner/templates lib/run/runner",
     "build": "yarn run clean && yarn run build:app && yarn run build:scripts && yarn run build:copy",
     "start": "node lib/cli/commands/report/index.js",
-    "example:custom": "pushd examples/custom-webpack-config && npm test && popd",
+    "example:custom": "cd examples/custom-webpack-config && yarn test && cd ../..",
     "dev": "node src/server/dev"
   },
   "bin": {
