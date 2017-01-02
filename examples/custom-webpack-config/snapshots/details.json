@@ -13,7 +13,7 @@
       "image": {
         "src": "snapshots/reference/Badge/base@400x400.reference.png",
         "height": 31,
-        "width": 68
+        "width": 67
       }
     },
     {
@@ -29,7 +29,7 @@
       "image": {
         "src": "snapshots/reference/Badge/success@400x400.reference.png",
         "height": 31,
-        "width": 68
+        "width": 67
       }
     },
     {
@@ -45,7 +45,7 @@
       "image": {
         "src": "snapshots/reference/Badge/subdued@400x400.reference.png",
         "height": 31,
-        "width": 68
+        "width": 67
       }
     },
     {
@@ -61,7 +61,7 @@
       "image": {
         "src": "snapshots/reference/Badge/info@400x400.reference.png",
         "height": 31,
-        "width": 68
+        "width": 67
       }
     },
     {
@@ -77,7 +77,7 @@
       "image": {
         "src": "snapshots/reference/Badge/attention@400x400.reference.png",
         "height": 31,
-        "width": 68
+        "width": 67
       }
     },
     {
@@ -93,7 +93,7 @@
       "image": {
         "src": "snapshots/reference/Badge/warning@400x400.reference.png",
         "height": 31,
-        "width": 68
+        "width": 67
       }
     },
     {
@@ -109,7 +109,7 @@
       "image": {
         "src": "snapshots/reference/Badge/critical@400x400.reference.png",
         "height": 31,
-        "width": 68
+        "width": 67
       }
     },
     {
@@ -127,7 +127,7 @@
       "image": {
         "src": "snapshots/reference/Button/base/base@400x400.reference.png",
         "height": 38,
-        "width": 93
+        "width": 91
       }
     },
     {
@@ -145,7 +145,7 @@
       "image": {
         "src": "snapshots/reference/Button/base/hover@400x400.reference.png",
         "height": 38,
-        "width": 93
+        "width": 91
       }
     },
     {
@@ -163,7 +163,7 @@
       "image": {
         "src": "snapshots/reference/Button/primary/base@400x400.reference.png",
         "height": 38,
-        "width": 93
+        "width": 91
       }
     },
     {
@@ -181,7 +181,7 @@
       "image": {
         "src": "snapshots/reference/Button/base/active@400x400.reference.png",
         "height": 38,
-        "width": 93
+        "width": 91
       }
     },
     {
@@ -199,7 +199,7 @@
       "image": {
         "src": "snapshots/reference/Button/primary/hover@400x400.reference.png",
         "height": 38,
-        "width": 93
+        "width": 91
       }
     },
     {
@@ -217,7 +217,7 @@
       "image": {
         "src": "snapshots/reference/Button/destructive/base@400x400.reference.png",
         "height": 38,
-        "width": 93
+        "width": 91
       }
     },
     {
@@ -235,7 +235,7 @@
       "image": {
         "src": "snapshots/reference/Button/primary/active@400x400.reference.png",
         "height": 38,
-        "width": 93
+        "width": 91
       }
     },
     {
@@ -253,7 +253,7 @@
       "image": {
         "src": "snapshots/reference/Button/destructive/hover@400x400.reference.png",
         "height": 38,
-        "width": 93
+        "width": 91
       }
     },
     {
@@ -271,7 +271,7 @@
       "image": {
         "src": "snapshots/reference/Button/destructive/active@400x400.reference.png",
         "height": 38,
-        "width": 93
+        "width": 91
       }
     },
     {
@@ -289,7 +289,7 @@
       "image": {
         "src": "snapshots/reference/Button/disabled/base@400x400.reference.png",
         "height": 38,
-        "width": 93
+        "width": 91
       }
     },
     {
@@ -307,7 +307,7 @@
       "image": {
         "src": "snapshots/reference/Button/disabled/hover@400x400.reference.png",
         "height": 38,
-        "width": 93
+        "width": 91
       }
     },
     {
@@ -325,7 +325,7 @@
       "image": {
         "src": "snapshots/reference/Button/disabled/active@400x400.reference.png",
         "height": 38,
-        "width": 93
+        "width": 91
       }
     },
     {
@@ -343,7 +343,7 @@
       "image": {
         "src": "snapshots/reference/Button/link/base@400x400.reference.png",
         "height": 34,
-        "width": 84
+        "width": 83
       }
     },
     {
@@ -361,7 +361,7 @@
       "image": {
         "src": "snapshots/reference/Button/link/hover@400x400.reference.png",
         "height": 34,
-        "width": 84
+        "width": 83
       }
     },
     {
@@ -411,7 +411,7 @@
       "image": {
         "src": "snapshots/reference/Button/link/active@400x400.reference.png",
         "height": 34,
-        "width": 84
+        "width": 83
       }
     },
     {
@@ -426,7 +426,7 @@
       "hasMultipleViewports": false,
       "image": {
         "src": "snapshots/reference/Word/base@400x400.reference.png",
-        "height": 57,
+        "height": 55,
         "width": 400
       }
     }
