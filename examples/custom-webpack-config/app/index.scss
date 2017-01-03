@@ -4,6 +4,8 @@
 html,
 body {
   font-family: font-family();
+  letter-spacing: 0.3px;
+  font-weight: normal;
 }
 
 html {
@@ -17,10 +19,12 @@ html {
 body {
   margin: 0;
   padding: 0;
+  font-size: 1em;
 }
 
 * {
   box-sizing: inherit;
+  font-size: inherit;
 }
 
 h1,
