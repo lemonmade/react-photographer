@@ -45,4 +45,10 @@ describe('Pool', () => {
     pool.release(lastObject);
     expect(await pool.get()).toBe(lastObject);
   });
+
+  it('passes a unique ID to each instance', async () => {
+    await pool.get();
+    await pool.get();
+    expect(builder.mock.calls[0][0]).not.toEqual(builder.mock.calls[1][0]);
+  });
 });

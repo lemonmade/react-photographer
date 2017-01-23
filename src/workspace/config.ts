@@ -24,6 +24,7 @@ export interface Config {
 }
 
 export interface UserConfig {
+  port?: Config['port'],
   files?: string,
   rootDirectory?: Config['rootDirectory'],
   snapshotDirectory?: Config['snapshotDirectory'],

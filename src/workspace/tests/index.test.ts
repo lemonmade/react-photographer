@@ -44,4 +44,12 @@ describe('Workspace', () => {
 
     expect(directories.public).toEqual('/foo/');
   });
+
+  it('creates a URL based on the config port', () => {
+    const {url} = new Workspace(createMemoryConfig({
+      port: 1234,
+    }));
+
+    expect(url).toBe('http://localhost:1234');
+  });
 });

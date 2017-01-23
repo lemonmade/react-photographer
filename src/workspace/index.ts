@@ -38,6 +38,10 @@ export class Workspace {
     return readJSONSync(resolve(__dirname, '../package.json')).version
   };
 
+  get url(): string {
+    return `http://${this.config.host}:${this.config.port}`;
+  }
+
   constructor(public config: Config) {}
 }
 

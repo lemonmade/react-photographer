@@ -5,7 +5,7 @@ export default class Pool<T> {
   private available: T[] = [];
   private limit: number;
 
-  constructor(private builder: () => T | Promise<T>, {limit = DEFAULT_LIMIT} = {}) {
+  constructor(private builder: (id: number) => T | Promise<T>, {limit = DEFAULT_LIMIT} = {}) {
     this.limit = limit;
   }
 
@@ -18,7 +18,7 @@ export default class Pool<T> {
 
     if (this.limit > 0) {
       this.limit -= 1;
-      return this.builder();
+      return this.builder(this.limit);
     } else {
       return new Promise<T>((resolve) => {
         this.queue.push(resolve);
