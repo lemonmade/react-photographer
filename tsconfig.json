@@ -6,6 +6,8 @@
     "target": "es2015",
     "module": "commonjs",
     "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "strictNullChecks": true,
     "jsx": "react",
     "lib": [
       "dom",

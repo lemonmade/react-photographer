@@ -47,7 +47,7 @@ export default class Runner extends React.Component<Props, State> {
 
   render() {
     const {currentSnapshotTest} = this.state;
-    if (currentSnapshotTest == null) { return; }
+    if (currentSnapshotTest == null) { return null; }
 
     return (
       <Tester onReady={this.handleTestReady}>

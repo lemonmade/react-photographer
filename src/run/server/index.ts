@@ -2,15 +2,19 @@ import {Server as WebSocketServer} from 'ws';
 import {createServer, Server as HTTPServer} from 'http';
 import {EventEmitter} from 'events';
 import {Express} from 'express';
-import {Workspace} from '../workspace';
+
+import createApp from './app';
+import {Workspace} from '../../workspace';
 
 export default class Server extends EventEmitter {
   private closed = false;
   private httpServer: HTTPServer;
   private webSocketServer: WebSocketServer;
 
-  constructor(app: Express, workspace: Workspace) {
+  constructor(workspace: Workspace) {
     super();
+
+    const app = createApp(workspace);
 
     const httpServer = createServer();
     httpServer.on('request', app);

@@ -1,25 +1,25 @@
-import createApp from './app';
-import Server from './server';
-import Connector from './connector';
+import Runner from './runner';
+import Logger from './logger';
+import ui from './ui';
 import {Workspace} from '../workspace';
-import createPhantomClient from './clients/phantom';
 
 export default async function run(workspace: Workspace) {
-  const client = await createPhantomClient(workspace);
-  const app = createApp(workspace);
-  const server = new Server(app, workspace);
-  const connector = new Connector(server, client, workspace);
+  const runner = new Runner(workspace);
+  const logger = new Logger(ui(workspace));
+  const start = Date.now();
 
+  logger.clear();
+  logger.title('React Photographer', {icon: '📷'});
 
+  runner.on('step:count', logger.stepCount.bind(this));
+  runner.on('step', logger.step.bind(this));
+  runner.on('start', logger.start.bind(this));
+  runner.on('test', logger.test.bind(this));
+  runner.on('end', logger.end.bind(this));
+  runner.on('debug', logger.debug.bind(this));
 
-  return true;
+  const results = await runner.run();
+  logger.debug(`Finished running in ${Date.now() - start} with ${workspace.config.workers} workers`);
 }
 
-async function getTests(connector: Connector) {
-  const connection = await connector.connect();
-  const messagePromise = connection.awaitMessage('TEST_DETAILS');
-  connection.send({type: 'SEND_DETAILS'});
-  const {tests} = await messagePromise;
-  connection.close();
-  return tests;
-}
+
