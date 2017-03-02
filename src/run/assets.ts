@@ -4,13 +4,6 @@ import webpack from 'webpack';
 
 import {Workspace} from '../workspace';
 
-interface Options {
-  assetPath: string,
-  buildPath: string,
-  tests: string[],
-  config: {[key: string]: any},
-}
-
 interface AssetDetails {
   js: string[],
   css: string[],
@@ -22,7 +15,8 @@ interface AssetListing {
 
 export default async function generateAssets(workspace: Workspace) {
   const {config, directories} = workspace;
-  const {webpack: webpackConfig, files, ...rest} = config;
+  // typescript-disable-next-line
+  const {webpack: webpackConfig, files, ...extraConfig} = config;
   const {assets, build} = directories;
 
   const testComponents = files.map((test, index) => ({
@@ -38,7 +32,7 @@ export default async function generateAssets(workspace: Workspace) {
 
     var Runner = snapshotInteropRequire(require('react-snapshots/lib/components/Runner'));
 
-    ${testComponents.map(({name, path}) => `var ${name} = snapshotInteropRequire(require(${path}))`)}
+    ${testComponents.map(({name, path}) => `var ${name} = snapshotInteropRequire(require(${path}))`).join('\n')}
 
     function snapshotInteropRequire(mod) {
       return mod.__esModule ? mod.default : mod;
@@ -47,7 +41,7 @@ export default async function generateAssets(workspace: Workspace) {
     ReactDOM.render(
       React.createElement(Runner, {
         tests: [${testComponents.map(({name}) => name).join(', ')}],
-        config: ${JSON.stringify(config)},
+        config: ${JSON.stringify({...extraConfig, files})},
       }),
       document.getElementById('root')
     );

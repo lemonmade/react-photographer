@@ -1,13 +1,14 @@
 import * as React from 'react';
 
 import Snapshot from '../Snapshot';
-import getTestDescriptorsFromSource, {TestDescriptor} from '../get-descriptors';
+import {Descriptor} from '../types';
+import getTestDescriptorsFromSource from '../get-descriptors';
 
 describe('getTestDescriptorsFromSource()', () => {
   const viewport = {height: 200, width: 200};
   const config = {record: false, threshold: 0.1, viewports: [viewport]};
   const buttonElement = <Button />;
-  const basicTestDescriptor: TestDescriptor = {
+  const basicTestDescriptor: Descriptor = {
     groups: ['Button'],
     name: 'base',
     case: null,
@@ -21,7 +22,7 @@ describe('getTestDescriptorsFromSource()', () => {
     hasMultipleViewports: false,
   };
 
-  function Button(props: {primary?: boolean}) { return <button>Button</button>; }
+  function Button(_: {primary?: boolean}) { return <button>Button</button>; }
 
   function getBasicTestElement() {
     return (
@@ -78,7 +79,7 @@ describe('getTestDescriptorsFromSource()', () => {
       </Snapshot>
     );
 
-    const primaryDescriptor: TestDescriptor = {
+    const primaryDescriptor: Descriptor = {
       ...basicTestDescriptor,
       name: 'primary',
       element: primaryButtonElement,

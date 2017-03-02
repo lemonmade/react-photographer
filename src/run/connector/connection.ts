@@ -1,6 +1,5 @@
 import {EventEmitter} from 'events';
 import WebSocket = require('ws');
-import Pool from '../pool';
 import {Messenger, Listener, Message, Page} from '../../types';
 
 export default class Connection extends EventEmitter {

@@ -5,17 +5,20 @@
     "outDir": "lib",
     "target": "es2015",
     "module": "commonjs",
+    "moduleResolution": "node",
+    "jsx": "react",
+    "strictNullChecks": true,
+    "noImplicitAny": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "strictNullChecks": true,
-    "jsx": "react",
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
     "lib": [
       "dom",
       "es2015",
       "es2016",
       "es2017"
     ],
-    "noImplicitAny": true,
     "sourceMap": true
   },
   "include": [

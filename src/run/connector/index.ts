@@ -24,7 +24,7 @@ export default class Connector {
 
     const socketPromise: Promise<WebSocket> = new Promise((resolve) => {
       server.once('connection', (socket: WebSocket) => {
-        const {query = {}} = parse(socket.upgradeReq.url, true);
+        const {query = {}} = parse(socket.upgradeReq.url as string, true);
         if (query.connection !== id) { return; }
         resolve(socket);
       });

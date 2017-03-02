@@ -59,7 +59,7 @@ function getDescriptorsFromElement(
     (typeof component === 'string' && component) ||
     (component != null && ((component as React.ComponentClass<any>).displayName || (component as React.StatelessComponent<any>).name)) ||
     name
-  );
+  ) as string;
 
   const newNestedDescriptor: NestedDescriptor = {
     groups: nestedDescriptor.groups,
@@ -121,7 +121,7 @@ function getElementFromSource(source: SnapshotSource): React.ReactElement<any> {
   const sourceAsComponentClass = (source as React.ComponentClass<any>);
 
   if (sourceAsComponentClass.prototype && sourceAsComponentClass.prototype.render) {
-    return (new sourceAsComponentClass()).render();
+    return (new sourceAsComponentClass()).render() as React.ReactElement<any>;
   } else if (typeof source === 'function') {
     return (source as React.StatelessComponent<any>)({});
   } else {

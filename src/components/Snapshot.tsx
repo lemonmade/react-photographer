@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 import {Descriptor} from './types';
-import {Viewport, Action} from '../types';
 import {AnyComponent} from '../types/react';
 
 interface Case {

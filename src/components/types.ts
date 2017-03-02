@@ -6,8 +6,8 @@ export type SnapshotSource = AnyComponent<any, any>;
 export interface Descriptor {
   groups: string[],
   name: string,
-  case: string,
-  action: Action,
+  case: string | null,
+  action: Action | null,
   element: React.ReactNode,
   record: boolean,
   skip: boolean,

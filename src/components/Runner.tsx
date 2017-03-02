@@ -4,8 +4,7 @@ import {autobind} from 'core-decorators';
 
 import Tester from './Tester';
 import {Descriptor, SnapshotSource} from './types';
-import {ID, Action, Config, Message, Messenger, Listener} from '../types';
-import {AnyComponent} from '../types/react';
+import {ID, Config, Messenger, Listener} from '../types';
 
 interface ActionDescriptor {
   id: ID,

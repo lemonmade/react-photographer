@@ -1,7 +1,6 @@
 import {Server as WebSocketServer} from 'ws';
 import {createServer, Server as HTTPServer} from 'http';
 import {EventEmitter} from 'events';
-import {Express} from 'express';
 
 import createApp from './app';
 import {Workspace} from '../../workspace';

@@ -8,10 +8,6 @@
   version "0.10.30"
   resolved "https://registry.yarnpkg.com/@types/core-decorators/-/core-decorators-0.10.30.tgz#bb45d610824f5ccb99dbe19f27138a6a4ff231f2"
 
-"@types/core-js":
-  version "0.9.35"
-  resolved "https://registry.yarnpkg.com/@types/core-js/-/core-js-0.9.35.tgz#444064e63711cdcc62ea844d27642f6efc2285f2"
-
 "@types/debug":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/debug/-/debug-0.0.29.tgz#a1e514adfbd92f03a224ba54d693111dbf1f3754"

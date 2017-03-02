@@ -20,11 +20,11 @@ export interface Rect extends Point {
 
 type TypeOrPromise<T> = T | Promise<T>;
 
-interface Keyboard {
+export interface Keyboard {
 
 }
 
-interface Mouse {
+export interface Mouse {
   down(position: Point): TypeOrPromise<void>,
   up(position: Point): TypeOrPromise<void>,
   move(position: Point): TypeOrPromise<void>,
