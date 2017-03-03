@@ -30,13 +30,23 @@ export class Workspace {
     return {
       details: resolve(directories.snapshots, 'details.json'),
       results: resolve(directories.build, 'results.json'),
+      testJS: resolve(directories.build, 'index.js'),
+      testHTML: resolve(directories.build, 'index.html'),
+      manifest: resolve(directories.build, 'assets.json'),
     };
   }
 
   @lazy
   get version(): string {
     return readJSONSync(resolve(__dirname, '../package.json')).version
-  };
+  }
+
+  // @lazy
+  // get webpack(): Config['webpack'] {
+  //   const {webpack} = this.config;
+
+  //   return webpack;
+  // }
 
   get url(): string {
     return `http://${this.config.host}:${this.config.port}`;

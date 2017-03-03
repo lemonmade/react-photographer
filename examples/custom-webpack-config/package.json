@@ -1,0 +1,17 @@
+{
+  "name": "react-photographer-demo",
+  "private": true,
+  "description": "A working example of using react-photographer",
+  "scripts": {
+    "test": "../../bin/photographer",
+    "test:report": "../../bin/photographer report"
+  },
+  "dependencies": {
+    "react": "15.3.0",
+    "react-dom": "15.3.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^6.5.1",
+    "extract-text-webpack-plugin": "^2.0.0-beta.4"
+  }
+}

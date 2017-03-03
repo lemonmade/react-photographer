@@ -35,16 +35,16 @@ export interface UserConfig {
   webpack?: Config['webpack'],
 }
 
-export function createMemoryConfig(baseConfig?: UserConfig): Config {
+export function createMemoryConfig(baseConfig: UserConfig = {}): Config {
   let files: string[];
 
-  if (baseConfig && baseConfig.files) {
+  if (baseConfig.files) {
     files = globSync(baseConfig.files);
   } else {
     files = [];
   }
 
-  return {
+  const config = {
     port: 8080,
     host: 'localhost',
     snapshotDirectory: 'snapshots',
@@ -57,6 +57,8 @@ export function createMemoryConfig(baseConfig?: UserConfig): Config {
     ...baseConfig,
     files,
   };
+
+  return config;
 }
 
 const configGetter = cosmiconfig<UserConfig>('photographer');

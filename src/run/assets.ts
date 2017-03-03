@@ -1,6 +1,7 @@
-import {join, relative} from 'path';
+import {relative, basename, dirname, resolve} from 'path';
 import {mkdirpSync, writeFileSync, readJSONSync} from 'fs-extra';
 import webpack = require('webpack');
+import AssetsPlugin = require('assets-webpack-plugin');
 
 import {Workspace} from '../workspace';
 
@@ -14,25 +15,25 @@ interface AssetListing {
 }
 
 export default async function generateAssets(workspace: Workspace) {
-  const {config, directories} = workspace;
+  const {config, directories, files: assetFiles} = workspace;
   // typescript-disable-next-line
   const {webpack: webpackConfig, files, ...extraConfig} = config;
-  const {assets, build} = directories;
+  const {assets} = directories;
 
   const testComponents = files.map((test, index) => ({
     name: `PhotographerTestComponent${index}`,
-    path: relative(build, test),
+    path: relative(dirname(assetFiles.testJS), test),
   }));
 
   mkdirpSync(assets);
 
-  writeFileSync(join(build, 'index.js'), `
+  writeFileSync(assetFiles.testJS, `
     var React = require('react');
     var ReactDOM = require('react-dom');
 
-    var Runner = snapshotInteropRequire(require('react-snapshots')).Runner;
+    var Runner = snapshotInteropRequire(require('react-photographer')).Runner;
 
-    ${testComponents.map(({name, path}) => `var ${name} = snapshotInteropRequire(require(${path}))`).join('\n')}
+    ${testComponents.map(({name, path}) => `var ${name} = snapshotInteropRequire(require(${JSON.stringify(path)}))`).join('\n')}
 
     function snapshotInteropRequire(mod) {
       return mod.__esModule ? mod.default : mod;
@@ -47,8 +48,33 @@ export default async function generateAssets(workspace: Workspace) {
     );
   `);
 
+  const finalWebpackConfig = {
+    ...webpackConfig,
+    entry: [assetFiles.testJS],
+    output: {
+      path: assets,
+      publicPath: '/static/',
+      filename: '[name].js',
+    },
+    resolve: {
+      ...webpackConfig['resolve'],
+      alias: {
+        ...(webpackConfig['resolve'] || {})['alias'],
+        // TODO: REMOVE THIS EVENTUALLY
+        'react-photographer': resolve(directories.root, '..', '..'),
+      },
+    },
+    plugins: [
+      ...webpackConfig['plugins'],
+      new AssetsPlugin({
+        filename: basename(assetFiles.manifest),
+        path: dirname(assetFiles.manifest),
+      })
+    ],
+  };
+
   await new Promise((resolve, reject) => {
-    webpack(webpackConfig).run((error, stats) => {
+    webpack(finalWebpackConfig).run((error, stats) => {
       if (error != null) {
         return reject(error);
       } else if (stats.hasErrors()) {
@@ -59,15 +85,15 @@ export default async function generateAssets(workspace: Workspace) {
     });
   });
 
-  const builtAssets: AssetListing = readJSONSync(join(build, 'assets.json'));
+  const builtAssets: AssetListing = readJSONSync(assetFiles.manifest);
   const {js: scripts, css: styles} = Object.keys(builtAssets).reduce((all, key) => {
     const {js, css} = builtAssets[key];
-    if (js) { all.js.push(...js); }
-    if (css) { all.css.push(...css); }
+    if (js) { all.js.push(...(Array.isArray(js) ? js : [js])); }
+    if (css) { all.css.push(...(Array.isArray(css) ? css : [css])); }
     return all;
   }, {js: [], css: []} as AssetDetails);
 
-  writeFileSync(join(build, 'index.html'), `
+  writeFileSync(assetFiles.testHTML, `
     <!DOCTYPE html>
     <head>
       <meta charset="utf-8">
@@ -78,10 +104,6 @@ export default async function generateAssets(workspace: Workspace) {
 
     <body>
       <div id="root"></div>
-      <% scripts.forEach(function(script) { %>
-        <script type="text/javascript" src="<%- script %>"></script>
-      <% }); %>
-
       ${scripts.map((script) => `<script type="text/javascript" src="${script}"></script>`)}
     </body>
     </html>

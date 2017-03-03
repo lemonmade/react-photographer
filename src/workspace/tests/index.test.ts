@@ -31,6 +31,9 @@ describe('Workspace', () => {
 
     expect(files.details).toEqual(resolve(config.rootDirectory, config.snapshotDirectory, 'details.json'));
     expect(files.results).toEqual(resolve(config.rootDirectory, '.photographer', 'results.json'));
+    expect(files.testJS).toEqual(resolve(config.rootDirectory, '.photographer', 'index.js'));
+    expect(files.testHTML).toEqual(resolve(config.rootDirectory, '.photographer', 'index.html'));
+    expect(files.manifest).toEqual(resolve(config.rootDirectory, '.photographer', 'assets.json'));
   });
 
   it('uses the webpack output path as the public path', () => {

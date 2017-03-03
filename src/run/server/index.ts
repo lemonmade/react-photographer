@@ -17,7 +17,7 @@ export default class Server extends EventEmitter {
 
     const httpServer = createServer();
     httpServer.on('request', app);
-    httpServer.listen(workspace.url);
+    httpServer.listen(workspace.config.port, workspace.config.host);
 
     const webSocketServer = new WebSocketServer({server: httpServer});
     webSocketServer.on('connection', (connection) => this.emit('connection', connection));

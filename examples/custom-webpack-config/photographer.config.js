@@ -29,8 +29,8 @@ module.exports = {
         {
           test: /\.scss$/,
           loader: ExtractTextPlugin.extract({
-            fallbackLoader: 'style-loader',
-            loader: [
+            fallback: 'style-loader',
+            use: [
               {
                 loader: 'css-loader',
                 query: {
@@ -50,6 +50,7 @@ module.exports = {
               {
                 loader: 'postcss-loader',
                 options: {
+                  ident: 'postcss',
                   plugins: [autoprefixer],
                 },
               },
