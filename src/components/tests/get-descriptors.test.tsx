@@ -9,6 +9,7 @@ describe('getTestDescriptorsFromSource()', () => {
   const config = {record: false, threshold: 0.1, viewports: [viewport]};
   const buttonElement = <Button />;
   const basicTestDescriptor: Descriptor = {
+    id: `Button-base@${viewport.width}x${viewport.height}`,
     groups: ['Button'],
     name: 'base',
     case: null,
@@ -81,6 +82,7 @@ describe('getTestDescriptorsFromSource()', () => {
 
     const primaryDescriptor: Descriptor = {
       ...basicTestDescriptor,
+      id: `Button-primary@${viewport.width}x${viewport.height}`,
       name: 'primary',
       element: primaryButtonElement,
     };
@@ -104,8 +106,18 @@ describe('getTestDescriptorsFromSource()', () => {
     );
 
     expect(getTestDescriptorsFromSource(ButtonTest, config)).toEqual([
-      {...basicTestDescriptor, viewport: viewportOne, hasMultipleViewports: true},
-      {...basicTestDescriptor, viewport: viewportTwo, hasMultipleViewports: true},
+      {
+        ...basicTestDescriptor,
+        id: `Button-base@${viewportOne.width}x${viewportOne.height}`,
+        viewport: viewportOne,
+        hasMultipleViewports: true,
+    },
+      {
+        ...basicTestDescriptor,
+        id: `Button-base@${viewportTwo.width}x${viewportTwo.height}`,
+        viewport: viewportTwo,
+        hasMultipleViewports: true,
+      },
     ]);
   });
 
@@ -122,6 +134,7 @@ describe('getTestDescriptorsFromSource()', () => {
 
     expect(getTestDescriptorsFromSource(ButtonTest, config)[0]).toEqual({
       ...basicTestDescriptor,
+      id: `Button-base@${alternateViewport.width}x${alternateViewport.height}`,
       viewport: alternateViewport,
     });
   });
@@ -140,6 +153,7 @@ describe('getTestDescriptorsFromSource()', () => {
 
     expect(getTestDescriptorsFromSource(ButtonTest, config)[0]).toEqual({
       ...basicTestDescriptor,
+      id: `Button-base@${nestedViewport.width}x${nestedViewport.height}`,
       viewport: nestedViewport,
     });
   });
@@ -241,8 +255,18 @@ describe('getTestDescriptorsFromSource()', () => {
     );
 
     expect(getTestDescriptorsFromSource(ButtonTest, config)).toEqual([
-      {...basicTestDescriptor, case: caseOne, action: actionOne},
-      {...basicTestDescriptor, case: caseTwo, action: actionTwo},
+      {
+        ...basicTestDescriptor,
+        id: `Button-base-${caseOne}@${viewport.width}x${viewport.height}`,
+        case: caseOne,
+        action: actionOne,
+      },
+      {
+        ...basicTestDescriptor,
+        id: `Button-base-${caseTwo}@${viewport.width}x${viewport.height}`,
+        case: caseTwo,
+        action: actionTwo,
+      },
     ]);
   });
 
@@ -268,10 +292,36 @@ describe('getTestDescriptorsFromSource()', () => {
     );
 
     expect(getTestDescriptorsFromSource(ButtonTest, config)).toEqual([
-      {...basicTestDescriptor, case: caseOne, action: actionOne, viewport: viewportOne, hasMultipleViewports: true},
-      {...basicTestDescriptor, case: caseTwo, viewport: viewportOne, hasMultipleViewports: true},
-      {...basicTestDescriptor, case: caseOne, action: actionOne, viewport: viewportTwo, hasMultipleViewports: true},
-      {...basicTestDescriptor, case: caseTwo, viewport: viewportTwo, hasMultipleViewports: true},
+      {
+        ...basicTestDescriptor,
+        id: `Button-base-${caseOne}@${viewportOne.width}x${viewportOne.height}`,
+        case: caseOne,
+        action: actionOne,
+        viewport: viewportOne,
+        hasMultipleViewports: true,
+      },
+      {
+        ...basicTestDescriptor,
+        id: `Button-base-${caseTwo}@${viewportOne.width}x${viewportOne.height}`,
+        case: caseTwo,
+        viewport: viewportOne,
+        hasMultipleViewports: true,
+      },
+      {
+        ...basicTestDescriptor,
+        id: `Button-base-${caseOne}@${viewportTwo.width}x${viewportTwo.height}`,
+        case: caseOne,
+        action: actionOne,
+        viewport: viewportTwo,
+        hasMultipleViewports: true,
+      },
+      {
+        ...basicTestDescriptor,
+        id: `Button-base-${caseTwo}@${viewportTwo.width}x${viewportTwo.height}`,
+        case: caseTwo,
+        viewport: viewportTwo,
+        hasMultipleViewports: true,
+      },
     ]);
   });
 });

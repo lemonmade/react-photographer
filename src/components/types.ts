@@ -1,9 +1,10 @@
-import {Viewport, Action} from '../types';
+import {Viewport, Action, ID} from '../types';
 import {AnyComponent} from '../types/react';
 
 export type SnapshotSource = AnyComponent<any, any>;
 
 export interface Descriptor {
+  id: ID,
   groups: string[],
   name: string,
   case: string | null,

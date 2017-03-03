@@ -1,6 +1,6 @@
 import {join, relative} from 'path';
 import {mkdirpSync, writeFileSync, readJSONSync} from 'fs-extra';
-import webpack from 'webpack';
+import webpack = require('webpack');
 
 import {Workspace} from '../workspace';
 
@@ -30,7 +30,7 @@ export default async function generateAssets(workspace: Workspace) {
     var React = require('react');
     var ReactDOM = require('react-dom');
 
-    var Runner = snapshotInteropRequire(require('react-snapshots/lib/components/Runner'));
+    var Runner = snapshotInteropRequire(require('react-snapshots')).Runner;
 
     ${testComponents.map(({name, path}) => `var ${name} = snapshotInteropRequire(require(${path}))`).join('\n')}
 
@@ -40,7 +40,7 @@ export default async function generateAssets(workspace: Workspace) {
 
     ReactDOM.render(
       React.createElement(Runner, {
-        tests: [${testComponents.map(({name}) => name).join(', ')}],
+        sources: [${testComponents.map(({name}) => name).join(', ')}],
         config: ${JSON.stringify({...extraConfig, files})},
       }),
       document.getElementById('root')

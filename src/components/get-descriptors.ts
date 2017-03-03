@@ -85,6 +85,7 @@ function getDescriptorsFromElement(
 
   if (cases == null) {
     return allViewports.map((viewport) => ({
+      id: getID({name: finalName, case: null, groups: newNestedDescriptor.groups, viewport}),
       name: finalName,
       case: null,
       action: action || null,
@@ -102,6 +103,7 @@ function getDescriptorsFromElement(
   return allViewports.reduce<Descriptor[]>((allSnapshots, viewport) => [
     ...allSnapshots,
     ...cases.map(({name: caseName, action: caseAction}) => ({
+      id: getID({name: finalName, case: caseName, groups: newNestedDescriptor.groups, viewport}),
       name: finalName,
       case: caseName,
       action: caseAction || null,
@@ -115,6 +117,17 @@ function getDescriptorsFromElement(
       hasMultipleViewports,
     }))
   ], []);
+}
+
+interface IDOptions {
+  name: Descriptor['name'],
+  case: Descriptor['case'],
+  groups: Descriptor['groups'],
+  viewport: Descriptor['viewport'],
+}
+
+function getID({name, case: caseName, groups, viewport}: IDOptions): ID {
+  return `${groups.join('-')}-${name}${caseName ? `-${caseName}` : ''}@${viewport.width}x${viewport.height}`;
 }
 
 function getElementFromSource(source: SnapshotSource): React.ReactElement<any> {

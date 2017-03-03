@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 
 const PASS = chalk.inverse.bold.green(' PASS ');
 const FAIL = chalk.inverse.bold.red(' FAIL ');

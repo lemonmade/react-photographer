@@ -8,6 +8,18 @@ export interface Viewport {
   height: number,
 }
 
+export interface Descriptor {
+  groups: string[],
+  name: string,
+  case: string | null,
+  record: boolean,
+  skip: boolean,
+  only: boolean,
+  threshold: number,
+  viewport: Viewport,
+  hasMultipleViewports: boolean,
+}
+
 export interface Point {
   x: number,
   y: number,
@@ -50,16 +62,19 @@ export interface ClientCreator {
   (workspace: Workspace): TypeOrPromise<Client>,
 }
 
-export interface Action {
-  (): void,
+export interface ActionHelper {
+  node: HTMLElement,
+  mousedown(): Promise<void>,
+  hover(): Promise<void>,
 }
 
-type Primitive = string | number | boolean;
-type Serializable = Primitive | Primitive[] | {[key: string]: Serializable};
+export interface Action {
+  (actionHelper: ActionHelper): void | Promise<void>,
+}
 
 export interface Message {
   type: string,
-  [key: string]: Serializable,
+  [key: string]: any,
 }
 
 export interface Listener {

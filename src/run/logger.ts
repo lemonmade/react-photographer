@@ -1,4 +1,4 @@
-import createDebug from 'debug';
+import createDebug = require('debug');
 import Aggregate from './aggregate';
 
 const debug = createDebug('photographer');
