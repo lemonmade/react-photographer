@@ -26,8 +26,8 @@ export default class Logger {
     this.ui.step && this.ui.step(details);
   }
 
-  test() {
-    this.ui.test && this.ui.test();
+  test(test: any, aggregate: Aggregate) {
+    this.ui.test && this.ui.test(test, aggregate);
   }
 
   end(aggregate: Aggregate) {

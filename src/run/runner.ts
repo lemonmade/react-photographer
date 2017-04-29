@@ -29,15 +29,17 @@ export default class Runner extends EventEmitter {
 
     this.emit('step', {message: 'Figuring out what tests to run'});
     const tests = await getTests(connector);
-    console.log(client, server);
-
     const progress = new Aggregate(tests);
+    console.log(tests.map((test) => test.id));
 
     this.emit('start', progress);
 
     // TODO
 
     this.emit('end', progress);
+
+    client.close();
+    server.close();
   }
 
   emit(event: 'step', step: {message: string}): boolean
@@ -78,7 +80,7 @@ async function createTestPieces(workspace: Workspace) {
   return {client, server, connector};
 }
 
-async function getTests(connector: Connector) {
+async function getTests(connector: Connector): Promise<any[]> {
   const connection = await connector.connect();
   const messagePromise = connection.awaitMessage('TEST_DETAILS');
   connection.send({type: 'SEND_DETAILS'});
