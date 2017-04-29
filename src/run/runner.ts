@@ -29,15 +29,15 @@ export default class Runner extends EventEmitter {
 
     this.emit('step', {message: 'Figuring out what tests to run'});
     const tests = await getTests(connector);
-    console.log(tests, client, server);
+    console.log(client, server);
 
-    // const progress = new Progress([]);
+    const progress = new Aggregate(tests);
 
-    // this.emit('start', progress);
+    this.emit('start', progress);
 
     // TODO
 
-    this.emit('end');
+    this.emit('end', progress);
   }
 
   emit(event: 'step', step: {message: string}): boolean

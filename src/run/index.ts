@@ -19,5 +19,6 @@ export default async function run(workspace: Workspace) {
   // runner.on('debug', logger.debug.bind(this));
 
   const results = await runner.run();
+  console.log(results);
   // logger.debug(`Finished running in ${Date.now() - start} with ${workspace.config.workers} workers`);
 }

@@ -1,11 +1,25 @@
 import * as chalk from 'chalk';
+import {WriteStream} from 'tty';
+import Aggregate from '../Aggregate';
+import {Descriptor} from '../../types';
 
 const PASS = chalk.inverse.bold.green(' PASS ');
 const FAIL = chalk.inverse.bold.red(' FAIL ');
 const SKIP = chalk.inverse.bold.yellow(' SKIP ');
 
-function getUI({testsTotal, testsCompleted, testsPassed, testsFailed, testsSkipped, componentsTotal, componentsCompleted, componentsPassed, componentsFailed, componentsSkipped}) {
-  const width = process.stdout.columns;
+function getUI({
+  testsTotal,
+  testsCompleted,
+  testsPassed,
+  testsFailed,
+  testsSkipped,
+  componentsTotal,
+  componentsCompleted,
+  componentsPassed,
+  componentsFailed,
+  componentsSkipped,
+}: Aggregate) {
+  const width = (process.stdout as WriteStream).columns;
   const completeWidth = Math.round(width * (testsCompleted / testsTotal));
 
   const testString = [
@@ -32,14 +46,19 @@ function getUI({testsTotal, testsCompleted, testsPassed, testsFailed, testsSkipp
   ].join('\n');
 }
 
-function getTestString({component, groups, name, hasMultipleViewports, viewport: {width, height}}) {
-  return `${chalk.dim(`${[component, ...groups].join(' > ')} >`)} ${chalk.bold(name)}${hasMultipleViewports ? chalk.dim(` @ ${width}x${height}`) : ''}`;
+function getTestString({
+  groups,
+  name,
+  hasMultipleViewports,
+  viewport: {width, height},
+}: Descriptor) {
+  return `${chalk.dim(`${groups.join(' > ')} >`)} ${chalk.bold(name)}${hasMultipleViewports ? chalk.dim(` @ ${width}x${height}`) : ''}`;
 }
 
 class Reporter {
   clearTestUI = '';
   clearStepUI = '';
-  lastStep = 0;
+  lastStep = '';
   totalSteps = 0;
   currentStep = 0;
 
@@ -75,7 +94,8 @@ class Reporter {
     console.log(`${chalk.green(`[${this.currentStep}/${this.totalSteps}]`)} ${this.lastStep}\n`);
   }
 
-  test(snapshot, summary) {
+  // TODO
+  test(snapshot: any, summary: Aggregate) {
     const ui = getUI(summary);
     const clear = '\r\x1B[K\r\x1B[1A'.repeat(ui.split('\n').length - 1);
     const {result: {failed, skipped}} = snapshot;

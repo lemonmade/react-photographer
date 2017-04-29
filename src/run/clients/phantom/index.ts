@@ -1,6 +1,6 @@
 import {create as createPhantom, PhantomJS} from 'phantom';
-import Page from './page';
 import {Client, ClientCreator} from '../../../types';
+import Page from './page';
 
 export class Phantom implements Client {
   private closed = false;
@@ -9,8 +9,6 @@ export class Phantom implements Client {
 
   async open(url: string) {
     const page = await this.phantom.createPage();
-    await page.property('onConsoleMessage', function () { console.log.apply(console, arguments) });
-    await page.property('onResourceError', function (error) { console.log(JSON.stringify(error)) });
     await page.open(url);
     return new Page(page);
   }
