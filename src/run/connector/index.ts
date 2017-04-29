@@ -23,11 +23,16 @@ export default class Connector {
     const {server, client, workspace} = this;
 
     const socketPromise: Promise<WebSocket> = new Promise((resolve) => {
-      server.once('connection', (socket: WebSocket) => {
+      function handleConnection(socket: WebSocket) {
         const {query = {}} = parse(socket.upgradeReq.url as string, true);
-        if (query.connection !== id) { return; }
+        console.log(query, id, query.connection === id);
+        if (String(query.connection) !== String(id)) { return; }
+
+        server.removeListener('connection', handleConnection);
         resolve(socket);
-      });
+      }
+
+      server.on('connection', handleConnection);
     });
 
     const page = await client.open(`${workspace.url}?connection=${id}`);

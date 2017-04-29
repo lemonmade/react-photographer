@@ -1,4 +1,4 @@
-import {Server as WebSocketServer} from 'ws';
+import WebSocket, {Server as WebSocketServer} from 'ws';
 import {createServer, Server as HTTPServer} from 'http';
 import {EventEmitter} from 'events';
 

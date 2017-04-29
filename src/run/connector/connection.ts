@@ -42,7 +42,7 @@ class SocketMessenger implements Messenger {
   listen(callback: (message: Message) => void): Listener {
     const {socket} = this;
 
-    function listener({data}: {data: string}) {
+    function listener(data: string) {
       const message = JSON.parse(data);
       if (message.photographer) {
         callback(message as Message);

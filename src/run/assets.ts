@@ -31,11 +31,11 @@ export default async function generateAssets(workspace: Workspace) {
     var React = require('react');
     var ReactDOM = require('react-dom');
 
-    var Runner = snapshotInteropRequire(require('react-photographer')).Runner;
+    var Runner = require('react-photographer').Runner;
 
-    ${testComponents.map(({name, path}) => `var ${name} = snapshotInteropRequire(require(${JSON.stringify(path)}))`).join('\n')}
+    ${testComponents.map(({name, path}) => `var ${name} = snapshotInteropRequireDefault(require(${JSON.stringify(path)}))`).join('\n')}
 
-    function snapshotInteropRequire(mod) {
+    function snapshotInteropRequireDefault(mod) {
       return mod.__esModule ? mod.default : mod;
     }
 
@@ -53,7 +53,7 @@ export default async function generateAssets(workspace: Workspace) {
     entry: [assetFiles.testJS],
     output: {
       path: assets,
-      publicPath: '/static/',
+      publicPath: directories.public,
       filename: '[name].js',
     },
     resolve: {

@@ -9,5 +9,10 @@
     "**/node_modules": true,
     "lib": false
   },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "lib": false
+  },
   "typescript.tsdk": "./node_modules/typescript/lib"
 }

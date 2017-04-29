@@ -30,7 +30,7 @@ export class Workspace {
     return {
       details: resolve(directories.snapshots, 'details.json'),
       results: resolve(directories.build, 'results.json'),
-      testJS: resolve(directories.build, 'index.js'),
+      testJS: resolve(directories.assets, 'index.js'),
       testHTML: resolve(directories.build, 'index.html'),
       manifest: resolve(directories.build, 'assets.json'),
     };

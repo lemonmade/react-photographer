@@ -29,9 +29,11 @@ export default class Runner extends EventEmitter {
 
     this.emit('step', {message: 'Figuring out what tests to run'});
     const tests = await getTests(connector);
-    const progress = new Progress([]);
+    console.log(tests, client, server);
 
-    this.emit('start', progress);
+    // const progress = new Progress([]);
+
+    // this.emit('start', progress);
 
     // TODO
 
