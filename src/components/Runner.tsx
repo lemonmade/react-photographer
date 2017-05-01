@@ -31,9 +31,10 @@ export default class Runner extends React.Component<Props, State> {
   constructor(props: Props) {
     super();
     this.state = {
-      snapshotTests: props.sources.reduce((tests: Descriptor[], source) => {
-        return tests.concat(getDescriptors(source, props.config));
-      }, []),
+      snapshotTests: [],
+      //  props.sources.reduce((tests: Descriptor[], source) => {
+      //   return tests.concat(getDescriptors(source, props.config));
+      // }, []),
       currentSnapshotTest: null,
     };
   }

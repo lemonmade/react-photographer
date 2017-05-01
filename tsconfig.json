@@ -3,7 +3,7 @@
     "baseUrl": ".",
     "rootDir": "src",
     "outDir": "lib",
-    "target": "es2015",
+    "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
     "jsx": "react",

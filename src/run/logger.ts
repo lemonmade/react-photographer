@@ -3,6 +3,11 @@ import Aggregate from './aggregate';
 
 const debug = createDebug('photographer');
 
+interface Step {
+  step: number,
+  message: string,
+}
+
 export default class Logger {
   constructor(private ui: Partial<Logger>) {}
 
@@ -14,24 +19,36 @@ export default class Logger {
     this.ui.clear && this.ui.clear();
   }
 
-  start(aggregate: Aggregate) {
-    this.ui.start && this.ui.start(aggregate);
+  setupStart(steps: number) {
+    this.ui.setupStart && this.ui.setupStart(steps);
   }
 
-  stepCount(count: number) {
-    this.ui.stepCount && this.ui.stepCount(count);
+  setupStepStart(details: Step) {
+    this.ui.setupStepStart && this.ui.setupStepStart(details);
   }
 
-  step(details: {message: string}) {
-    this.ui.step && this.ui.step(details);
+  setupStepEnd(details: Step) {
+    this.ui.setupStepEnd && this.ui.setupStepEnd(details);
   }
 
-  test(test: any, aggregate: Aggregate) {
-    this.ui.test && this.ui.test(test, aggregate);
+  setupEnd(steps: number) {
+    this.ui.setupEnd && this.ui.setupEnd(steps);
   }
 
-  end(aggregate: Aggregate) {
-    this.ui.end && this.ui.end(aggregate);
+  testsStart(aggregate: Aggregate) {
+    this.ui.testsStart && this.ui.testsStart(aggregate);
+  }
+
+  testStart(test: any, aggregate: Aggregate) {
+    this.ui.testStart && this.ui.testStart(test, aggregate);
+  }
+
+  testEnd(test: any, aggregate: Aggregate) {
+    this.ui.testEnd && this.ui.testEnd(test, aggregate);
+  }
+
+  testsEnd(aggregate: Aggregate) {
+    this.ui.testsEnd && this.ui.testsEnd(aggregate);
   }
 
   debug(message: string) {

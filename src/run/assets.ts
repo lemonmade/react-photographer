@@ -15,6 +15,8 @@ interface AssetListing {
 }
 
 export default async function generateAssets(workspace: Workspace) {
+  (process as any).noDeprecation = true;
+
   const {config, directories, files: assetFiles} = workspace;
   // typescript-disable-next-line
   const {webpack: webpackConfig, files, ...extraConfig} = config;

@@ -56,42 +56,31 @@ function getTestString({
 }
 
 class Reporter {
-  clearTestUI = '';
-  clearStepUI = '';
-  lastStep = '';
-  totalSteps = 0;
-  currentStep = 0;
+  private clearUI = '';
+  private totalSteps = 0;
 
   title(title: string, {icon}: {icon: string}) {
     console.log(`${icon}  ${chalk.bold(title)}\n`);
   }
 
-  stepCount(count: number) {
-    this.totalSteps = count;
+  setupStart(steps: number) {
+    this.totalSteps = steps;
   }
 
-  step({message}: {message: string}) {
-    this.currentStep += 1;
-
-    const {currentStep, totalSteps, clearStepUI, lastStep} = this;
-    const ui = `${chalk.dim(`[${currentStep}/${totalSteps}]`)} ${message}\n`;
+  setupStepStart({message, step}: {message: string, step: number}) {
+    const {totalSteps} = this;
+    const ui = `${chalk.dim(`[${step}/${totalSteps}]`)} ${message}\n`;
     const clear = '\r\x1B[K\r\x1B[1A'.repeat(ui.split('\n').length - 1);
 
-    process.stdout.write(clearStepUI);
-
-    if (lastStep) {
-      console.log(`${chalk.green(`[${currentStep - 1}/${totalSteps}]`)} ${lastStep}`);
-    }
-
     process.stdout.write(ui);
-
-    this.lastStep = message;
-    this.clearStepUI = clear;
+    this.clearUI = clear;
   }
 
-  start() {
-    process.stdout.write(this.clearStepUI);
-    console.log(`${chalk.green(`[${this.currentStep}/${this.totalSteps}]`)} ${this.lastStep}\n`);
+  setupStepEnd({message, step}: {message: string, step: number}) {
+    process.stdout.write(this.clearUI);
+    this.clearUI = '';
+
+    console.log(`${chalk.green(`[${step}/${this.totalSteps}]`)} ${message}`);
   }
 
   // TODO
@@ -108,11 +97,11 @@ class Reporter {
       prefix = SKIP;
     }
 
-    process.stdout.write(this.clearTestUI);
+    process.stdout.write(this.clearUI);
     console.log(`${prefix} ${getTestString(snapshot)}`);
     process.stdout.write(ui);
 
-    this.clearTestUI = clear;
+    this.clearUI = clear;
   }
 
   end() {

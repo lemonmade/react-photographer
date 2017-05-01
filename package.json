@@ -28,7 +28,6 @@
   "devDependencies": {
     "@types/jest": "^16.0.2",
     "autoprefixer": "^6.7.6",
-    "ava": "^0.17.0",
     "babel-core": "^6.23.1",
     "babel-loader": "^6.3.2",
     "babel-preset-shopify": "^16.0.2",

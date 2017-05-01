@@ -8,7 +8,14 @@ import Aggregate from './aggregate';
 
 import {Workspace} from '../workspace';
 
+interface Step {
+  message: string,
+  step: number,
+}
+
 export default class Runner extends EventEmitter {
+  private currentStep = 0;
+
   constructor(private workspace: Workspace) {
     super();
   }
@@ -16,50 +23,57 @@ export default class Runner extends EventEmitter {
   async run() {
     const {workspace} = this;
 
-    this.emit('step:count', 4);
+    this.emit('setup:start', 4);
+    await this.runSetupStep('Loading existing snapshots', () => {});
+    await this.runSetupStep('Building assets', () => generateAssets(workspace));
+    const {client, server, connector} = await this.runSetupStep('Starting test server', () => createTestPieces(workspace));
+    const tests = await this.runSetupStep('Figuring out what tests to run', () => getTests(connector));
+    this.emit('setup:end', 4);
 
-    this.emit('step', {message: 'Loading existing snapshots'});
-    // TODO
-
-    this.emit('step', {message: 'Building assets'});
-    await generateAssets(workspace);
-
-    this.emit('step', {message: 'Starting test server'});
-    const {client, server, connector} = await createTestPieces(workspace);
-
-    this.emit('step', {message: 'Figuring out what tests to run'});
-    const tests = await getTests(connector);
     const progress = new Aggregate(tests);
-    console.log(tests.map((test) => test.id));
 
-    this.emit('start', progress);
+    this.emit('tests:start', progress);
 
     // TODO
 
-    this.emit('end', progress);
+    this.emit('tests:end', progress);
 
     client.close();
     server.close();
   }
 
-  emit(event: 'step', step: {message: string}): boolean
-  emit(event: 'step:count', count: number): boolean
-  emit(event: 'start', progress: Aggregate): boolean
-  emit(event: 'test', progress?: any): boolean
-  emit(event: 'end', progress: Aggregate): boolean
+  emit(event: 'setup:step:start', step: Step): boolean
+  emit(event: 'setup:step:end', step: Step): boolean
+  emit(event: 'setup:start', steps: number): boolean
+  emit(event: 'setup:end', steps: number): boolean
+  emit(event: 'tests:start', progress: Aggregate): boolean
+  emit(event: 'test:start', payload: void): boolean
+  emit(event: 'test:end', payload: void): boolean
+  emit(event: 'tests:end', progress: Aggregate): boolean
   emit(event: 'debug', message: string): boolean
   emit(event: string, payload: any): boolean {
     return super.emit(event, payload);
   }
 
-  on(event: 'step', handler: (details: {message: string}) => void): this
-  on(event: 'step:count', handler: (count: number) => void): this
-  on(event: 'start', handler: (aggregate: Aggregate) => void): this
-  on(event: 'test', handler: () => void): this
-  on(event: 'end', handler: (aggregate: Aggregate) => void): this
+  on(event: 'setup:step:start', handler: (step: Step) => void): this
+  on(event: 'setup:step:end', handler: (step: Step) => void): this
+  on(event: 'setup:start', handler: (steps: number) => void): this
+  on(event: 'setup:end', handler: (steps: number) => void): this
+  on(event: 'tests:start', handler: (aggregate: Aggregate) => void): this
+  on(event: 'test:start', handler: () => void): this
+  on(event: 'test:end', handler: () => void): this
+  on(event: 'tests:end', handler: (aggregate: Aggregate) => void): this
   on(event: 'debug', handler: (message: string) => void): this
   on(event: string, handler: any): this {
     return super.on(event, handler);
+  }
+
+  private async runSetupStep<T>(message: string, step: () => T): Promise<T> {
+    this.currentStep += 1;
+    this.emit('setup:step:start', {message, step: this.currentStep});
+    const result = await step();
+    this.emit('setup:step:end', {message, step: this.currentStep});
+    return result;
   }
 }
 

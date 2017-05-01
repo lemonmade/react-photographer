@@ -11,11 +11,14 @@ export default async function run(workspace: Workspace) {
   logger.clear();
   logger.title('React Photographer', {icon: '📷'});
 
-  runner.on('step:count', logger.stepCount.bind(logger));
-  runner.on('step', logger.step.bind(logger));
-  runner.on('start', logger.start.bind(logger));
-  runner.on('test', logger.test.bind(logger));
-  runner.on('end', logger.end.bind(logger));
+  runner.on('setup:start', logger.setupStart.bind(logger));
+  runner.on('setup:step:start', logger.setupStepStart.bind(logger));
+  runner.on('setup:step:end', logger.setupStepEnd.bind(logger));
+  runner.on('setup:end', logger.setupEnd.bind(logger));
+  runner.on('tests:start', logger.testsStart.bind(logger));
+  runner.on('test:start', logger.testStart.bind(logger));
+  runner.on('test:end', logger.testEnd.bind(logger));
+  runner.on('tests:end', logger.testsEnd.bind(logger));
   runner.on('debug', logger.debug.bind(logger));
 
   const results = await runner.run();
