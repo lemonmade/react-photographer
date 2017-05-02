@@ -1,58 +1,17 @@
 import * as chalk from 'chalk';
-import {WriteStream} from 'tty';
-import Aggregate from '../Aggregate';
 import {Descriptor} from '../../types';
 
-const PASS = chalk.inverse.bold.green(' PASS ');
-const FAIL = chalk.inverse.bold.red(' FAIL ');
-const SKIP = chalk.inverse.bold.yellow(' SKIP ');
-
-function getUI({
-  testsTotal,
-  testsCompleted,
-  testsPassed,
-  testsFailed,
-  testsSkipped,
-  componentsTotal,
-  componentsCompleted,
-  componentsPassed,
-  componentsFailed,
-  componentsSkipped,
-}: Aggregate) {
-  const width = (process.stdout as WriteStream).columns;
-  const completeWidth = Math.round(width * (testsCompleted / testsTotal));
-
-  const testString = [
-    testsFailed > 0 && chalk.bold.red(`${testsFailed} failed`),
-    testsSkipped > 0 && chalk.bold.yellow(`${testsSkipped} skipped`),
-    testsPassed > 0 && chalk.bold.green(`${testsPassed} passed`),
-    `${testsCompleted}/${testsTotal} total`,
-  ].filter(Boolean).join(', ');
-
-  const componentString = [
-    componentsFailed > 0 && chalk.bold.red(`${componentsFailed} failed`),
-    componentsSkipped > 0 && chalk.bold.yellow(`${componentsSkipped} skipped`),
-    componentsPassed > 0 && chalk.bold.green(`${componentsPassed} passed`),
-    `${componentsCompleted}/${componentsTotal} total`,
-  ].filter(Boolean).join(', ');
-
-  const progressBarColor = testsFailed > 0 ? chalk.red : chalk.green;
-
-  return [
-    '',
-    `${chalk.bold('Components:')} ${componentString}`,
-    `${chalk.bold('Tests:')}      ${testString}`,
-    `${progressBarColor.inverse(' ').repeat(completeWidth)}${chalk.white.inverse(' ').repeat(width - completeWidth)}`,
-  ].join('\n');
-}
+const SNAPPIN = chalk.inverse.bold.gray(` SNAPPIN `);
+const SNAPPED = chalk.inverse.bold.green(` SNAPPED `);
 
 function getTestString({
   groups,
+  case: snapshotCase,
   name,
   hasMultipleViewports,
   viewport: {width, height},
 }: Descriptor) {
-  return `${chalk.dim(`${groups.join(' > ')} >`)} ${chalk.bold(name)}${hasMultipleViewports ? chalk.dim(` @ ${width}x${height}`) : ''}`;
+  return `${chalk.dim(`${groups.join(' > ')} >`)} ${chalk.bold(name)}${snapshotCase ? chalk.dim(`:${snapshotCase}`) : ''}${hasMultipleViewports ? chalk.dim(` @ ${width}x${height}`) : ''}`;
 }
 
 class Reporter {
@@ -76,32 +35,16 @@ class Reporter {
     this.clearUI = clear;
   }
 
-  setupStepEnd({message, step}: {message: string, step: number}) {
+  setupStepEnd({message, step, duration}: {message: string, step: number, duration: number}) {
     process.stdout.write(this.clearUI);
     this.clearUI = '';
 
-    console.log(`${chalk.green(`[${step}/${this.totalSteps}]`)} ${message}`);
+    console.log(`${chalk.green(`[${step}/${this.totalSteps}]`)} ${message} ${chalk.dim(`(${duration}ms)`)}`);
   }
 
   // TODO
-  test(snapshot: any, summary: Aggregate) {
-    const ui = getUI(summary);
-    const clear = '\r\x1B[K\r\x1B[1A'.repeat(ui.split('\n').length - 1);
-    const {result: {failed, skipped}} = snapshot;
-
-    let prefix = PASS;
-
-    if (failed) {
-      prefix = FAIL;
-    } else if (skipped) {
-      prefix = SKIP;
-    }
-
-    process.stdout.write(this.clearUI);
-    console.log(`${prefix} ${getTestString(snapshot)}`);
-    process.stdout.write(ui);
-
-    this.clearUI = clear;
+  snapshotEnd(snapshot: any) {
+    console.log(`${SNAPPED} ${getTestString(snapshot)}`);
   }
 
   end() {

@@ -1,58 +1,48 @@
-import {mkdirpSync} from 'fs-extra';
-import {resolve, dirname} from 'path';
+import {resolve} from 'path';
 import {EventEmitter} from 'events';
 
 import createEnvironment, {Environment} from './environment';
 import createPhantom from './browsers/phantom';
 import generateAssets from './assets';
-import Aggregate from './aggregate';
 
 import {Workspace} from '../workspace';
 
 interface Step {
   message: string,
+  duration: number,
   step: number,
 }
 
 export default class Runner extends EventEmitter {
   private currentStep = 0;
 
-  constructor(private workspace: Workspace) {
-    super();
-  }
-
-  async run() {
-    const {workspace} = this;
-
-    this.emit('setup:start', 4);
-    await this.runSetupStep('Loading existing snapshots', () => {});
+  async run(output: string, workspace: Workspace) {
+    this.emit('setup:start', 3);
     await this.runSetupStep('Building assets', () => generateAssets(workspace));
     const environment = await this.runSetupStep('Starting test server', () => createEnvironment(workspace, createPhantom));
-    const tests = await this.runSetupStep('Figuring out what tests to run', () => getTests(environment));
-    this.emit('setup:end', 4);
 
-    const progress = new Aggregate(tests);
+    try {
+      const tests = await this.runSetupStep('Figuring out what tests to run', () => getTests(environment));
+      this.emit('setup:end', 3);
 
-    this.emit('tests:start', progress);
-
-    // TODO
-    await Promise.all(tests.map((test) => runTest(test, environment, workspace)));
-
-    this.emit('tests:end', progress);
-
-    environment.close();
+      this.emit('run:start');
+      await Promise.all(tests.map((test) => this.runTest(test, output, environment)));
+      this.emit('run:end');
+    } finally {
+      environment.close();
+    }
   }
 
   emit(event: 'setup:step:start', step: Step): boolean
   emit(event: 'setup:step:end', step: Step): boolean
   emit(event: 'setup:start', steps: number): boolean
   emit(event: 'setup:end', steps: number): boolean
-  emit(event: 'tests:start', progress: Aggregate): boolean
-  emit(event: 'test:start', payload: void): boolean
-  emit(event: 'test:end', payload: void): boolean
-  emit(event: 'tests:end', progress: Aggregate): boolean
+  emit(event: 'run:start'): boolean
+  emit(event: 'snapshot:start', snapshot: any): boolean
+  emit(event: 'snapshot:end', snapshot: any): boolean
+  emit(event: 'run:end'): boolean
   emit(event: 'debug', message: string): boolean
-  emit(event: string, payload: any): boolean {
+  emit(event: string, payload?: any): boolean {
     return super.emit(event, payload);
   }
 
@@ -60,44 +50,44 @@ export default class Runner extends EventEmitter {
   on(event: 'setup:step:end', handler: (step: Step) => void): this
   on(event: 'setup:start', handler: (steps: number) => void): this
   on(event: 'setup:end', handler: (steps: number) => void): this
-  on(event: 'tests:start', handler: (aggregate: Aggregate) => void): this
-  on(event: 'test:start', handler: () => void): this
-  on(event: 'test:end', handler: () => void): this
-  on(event: 'tests:end', handler: (aggregate: Aggregate) => void): this
+  on(event: 'run:start', handler: () => void): this
+  on(event: 'snapshot:start', handler: (snapshot: any) => void): this
+  on(event: 'snapshot:end', handler: (snapshot: any) => void): this
+  on(event: 'run:end', handler: () => void): this
   on(event: 'debug', handler: (message: string) => void): this
   on(event: string, handler: any): this {
     return super.on(event, handler);
   }
 
   private async runSetupStep<T>(message: string, step: () => T): Promise<T> {
+    const start = Date.now();
     this.currentStep += 1;
-    this.emit('setup:step:start', {message, step: this.currentStep});
+    this.emit('setup:step:start', {message, step: this.currentStep, duration: 0});
     const result = await step();
-    this.emit('setup:step:end', {message, step: this.currentStep});
+    this.emit('setup:step:end', {message, step: this.currentStep, duration: Date.now() - start});
     return result;
   }
-}
 
-async function runTest(test: any, environment: Environment, workspace: Workspace) {
-  console.log(`Running test id ${test.id}`);
-  const connection = await environment.connect();
-  const {client} = connection;
+  private async runTest(snapshot: any, outputDirectory: string, environment: Environment) {
+    const connection = await environment.connect();
 
-  console.log(`Connected for id ${test.id}`);
+    this.emit('snapshot:start', snapshot);
 
-  const snapshotPath = resolve(workspace.directories.reference, `${test.id}.png`);
-  mkdirpSync(dirname(snapshotPath));
+    const {client} = connection;
+    const snapshotPath = resolve(outputDirectory, `${snapshot.id}.png`);
 
-  connection.send({type: 'RUN_TEST', id: test.id});
+    connection.send({type: 'RUN_TEST', id: snapshot.id});
 
-  const message = await connection.awaitMessage('READY_FOR_MY_CLOSEUP');
-  const {position} = message;
-  await client.snapshot({
-    rect: position,
-    output: snapshotPath,
-  });
+    const message = await connection.awaitMessage('READY_FOR_MY_CLOSEUP');
+    const {position} = message;
+    await client.snapshot({
+      rect: position,
+      output: snapshotPath,
+    });
 
-  connection.close();
+    connection.close();
+    this.emit('snapshot:end', snapshot);
+  }
 }
 
 async function getTests(environment: Environment): Promise<any[]> {

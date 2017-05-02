@@ -1,5 +1,4 @@
 import createDebug = require('debug');
-import Aggregate from './aggregate';
 
 const debug = createDebug('photographer');
 
@@ -31,24 +30,24 @@ export default class Logger {
     this.ui.setupStepEnd && this.ui.setupStepEnd(details);
   }
 
-  setupEnd(steps: number) {
+  setupEnd(steps: number)   {
     this.ui.setupEnd && this.ui.setupEnd(steps);
   }
 
-  testsStart(aggregate: Aggregate) {
-    this.ui.testsStart && this.ui.testsStart(aggregate);
+  runStart() {
+    this.ui.runStart && this.ui.runStart();
   }
 
-  testStart(test: any, aggregate: Aggregate) {
-    this.ui.testStart && this.ui.testStart(test, aggregate);
+  snapshotStart(snapshot: any) {
+    this.ui.snapshotStart && this.ui.snapshotStart(snapshot);
   }
 
-  testEnd(test: any, aggregate: Aggregate) {
-    this.ui.testEnd && this.ui.testEnd(test, aggregate);
+  snapshotEnd(snapshot: any) {
+    this.ui.snapshotEnd && this.ui.snapshotEnd(snapshot);
   }
 
-  testsEnd(aggregate: Aggregate) {
-    this.ui.testsEnd && this.ui.testsEnd(aggregate);
+  runEnd() {
+    this.ui.runEnd && this.ui.runEnd();
   }
 
   debug(message: string) {
