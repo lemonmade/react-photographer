@@ -1,7 +1,9 @@
-import * as cosmiconfig from 'cosmiconfig';
 import {sync as globSync} from 'glob';
-
 import {Viewport} from '../types';
+
+// For some reason, doing this as import cosmiconfig breaks only the
+// tests.
+const cosmiconfig = require('cosmiconfig');
 
 interface WebpackConfig {
   output?: {
@@ -61,7 +63,7 @@ export function createMemoryConfig(baseConfig: UserConfig = {}): Config {
   return config;
 }
 
-const configGetter = cosmiconfig<UserConfig>('photographer');
+const configGetter = cosmiconfig('photographer');
 
 export default async function createConfig(baseConfig?: UserConfig): Promise<Config> {
   let userConfig: UserConfig;

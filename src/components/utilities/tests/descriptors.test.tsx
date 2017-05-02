@@ -57,16 +57,6 @@ describe('getTestDescriptorsFromSource()', () => {
     expect(getTestDescriptorsFromSource(ButtonTest, config)).toEqual([basicTestDescriptor]);
   });
 
-  it('works for React.createClass components', () => {
-    const ButtonTest = React.createClass({
-      render() {
-        return getBasicTestElement();
-      }
-    })
-
-    expect(getTestDescriptorsFromSource(ButtonTest, config)).toEqual([basicTestDescriptor]);
-  });
-
   it('returns a result for multiple nested snapshots', () => {
     const primaryButtonElement = <Button primary>Primary button</Button>;
     const ButtonTest = () => (
