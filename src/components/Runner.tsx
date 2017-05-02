@@ -1,4 +1,4 @@
-import 'core-js/modules/es6.array.find';
+import 'babel-polyfill';
 import * as React from 'react';
 import {autobind} from 'core-decorators';
 
@@ -31,10 +31,9 @@ export default class Runner extends React.Component<Props, State> {
   constructor(props: Props) {
     super();
     this.state = {
-      snapshotTests: [],
-      //  props.sources.reduce((tests: Descriptor[], source) => {
-      //   return tests.concat(getDescriptors(source, props.config));
-      // }, []),
+      snapshotTests: props.sources.reduce((tests: Descriptor[], source) => {
+        return tests.concat(getDescriptors(source, props.config));
+      }, []),
       currentSnapshotTest: null,
     };
   }
@@ -65,7 +64,8 @@ export default class Runner extends React.Component<Props, State> {
     if (currentSnapshotTest == null) { return; }
 
     if (typeof currentSnapshotTest.action === 'function') {
-      await currentSnapshotTest.action(new Actions(node, this.messenger));
+      // TODO
+      // await currentSnapshotTest.action(new Actions(node, this.messenger));
     }
 
     this.messenger.send({

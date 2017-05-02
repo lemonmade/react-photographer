@@ -1,3 +1,5 @@
+import {mkdirpSync} from 'fs-extra';
+import {resolve, dirname} from 'path';
 import {EventEmitter} from 'events';
 
 import Server from './server';
@@ -35,6 +37,7 @@ export default class Runner extends EventEmitter {
     this.emit('tests:start', progress);
 
     // TODO
+    await Promise.all(tests.map((test) => runTest(test, connector, workspace)));
 
     this.emit('tests:end', progress);
 
@@ -75,6 +78,28 @@ export default class Runner extends EventEmitter {
     this.emit('setup:step:end', {message, step: this.currentStep});
     return result;
   }
+}
+
+async function runTest(test: any, connector: Connector, workspace: Workspace) {
+  console.log(`Running test id ${test.id}`);
+  const connection = await connector.connect();
+  const {page} = connection;
+
+  console.log(`Connected for id ${test.id}`);
+
+  const snapshotPath = resolve(workspace.directories.reference, `${test.id}.png`);
+  mkdirpSync(dirname(snapshotPath));
+
+  connection.send({type: 'RUN_TEST', id: test.id});
+
+  const message = await connection.awaitMessage('READY_FOR_MY_CLOSEUP');
+  const {position} = message;
+  await page.snapshot({
+    rect: position,
+    output: snapshotPath,
+  });
+
+  connection.close();
 }
 
 async function createTestPieces(workspace: Workspace) {
