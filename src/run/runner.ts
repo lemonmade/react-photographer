@@ -74,7 +74,7 @@ export default class Runner extends EventEmitter {
     this.emit('snapshot:start', snapshot);
 
     const {client} = connection;
-    const snapshotPath = resolve(outputDirectory, `${snapshot.id}.png`);
+    const snapshotPath = resolve(outputDirectory, ...snapshot.groups, `${snapshot.name}${snapshot.case ? `-${snapshot.case}` : ''}@${snapshot.viewport.width}x${snapshot.viewport.height}.png`);
 
     connection.send({type: 'RUN_TEST', id: snapshot.id});
 

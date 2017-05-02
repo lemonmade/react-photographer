@@ -4,7 +4,7 @@ import WebSocket = require('ws');
 import Connection from './connection';
 import Server from './server';
 
-import Pool from '../pool';
+import Pool from '../../utilities/pool';
 import {Workspace} from '../../workspace';
 import {Browser, BrowserCreator} from '../../types';
 
