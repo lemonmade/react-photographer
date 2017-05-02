@@ -1,5 +1,5 @@
-import {getCenterForNode} from './utilities';
-import {ActionHelper, Messenger, Message} from '../types';
+import {getCenterForNode} from './geometry';
+import {ActionHelper, Messenger, Message} from '../../types';
 
 interface PerformedActionMessage extends Message {
   type: 'PERFORMED_ACTION',

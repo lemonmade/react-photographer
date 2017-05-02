@@ -1,4 +1,4 @@
-import {Point, Rect} from '../types';
+import {Point, Rect} from '../../types';
 
 export function getCenterForNode(node: HTMLElement): Point {
   return {

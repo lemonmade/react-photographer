@@ -2,9 +2,8 @@ import {mkdirpSync} from 'fs-extra';
 import {resolve, dirname} from 'path';
 import {EventEmitter} from 'events';
 
-import Server from './server';
-import Connector from './connector';
-import createPhantomClient from './clients/phantom';
+import createEnvironment, {Environment} from './environment';
+import createPhantom from './browsers/phantom';
 import generateAssets from './assets';
 import Aggregate from './aggregate';
 
@@ -28,8 +27,8 @@ export default class Runner extends EventEmitter {
     this.emit('setup:start', 4);
     await this.runSetupStep('Loading existing snapshots', () => {});
     await this.runSetupStep('Building assets', () => generateAssets(workspace));
-    const {client, server, connector} = await this.runSetupStep('Starting test server', () => createTestPieces(workspace));
-    const tests = await this.runSetupStep('Figuring out what tests to run', () => getTests(connector));
+    const environment = await this.runSetupStep('Starting test server', () => createEnvironment(workspace, createPhantom));
+    const tests = await this.runSetupStep('Figuring out what tests to run', () => getTests(environment));
     this.emit('setup:end', 4);
 
     const progress = new Aggregate(tests);
@@ -37,12 +36,11 @@ export default class Runner extends EventEmitter {
     this.emit('tests:start', progress);
 
     // TODO
-    await Promise.all(tests.map((test) => runTest(test, connector, workspace)));
+    await Promise.all(tests.map((test) => runTest(test, environment, workspace)));
 
     this.emit('tests:end', progress);
 
-    client.close();
-    server.close();
+    environment.close();
   }
 
   emit(event: 'setup:step:start', step: Step): boolean
@@ -80,10 +78,10 @@ export default class Runner extends EventEmitter {
   }
 }
 
-async function runTest(test: any, connector: Connector, workspace: Workspace) {
+async function runTest(test: any, environment: Environment, workspace: Workspace) {
   console.log(`Running test id ${test.id}`);
-  const connection = await connector.connect();
-  const {page} = connection;
+  const connection = await environment.connect();
+  const {client} = connection;
 
   console.log(`Connected for id ${test.id}`);
 
@@ -94,7 +92,7 @@ async function runTest(test: any, connector: Connector, workspace: Workspace) {
 
   const message = await connection.awaitMessage('READY_FOR_MY_CLOSEUP');
   const {position} = message;
-  await page.snapshot({
+  await client.snapshot({
     rect: position,
     output: snapshotPath,
   });
@@ -102,25 +100,8 @@ async function runTest(test: any, connector: Connector, workspace: Workspace) {
   connection.close();
 }
 
-async function createTestPieces(workspace: Workspace) {
-  const client = await createPhantomClient(workspace);
-  const server = new Server(workspace);
-  const connector = new Connector(server, client, workspace);
-
-  function cleanup() {
-    client.close();
-    server.close();
-  }
-
-  process.on('SIGINT', cleanup);
-  process.on('uncaughtException', cleanup);
-  process.on('unhandledRejection', cleanup);
-
-  return {client, server, connector};
-}
-
-async function getTests(connector: Connector): Promise<any[]> {
-  const connection = await connector.connect();
+async function getTests(environment: Environment): Promise<any[]> {
+  const connection = await environment.connect();
   const messagePromise = connection.awaitMessage('TEST_DETAILS');
   connection.send({type: 'SEND_DETAILS'});
   const {tests} = await messagePromise;

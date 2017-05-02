@@ -1,6 +1,6 @@
 import {join} from 'path';
 import express = require('express');
-import {Workspace} from '../../workspace';
+import {Workspace} from '../../../workspace';
 
 export default function app({directories}: Workspace) {
   const app = express();

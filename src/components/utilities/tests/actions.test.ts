@@ -1,9 +1,9 @@
 import {createNodeWithPosition} from './utilities';
 
 import Actions from '../actions';
-import {getCenterForNode} from '../utilities';
+import {getCenterForNode} from '../geometry';
 
-import {Messenger, Message, Listener} from '../../types';
+import {Messenger, Message, Listener} from '../../../types';
 
 interface Callback {
   (message: Message): Listener,

@@ -1,7 +1,6 @@
 import * as React from 'react';
 
-import {Descriptor} from './types';
-import {AnyComponent} from '../types/react';
+import {Descriptor, SnapshotSource} from './types';
 
 interface Case {
   name: Descriptor['name'],
@@ -10,7 +9,7 @@ interface Case {
 
 export interface Props {
   name?: Descriptor['name'],
-  component?: string | AnyComponent<any, any>,
+  component?: string | SnapshotSource,
   children?: Descriptor['element'],
   record?: Descriptor['record'],
   skip?: Descriptor['skip'],

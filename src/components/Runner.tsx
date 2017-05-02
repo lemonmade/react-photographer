@@ -3,9 +3,10 @@ import * as React from 'react';
 import {autobind} from 'core-decorators';
 
 import Tester from './Tester';
-import Actions from './actions';
-import getDescriptors from './get-descriptors';
-import {getRectForNode} from './utilities';
+// import Actions from './actions';
+import getDescriptors from './utilities/descriptors';
+import {getRectForNode} from './utilities/geometry';
+
 import {Descriptor, SnapshotSource} from './types';
 import {ID, Config, Messenger, Listener, Message} from '../types';
 

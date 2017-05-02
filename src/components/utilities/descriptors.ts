@@ -1,8 +1,8 @@
 import * as React from 'react';
 
-import {ID} from '../types';
-import Snapshot, {Props} from './Snapshot';
-import {Descriptor, SnapshotSource} from './types';
+import {ID} from '../../types';
+import Snapshot, {Props} from '../Snapshot';
+import {Descriptor, SnapshotSource} from '../types';
 
 interface NestedDescriptor {
   groups: Descriptor['groups'],

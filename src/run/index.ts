@@ -6,7 +6,6 @@ import {Workspace} from '../workspace';
 export default async function run(workspace: Workspace) {
   const runner = new Runner(workspace);
   const logger = new Logger(ui());
-  // const start = Date.now();
 
   logger.clear();
   logger.title('React Photographer', {icon: '📷'});

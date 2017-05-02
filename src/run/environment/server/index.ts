@@ -3,7 +3,7 @@ import {createServer, Server as HTTPServer} from 'http';
 import {EventEmitter} from 'events';
 
 import createApp from './app';
-import {Workspace} from '../../workspace';
+import {Workspace} from '../../../workspace';
 
 export default class Server extends EventEmitter {
   private closed = false;

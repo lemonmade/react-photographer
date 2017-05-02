@@ -1,14 +1,14 @@
-import {Viewport, Action, ID, ReactComponent} from '../types';
+export {ID} from '../id';
 
-export type SnapshotSource = ReactComponent<any, any>;
+export interface Viewport {
+  width: number,
+  height: number,
+}
 
 export interface Descriptor {
-  id: ID,
   groups: string[],
   name: string,
   case: string | null,
-  action: Action | null,
-  element: React.ReactNode,
   record: boolean,
   skip: boolean,
   only: boolean,

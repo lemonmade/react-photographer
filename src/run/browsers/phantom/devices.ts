@@ -1,11 +1,11 @@
 import {Point} from '../../../types';
-import Page from './page';
+import {Client} from './client';
 
 abstract class Device {
-  constructor(protected page: Page) {}
+  constructor(protected client: Client) {}
 
   async performAction(action: string, position?: Point) {
-    return await this.page.performAction(action, position);
+    return await this.client.performAction(action, position);
   }
 }
 

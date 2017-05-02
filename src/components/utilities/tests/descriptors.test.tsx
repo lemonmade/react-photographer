@@ -1,8 +1,9 @@
 import * as React from 'react';
 
-import Snapshot from '../Snapshot';
-import {Descriptor} from '../types';
-import getTestDescriptorsFromSource from '../get-descriptors';
+import Snapshot from '../../Snapshot';
+import {Descriptor} from '../../types';
+
+import getTestDescriptorsFromSource from '../descriptors';
 
 describe('getTestDescriptorsFromSource()', () => {
   const viewport = {height: 200, width: 200};
