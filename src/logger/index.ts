@@ -1,4 +1,5 @@
 import createDebug = require('debug');
+import createUI from './ui';
 
 const debug = createDebug('photographer');
 
@@ -8,7 +9,7 @@ interface Step {
 }
 
 export default class Logger {
-  constructor(private ui: Partial<Logger>) {}
+  constructor(private ui: Partial<Logger> = createUI()) {}
 
   title(title: string, options: {icon?: string}) {
     this.ui.title && this.ui.title(title, options);

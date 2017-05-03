@@ -1,5 +1,5 @@
 import {relative, basename, dirname, resolve} from 'path';
-import {mkdirpSync, writeFileSync, readJSONSync} from 'fs-extra';
+import {mkdirp, writeFile, readJSON} from 'fs-extra';
 import webpack = require('webpack');
 import AssetsPlugin = require('assets-webpack-plugin');
 
@@ -20,16 +20,17 @@ export default async function generateAssets(workspace: Workspace) {
   const {config, directories, files: assetFiles} = workspace;
   // typescript-disable-next-line
   const {webpack: webpackConfig, files, ...extraConfig} = config;
-  const {assets} = directories;
+  const {runnerAssets, builtAssets} = directories;
 
   const testComponents = files.map((test, index) => ({
     name: `PhotographerTestComponent${index}`,
     path: relative(dirname(assetFiles.testJS), test),
   }));
 
-  mkdirpSync(assets);
+  await mkdirp(runnerAssets);
+  await mkdirp(builtAssets);
 
-  writeFileSync(assetFiles.testJS, `
+  await writeFile(assetFiles.testJS, `
     var React = require('react');
     var ReactDOM = require('react-dom');
 
@@ -54,7 +55,7 @@ export default async function generateAssets(workspace: Workspace) {
     ...webpackConfig,
     entry: [assetFiles.testJS],
     output: {
-      path: assets,
+      path: builtAssets,
       publicPath: directories.public,
       filename: '[name].js',
     },
@@ -87,15 +88,15 @@ export default async function generateAssets(workspace: Workspace) {
     });
   });
 
-  const builtAssets: AssetListing = readJSONSync(assetFiles.manifest);
-  const {js: scripts, css: styles} = Object.keys(builtAssets).reduce((all, key) => {
-    const {js, css} = builtAssets[key];
+  const assetListing: AssetListing = await readJSON(assetFiles.manifest);
+  const {js: scripts, css: styles} = Object.keys(assetListing).reduce((all, key) => {
+    const {js, css} = assetListing[key];
     if (js) { all.js.push(...(Array.isArray(js) ? js : [js])); }
     if (css) { all.css.push(...(Array.isArray(css) ? css : [css])); }
     return all;
   }, {js: [], css: []} as AssetDetails);
 
-  writeFileSync(assetFiles.testHTML, `
+  await writeFile(assetFiles.testHTML, `
     <!DOCTYPE html>
     <head>
       <meta charset="utf-8">

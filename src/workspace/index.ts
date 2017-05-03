@@ -10,15 +10,20 @@ export class Workspace {
   @lazy
   get directories() {
     const {rootDirectory, snapshotDirectory, webpack} = this.config;
+    const snapshots = resolve(rootDirectory, snapshotDirectory);
+    const photographer = resolve(rootDirectory, '.photographer');
+    const assets = resolve(photographer, 'assets');
 
     return {
       root: rootDirectory,
-      snapshots: resolve(rootDirectory, snapshotDirectory),
-      reference: resolve(rootDirectory, snapshotDirectory, 'reference'),
-      compare: resolve(rootDirectory, snapshotDirectory, 'compare'),
-      diff: resolve(rootDirectory, snapshotDirectory, 'diff'),
-      build: resolve(rootDirectory, '.photographer'),
-      assets: resolve(rootDirectory, '.photographer', 'assets'),
+      snapshots,
+      reference: resolve(snapshots, 'reference'),
+      latest: resolve(snapshots, 'latest'),
+      diff: resolve(snapshots, 'diff'),
+      photographer,
+      runs: resolve(photographer, 'runs'),
+      runnerAssets: resolve(assets, 'runner'),
+      builtAssets: resolve(assets, 'built'),
       public: (webpack.output && webpack.output.publicPath) || '/assets/',
     };
   }
@@ -29,10 +34,9 @@ export class Workspace {
 
     return {
       details: resolve(directories.snapshots, 'details.json'),
-      results: resolve(directories.build, 'results.json'),
-      testJS: resolve(directories.assets, 'index.js'),
-      testHTML: resolve(directories.build, 'index.html'),
-      manifest: resolve(directories.build, 'assets.json'),
+      testJS: resolve(directories.runnerAssets, 'index.js'),
+      testHTML: resolve(directories.runnerAssets, 'index.html'),
+      manifest: resolve(directories.builtAssets, 'assets.json'),
     };
   }
 
