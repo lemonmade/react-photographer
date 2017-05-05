@@ -14,11 +14,11 @@ export class Keyboard extends Device {
 }
 
 export class Mouse extends Device {
-  async down(position: Point) {
+  async down(position?: Point) {
     await this.performAction('mousedown', position);
   }
 
-  async up(position: Point) {
+  async up(position?: Point) {
     await this.performAction('mouseup', position);
   }
 

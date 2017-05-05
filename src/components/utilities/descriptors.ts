@@ -107,7 +107,7 @@ function getDescriptorsFromElement(
       id: getID({name: finalName, case: null, groups: newNestedDescriptor.groups, viewport}),
       name: finalName,
       case: null,
-      action: action || null,
+      action: null,
       element: children,
       groups: newNestedDescriptor.groups,
       record: newNestedDescriptor.record,

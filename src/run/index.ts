@@ -153,6 +153,10 @@ export default class Runner extends EventEmitter {
     ]
     const snapshotPath = resolve(outputDirectory, ...snapshotPathSegments);
 
+    // RESET
+    await client.mouse.move({x: 10000, y: 10000});
+    await client.mouse.up();
+
     connection.send({type: 'RUN_TEST', id: snapshot.id});
 
     let message: Message;
@@ -168,7 +172,7 @@ export default class Runner extends EventEmitter {
           case 'mousedown':
             await client.mouse.down(position);
             break;
-          case 'mousemove':
+          case 'mouseover':
             await client.mouse.move(position);
             break;
         }
@@ -185,9 +189,6 @@ export default class Runner extends EventEmitter {
       rect: position,
       output: snapshotPath,
     });
-
-    // RESET
-    await client.mouse.up({x: 0, y: 0});
 
     connection.close();
 

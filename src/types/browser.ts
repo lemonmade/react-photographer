@@ -8,8 +8,8 @@ interface SnapshotOptions {
 }
 
 export interface Mouse {
-  up(position: Point): TypeOrPromise<void>,
-  down(position: Point): TypeOrPromise<void>,
+  up(position?: Point): TypeOrPromise<void>,
+  down(position?: Point): TypeOrPromise<void>,
   move(position: Point): TypeOrPromise<void>,
   hover(position: Point): TypeOrPromise<void>,
 }
