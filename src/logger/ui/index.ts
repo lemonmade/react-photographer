@@ -19,7 +19,7 @@ function getTestString({
   hasMultipleViewports,
   viewport: {width, height},
 }: Snapshot) {
-  return `${chalk.dim(`${groups.join(' > ')} >`)} ${chalk.bold(name)}${snapshotCase ? chalk.dim(`:${snapshotCase}`) : ''}${hasMultipleViewports ? chalk.dim(` @ ${width}x${height}`) : ''}`;
+  return `${groups.join(' > ')} > ${chalk.bold(name)}${snapshotCase ? chalk.dim(`:${snapshotCase}`) : ''}${hasMultipleViewports ? chalk.dim(` @ ${width}x${height}`) : ''}`;
 }
 
 class Reporter {
