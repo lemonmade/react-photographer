@@ -1,12 +1,8 @@
 import createDebug = require('debug');
 import createUI from './ui';
+import {Snapshot, CompareResult, CaptureResult, Step} from '../types';
 
 const debug = createDebug('photographer');
-
-interface Step {
-  step: number,
-  message: string,
-}
 
 export default class Logger {
   constructor(private ui: Partial<Logger> = createUI()) {}
@@ -17,6 +13,10 @@ export default class Logger {
 
   clear() {
     this.ui.clear && this.ui.clear();
+  }
+
+  start() {
+    this.ui.start && this.ui.start();
   }
 
   setupStart(steps: number) {
@@ -35,20 +35,32 @@ export default class Logger {
     this.ui.setupEnd && this.ui.setupEnd(steps);
   }
 
-  runStart() {
-    this.ui.runStart && this.ui.runStart();
-  }
-
-  snapshotStart(snapshot: any) {
+  snapshotStart(snapshot: Snapshot) {
     this.ui.snapshotStart && this.ui.snapshotStart(snapshot);
   }
 
-  snapshotEnd(snapshot: any, result: any) {
-    this.ui.snapshotEnd && this.ui.snapshotEnd(snapshot, result);
+  snapshotCaptureStart(snapshot: Snapshot) {
+    this.ui.snapshotCaptureStart && this.ui.snapshotCaptureStart(snapshot);
   }
 
-  runEnd() {
-    this.ui.runEnd && this.ui.runEnd();
+  snapshotCaptureEnd(snapshot: Snapshot, captureResult: CaptureResult) {
+    this.ui.snapshotCaptureEnd && this.ui.snapshotCaptureEnd(snapshot, captureResult);
+  }
+
+  snapshotCompareStart(snapshot: Snapshot) {
+    this.ui.snapshotCompareStart && this.ui.snapshotCompareStart(snapshot);
+  }
+
+  snapshotCompareEnd(snapshot: Snapshot, compareResult: CompareResult) {
+    this.ui.snapshotCompareEnd && this.ui.snapshotCompareEnd(snapshot, compareResult);
+  }
+
+  snapshotEnd(snapshot: Snapshot, captureResult: CaptureResult, compareResult: CompareResult) {
+    this.ui.snapshotEnd && this.ui.snapshotEnd(snapshot, captureResult, compareResult);
+  }
+
+  end() {
+    this.ui.end && this.ui.end();
   }
 
   debug(message: string) {

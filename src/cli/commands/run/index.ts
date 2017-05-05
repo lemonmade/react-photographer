@@ -36,14 +36,18 @@ export async function handler(options: Options) {
   logger.clear();
   logger.title('React Photographer', {icon: '📷'});
 
+  runner.on('start', logger.start.bind(logger));
   runner.on('setup:start', logger.setupStart.bind(logger));
   runner.on('setup:step:start', logger.setupStepStart.bind(logger));
   runner.on('setup:step:end', logger.setupStepEnd.bind(logger));
   runner.on('setup:end', logger.setupEnd.bind(logger));
-  runner.on('run:start', logger.runStart.bind(logger));
   runner.on('snapshot:start', logger.snapshotStart.bind(logger));
+  runner.on('snapshot:capture:start', logger.snapshotCaptureStart.bind(logger));
+  runner.on('snapshot:capture:end', logger.snapshotCaptureEnd.bind(logger));
+  runner.on('snapshot:compare:start', logger.snapshotCompareStart.bind(logger));
+  runner.on('snapshot:compare:end', logger.snapshotCompareEnd.bind(logger));
   runner.on('snapshot:end', logger.snapshotEnd.bind(logger));
-  runner.on('run:end', logger.runEnd.bind(logger));
+  runner.on('end', logger.end.bind(logger));
   runner.on('debug', logger.debug.bind(logger));
 
   await runner.run(workspace);

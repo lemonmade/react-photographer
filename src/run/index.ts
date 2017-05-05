@@ -7,31 +7,18 @@ import createPhantom from './browsers/phantom';
 import generateAssets from './assets';
 
 import {Workspace} from '../workspace';
-
-interface Step {
-  message: string,
-  duration: number,
-  step: number,
-}
-
-enum Status {
-  Snapshot,
-  Reference,
-  Passed,
-  Failed,
-}
-
-interface Result {
-  id: string,
-  status: Status,
-  duration: number,
-}
+import {Snapshot, CaptureResult, CaptureStatus, CompareResult, CompareStatus, Step} from '../types';
 
 interface Run {
   id: string,
-  output: string,
-  snapshots: any[],
-  results: Result[],
+  outputDirectory: string,
+  snapshots: {
+    [key: string]: {
+      description: Snapshot,
+      captureResult: CaptureResult,
+      compareResult: CompareResult,
+    },
+  },
 }
 
 export default class Runner extends EventEmitter {
@@ -41,31 +28,38 @@ export default class Runner extends EventEmitter {
     const id = String(Date.now());
     const output = resolve(workspace.directories.runs, id);
 
+    this.emit('start');
+
     this.emit('setup:start', 3);
     await this.runSetupStep('Building assets', () => generateAssets(workspace));
     const environment = await this.runSetupStep('Starting test server', () => createEnvironment(workspace, createPhantom));
 
-    let results: Result[] = [];
-    let snapshots: any[] = [];
+    const results: Run['snapshots'] = {};
+    let snapshots: Snapshot[] = [];
 
     try {
       snapshots = await this.runSetupStep('Figuring out what tests to run', () => getSnapshots(environment));
       this.emit('setup:end', 3);
 
-      this.emit('run:start');
-
       await mkdirp(output);
       this.emit('debug', `Created output directory (${output})`);
 
-      results = (await Promise.all(
-        snapshots.map((snapshot) => this.runSnapshot(snapshot, output, environment))
-      ));
+      const allResults = await Promise.all(
+        snapshots.map((snapshot) => this.runSnapshot(snapshot, output, environment, workspace))
+      );
 
-      this.emit('run:end', {
+      allResults.forEach(({snapshot, compareResult, captureResult}) => {
+        results[snapshot.id] = {
+          description: snapshot,
+          compareResult,
+          captureResult,
+        }
+      });
+
+      this.emit('end', {
         id,
-        output,
-        snapshots,
-        results,
+        outputDirectory: output,
+        snapshots: results,
       });
     } finally {
       environment.close();
@@ -96,27 +90,35 @@ export default class Runner extends EventEmitter {
     }
   }
 
+  emit(event: 'start'): boolean
   emit(event: 'setup:step:start', step: Step): boolean
   emit(event: 'setup:step:end', step: Step): boolean
   emit(event: 'setup:start', steps: number): boolean
   emit(event: 'setup:end', steps: number): boolean
-  emit(event: 'run:start'): boolean
-  emit(event: 'snapshot:start', snapshot: any): boolean
-  emit(event: 'snapshot:end', snapshot: any, result: Result): boolean
-  emit(event: 'run:end', run: Run): boolean
+  emit(event: 'snapshot:start', snapshot: Snapshot): boolean
+  emit(event: 'snapshot:capture:start', snapshot: Snapshot): boolean
+  emit(event: 'snapshot:capture:end', snapshot: Snapshot, result: CaptureResult): boolean
+  emit(event: 'snapshot:compare:start', snapshot: Snapshot): boolean
+  emit(event: 'snapshot:compare:end', snapshot: Snapshot, result: CompareResult): boolean
+  emit(event: 'snapshot:end', snapshot: Snapshot, captureResult: CaptureResult, compareResult: CompareResult): boolean
+  emit(event: 'end', run: Run): boolean
   emit(event: 'debug', message: string): boolean
   emit(event: string, ...payload: any[]): boolean {
     return super.emit(event, ...payload);
   }
 
+  on(event: 'start', handler: () => void): this
   on(event: 'setup:step:start', handler: (step: Step) => void): this
   on(event: 'setup:step:end', handler: (step: Step) => void): this
   on(event: 'setup:start', handler: (steps: number) => void): this
   on(event: 'setup:end', handler: (steps: number) => void): this
-  on(event: 'run:start', handler: () => void): this
-  on(event: 'snapshot:start', handler: (snapshot: any) => void): this
-  on(event: 'snapshot:end', handler: (snapshot: any, result: Result) => void): this
-  on(event: 'run:end', handler: (run: Run) => void): this
+  on(event: 'snapshot:start', handler: (snapshot: Snapshot) => void): this
+  on(event: 'snapshot:capture:start', handler: (snapshot: Snapshot) => void): this
+  on(event: 'snapshot:capture:end', handler: (snapshot: Snapshot, result: CaptureResult) => void): this
+  on(event: 'snapshot:compare:start', handler: (snapshot: Snapshot) => void): this
+  on(event: 'snapshot:compare:end', handler: (snapshot: Snapshot, result: CompareResult) => void): this
+  on(event: 'snapshot:end', handler: (snapshot: Snapshot, captureResult: CaptureResult, compareResult: CompareResult) => void): this
+  on(event: 'end', handler: (run: Run) => void): this
   on(event: 'debug', handler: (message: string) => void): this
   on(event: string, handler: any): this {
     return super.on(event, handler);
@@ -131,14 +133,25 @@ export default class Runner extends EventEmitter {
     return result;
   }
 
-  private async runSnapshot(snapshot: any, outputDirectory: string, environment: Environment) {
+  private async runSnapshot(
+    snapshot: Snapshot,
+    outputDirectory: string,
+    environment: Environment,
+    workspace: Workspace,
+  ) {
     const connection = await environment.connect();
+    const {directories} = workspace;
 
-    const start = Date.now();
+    const captureStart = Date.now();
     this.emit('snapshot:start', snapshot);
+    this.emit('snapshot:capture:start', snapshot);
 
     const {client} = connection;
-    const snapshotPath = resolve(outputDirectory, ...snapshot.groups, `${snapshot.name}${snapshot.case ? `-${snapshot.case}` : ''}@${snapshot.viewport.width}x${snapshot.viewport.height}.png`);
+    const snapshotPathSegments = [
+      ...snapshot.groups,
+      `${snapshot.name}${snapshot.case ? `-${snapshot.case}` : ''}@${snapshot.viewport.width}x${snapshot.viewport.height}.png`,
+    ]
+    const snapshotPath = resolve(outputDirectory, ...snapshotPathSegments);
 
     connection.send({type: 'RUN_TEST', id: snapshot.id});
 
@@ -149,19 +162,46 @@ export default class Runner extends EventEmitter {
       rect: position,
       output: snapshotPath,
     });
-    this.emit('debug', `Generated snapshot for id ${snapshot.id} (${snapshotPath})`);
 
     connection.close();
 
-    const result = {
-      id: snapshot.id,
-      status: Status.Snapshot,
-      duration: Date.now() - start,
+    const captureResult: CaptureResult = {
+      status: CaptureStatus.Success,
+      imagePath: snapshotPath,
+      duration: Date.now() - captureStart,
     };
 
-    this.emit('snapshot:end', snapshot, result);
+    this.emit('snapshot:capture:end', snapshot, captureResult);
 
-    return result;
+    const compareStart = Date.now();
+    this.emit('snapshot:compare:start', snapshot);
+
+    const referencePath = resolve(directories.reference, ...snapshotPathSegments);
+    const hasReference = await exists(referencePath);
+    let compareResult: CompareResult;
+
+    if (!hasReference) {
+      await copy(snapshotPath, referencePath);
+      compareResult = {
+        status: CompareStatus.Reference,
+        referencePath,
+        duration: Date.now() - compareStart,
+      };
+    } else {
+      compareResult = {
+        status: CompareStatus.Success,
+        threshold: snapshot.threshold,
+        mismatch: 0,
+        referencePath,
+        imagePath: snapshotPath,
+        duration: Date.now() - compareStart,
+      }
+    }
+
+    this.emit('snapshot:compare:end', snapshot, compareResult);
+    this.emit('snapshot:end', snapshot, captureResult, compareResult);
+
+    return {snapshot, captureResult, compareResult};
   }
 }
 

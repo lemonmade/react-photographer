@@ -1,8 +1,13 @@
 import * as chalk from 'chalk';
-import {Descriptor} from '../../types';
+import {Snapshot, CaptureResult, CaptureStatus, CompareStatus, CompareResult, Step} from '../../types';
 
-const SNAPPIN = chalk.inverse.bold.gray(` SNAPPIN `);
-const SNAPPED = chalk.inverse.bold.green(` SNAPPED `);
+// const SNAPPIN = chalk.inverse.bold.gray(` SNAPPIN `);
+const CAPTURING = chalk.inverse.bold.gray(' CAPTURING ');
+const CAPTURED = chalk.inverse.bold.green(' CAPTURED ');
+const SKIPPED = chalk.inverse.bold.yellow(' SKIPPED ');
+const COMPARING = chalk.inverse.bold.gray(' COMPARING ');
+const SUCCESS = chalk.inverse.bold.green(' SUCCESS ');
+const REFERENCE = chalk.inverse.bold.yellow(' REFERENCE ');
 
 function getTestString({
   groups,
@@ -10,7 +15,7 @@ function getTestString({
   name,
   hasMultipleViewports,
   viewport: {width, height},
-}: Descriptor) {
+}: Snapshot) {
   return `${chalk.dim(`${groups.join(' > ')} >`)} ${chalk.bold(name)}${snapshotCase ? chalk.dim(`:${snapshotCase}`) : ''}${hasMultipleViewports ? chalk.dim(` @ ${width}x${height}`) : ''}`;
 }
 
@@ -30,7 +35,7 @@ class Reporter {
     this.totalSteps = steps;
   }
 
-  setupStepStart({message, step}: {message: string, step: number}) {
+  setupStepStart({message, step}: Step) {
     const {totalSteps} = this;
     const ui = `${chalk.dim(`[${step}/${totalSteps}]`)} ${message}\n`;
     const clear = '\r\x1B[K\r\x1B[1A'.repeat(ui.split('\n').length - 1);
@@ -39,16 +44,36 @@ class Reporter {
     this.clearUI = clear;
   }
 
-  setupStepEnd({message, step, duration}: {message: string, step: number, duration: number}) {
+  setupStepEnd({message, step, duration}: Step) {
     process.stdout.write(this.clearUI);
     this.clearUI = '';
 
     console.log(`${chalk.green(`[${step}/${this.totalSteps}]`)} ${message} ${chalk.dim(`(${duration}ms)`)}`);
   }
 
+  snapshotCaptureStart(snapshot: Snapshot) {
+    console.log(`${CAPTURING} ${getTestString(snapshot)}`);
+  }
+
   // TODO
-  snapshotEnd(snapshot: any, result: any) {
-    console.log(`${SNAPPED} ${getTestString(snapshot)} ${chalk.dim(`(${result.duration}ms)`)}`);
+  snapshotCaptureEnd(snapshot: Snapshot, result: CaptureResult) {
+    if (result.status === CaptureStatus.Skipped) {
+      console.log(`${SKIPPED} ${getTestString(snapshot)}`);
+    } else {
+      console.log(`${CAPTURED} ${getTestString(snapshot)} ${chalk.dim(`(${result.duration}ms)`)}`);
+    }
+  }
+
+  snapshotCompareStart(snapshot: Snapshot) {
+    console.log(`${COMPARING} ${getTestString(snapshot)}`);
+  }
+
+  snapshotCompareEnd(snapshot: Snapshot, result: CompareResult) {
+    if (result.status === CompareStatus.Reference) {
+      console.log(`${REFERENCE} ${getTestString(snapshot)} ${chalk.dim(`(${result.duration}ms)`)}`);
+    } else {
+      console.log(`${SUCCESS} ${getTestString(snapshot)} ${chalk.dim(`(${result.duration}ms)`)}`);
+    }
   }
 
   end() {
