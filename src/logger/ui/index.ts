@@ -1,13 +1,28 @@
 import * as chalk from 'chalk';
+import readline = require('readline');
 import {Snapshot, CaptureResult, CaptureStatus, CompareStatus, CompareResult, Step} from '../../types';
 
-// const SNAPPIN = chalk.inverse.bold.gray(` SNAPPIN `);
-const CAPTURING = chalk.inverse.bold.gray(' CAPTURING ');
-const CAPTURED = chalk.inverse.bold.green(' CAPTURED ');
-const SKIPPED = chalk.inverse.bold.yellow(' SKIPPED ');
-const COMPARING = chalk.inverse.bold.gray(' COMPARING ');
-const SUCCESS = chalk.inverse.bold.green(' SUCCESS ');
-const REFERENCE = chalk.inverse.bold.yellow(' REFERENCE ');
+enum State {
+  Capturing,
+  Captured,
+  Comparing,
+  Skipped,
+  Success,
+  Failure,
+  Error,
+  Reference,
+}
+
+const indicators = {
+  [State.Capturing]: chalk.inverse.bold.gray(' CAPTURING '),
+  [State.Captured]: chalk.inverse.bold.green(' CAPTURED '),
+  [State.Comparing]: chalk.inverse.bold.gray(' COMPARING '),
+  [State.Skipped]: chalk.inverse.bold.yellow(' SKIPPED '),
+  [State.Success]: chalk.inverse.bold.green(' SUCCESS '),
+  [State.Failure]: chalk.inverse.bold.red(' FAILURE '),
+  [State.Error]: chalk.inverse.bold.red(' ERROR '),
+  [State.Reference]: chalk.inverse.bold.yellow(' REFERENCE '),
+}
 
 function getTestString({
   groups,
@@ -22,6 +37,12 @@ function getTestString({
 class Reporter {
   private clearUI = '';
   private totalSteps = 0;
+  private details: {
+    [key: string]: {
+      state: State,
+      message: string,
+    },
+  } = {};
 
   clear() {
     process.stdout.write('\x1B[2J\x1B[0f');
@@ -51,33 +72,73 @@ class Reporter {
     console.log(`${chalk.green(`[${step}/${this.totalSteps}]`)} ${message} ${chalk.dim(`(${duration}ms)`)}`);
   }
 
+  setupEnd() {
+    console.log();
+  }
+
   snapshotCaptureStart(snapshot: Snapshot) {
-    console.log(`${CAPTURING} ${getTestString(snapshot)}`);
+    this.updateUI(snapshot, State.Capturing, getTestString(snapshot));
   }
 
   // TODO
   snapshotCaptureEnd(snapshot: Snapshot, result: CaptureResult) {
+    let message: string;
+    let state: State;
+
     if (result.status === CaptureStatus.Skipped) {
-      console.log(`${SKIPPED} ${getTestString(snapshot)}`);
+      state = State.Skipped;
+      message = getTestString(snapshot);
     } else {
-      console.log(`${CAPTURED} ${getTestString(snapshot)} ${chalk.dim(`(${result.duration}ms)`)}`);
+      state = State.Captured;
+      message = `${getTestString(snapshot)} ${chalk.dim(`(${result.duration}ms)`)}`;
     }
+
+    this.updateUI(snapshot, state, message);
   }
 
   snapshotCompareStart(snapshot: Snapshot) {
-    console.log(`${COMPARING} ${getTestString(snapshot)}`);
+    this.updateUI(snapshot, State.Comparing, getTestString(snapshot));
   }
 
   snapshotCompareEnd(snapshot: Snapshot, result: CompareResult) {
+    let state: State;
+
     if (result.status === CompareStatus.Reference) {
-      console.log(`${REFERENCE} ${getTestString(snapshot)} ${chalk.dim(`(${result.duration}ms)`)}`);
+      state = State.Reference;
+    } else if (result.status === CompareStatus.Success) {
+      state = State.Success;
+    } else if (result.status === CompareStatus.Failure) {
+      state = State.Failure;
+    } else if (result.status === CompareStatus.Error) {
+      state = State.Error;
     } else {
-      console.log(`${SUCCESS} ${getTestString(snapshot)} ${chalk.dim(`(${result.duration}ms)`)}`);
+      state = State.Skipped;
     }
+
+    this.updateUI(snapshot, state, `${getTestString(snapshot)} ${chalk.dim(`(${result.duration}ms)`)}`);
   }
 
   end() {
     console.log();
+  }
+
+  private updateUI(snapshot: Snapshot, state: State, message: string) {
+    this.details[snapshot.id] = {state, message};
+
+    const ui = Object
+      .keys(this.details)
+      .map((key: string) => {
+        const {state, message} = this.details[key];
+        const indicator = indicators[state];
+        return `${indicator} ${message}`;
+      })
+      .join('\n') + '\n';
+
+    const clear = '\r\x1B[K\r\x1B[1A'.repeat(ui.split('\n').length - 1);
+    process.stdout.write(this.clearUI);
+    readline.clearLine(process.stdout, 0);
+    process.stdout.write(ui);
+    this.clearUI = clear;
   }
 }
 

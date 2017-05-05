@@ -1,10 +1,11 @@
 import {resolve} from 'path';
 import {EventEmitter} from 'events';
-import {mkdirp, remove, symlink, exists, writeFile, copy} from 'fs-extra';
+import {mkdirp, remove, symlink, exists, writeFile, copy, createWriteStream} from 'fs-extra';
 
 import createEnvironment, {Environment} from './environment';
 import createPhantom from './browsers/phantom';
 import generateAssets from './assets';
+import createCompare, {Compare} from './compare';
 
 import {Workspace} from '../workspace';
 import {Snapshot, CaptureResult, CaptureStatus, CompareResult, CompareStatus, Step} from '../types';
@@ -44,8 +45,10 @@ export default class Runner extends EventEmitter {
       await mkdirp(output);
       this.emit('debug', `Created output directory (${output})`);
 
+      const compare = createCompare({workers: workspace.config.workers});
+
       const allResults = await Promise.all(
-        snapshots.map((snapshot) => this.runSnapshot(snapshot, output, environment, workspace))
+        snapshots.map((snapshot) => this.runSnapshot(snapshot, output, environment, compare, workspace))
       );
 
       allResults.forEach(({snapshot, compareResult, captureResult}) => {
@@ -137,6 +140,7 @@ export default class Runner extends EventEmitter {
     snapshot: Snapshot,
     outputDirectory: string,
     environment: Environment,
+    compare: Compare,
     workspace: Workspace,
   ) {
     const connection = await environment.connect();
@@ -188,14 +192,29 @@ export default class Runner extends EventEmitter {
         duration: Date.now() - compareStart,
       };
     } else {
+      const {mismatch, getDiff} = await compare(snapshotPath, referencePath);
+      let diffPath: string | undefined;
+
+      if (mismatch > 0) {
+        diffPath = snapshotPath.replace(/\.png$/, '.diff.png');
+        const stream = createWriteStream(diffPath);
+
+        await new Promise((resolve, reject) => {
+          stream.on('error', reject);
+          stream.on('close', resolve);
+          getDiff().pipe(stream);
+        });
+      }
+
       compareResult = {
-        status: CompareStatus.Success,
+        status: mismatch > snapshot.threshold ? CompareStatus.Failure : CompareStatus.Success,
         threshold: snapshot.threshold,
-        mismatch: 0,
+        mismatch,
+        diffPath,
         referencePath,
         imagePath: snapshotPath,
         duration: Date.now() - compareStart,
-      }
+      };
     }
 
     this.emit('snapshot:compare:end', snapshot, compareResult);
