@@ -53,7 +53,7 @@ export function createMemoryConfig(baseConfig: UserConfig = {}): Config {
     rootDirectory: process.cwd(),
     record: false,
     threshold: 0,
-    workers: 2,
+    workers: 4,
     viewports: [{height: 400, width: 400}],
     webpack: {},
     ...baseConfig,

@@ -133,17 +133,18 @@ export default class Runner extends EventEmitter {
     compare: Compare,
     workspace: Workspace,
   ) {
+    if (snapshot.skip) {
+      const result: Result = {status: Status.Skip};
+      this.emit('snapshot:start', snapshot);
+      this.emit('snapshot:end', snapshot, result);
+      return {snapshot, result};
+    }
+
     const connection = await environment.connect();
     const {directories} = workspace;
 
     const start = Date.now();
     this.emit('snapshot:start', snapshot);
-
-    if (snapshot.skip) {
-      const result = {status: Status.Skip};
-      this.emit('snapshot:end', snapshot, result as any);
-      return {snapshot, result};
-    }
 
     const {client} = connection;
     const snapshotPathSegments = [
