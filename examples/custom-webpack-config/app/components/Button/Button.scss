@@ -40,14 +40,14 @@
 }
 
 .destructive {
-  background-color: color(green);
+  background-color: color(red);
   border-color: transparent;
   color: color(white);
 
   &:hover,
   &:focus {
-    background-color: color(green, dark);
-    border-color: color(green, dark);
+    background-color: color(red, dark);
+    border-color: color(red, dark);
   }
 }
 

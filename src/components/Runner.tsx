@@ -3,7 +3,7 @@ import * as React from 'react';
 import {autobind} from 'core-decorators';
 
 import Tester from './Tester';
-// import Actions from './actions';
+import Actions from './utilities/actions';
 import getDescriptors from './utilities/descriptors';
 import {getRectForNode} from './utilities/geometry';
 
@@ -65,8 +65,7 @@ export default class Runner extends React.Component<Props, State> {
     if (currentSnapshotTest == null) { return; }
 
     if (typeof currentSnapshotTest.action === 'function') {
-      // TODO
-      // await currentSnapshotTest.action(new Actions(node, this.messenger));
+      await currentSnapshotTest.action(new Actions(node, this.messenger));
     }
 
     this.messenger.send({

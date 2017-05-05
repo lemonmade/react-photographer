@@ -8,7 +8,7 @@ import generateAssets from './assets';
 import createCompare, {Compare} from './compare';
 
 import {Workspace} from '../workspace';
-import {Snapshot, Result, Status, Image, Step} from '../types';
+import {Snapshot, Result, Status, Image, Step, Message} from '../types';
 
 interface Run {
   id: string,
@@ -155,13 +155,39 @@ export default class Runner extends EventEmitter {
 
     connection.send({type: 'RUN_TEST', id: snapshot.id});
 
-    const message = await connection.awaitMessage('READY_FOR_MY_CLOSEUP');
+    let message: Message;
+
+    while (true) {
+      message = await connection.awaitMessage();
+
+      if (message.type === 'REQUEST_ACTION') {
+        const {action, position} = message;
+        this.emit('debug', `Performing action ${action} at position ${JSON.stringify(position)}`);
+
+        switch (action) {
+          case 'mousedown':
+            await client.mouse.down(position);
+            break;
+          case 'mousemove':
+            await client.mouse.move(position);
+            break;
+        }
+
+        connection.send({type: 'PERFORMED_ACTION', action});
+      } else {
+        break;
+      }
+    }
+
     const {position} = message;
 
     await client.snapshot({
       rect: position,
       output: snapshotPath,
     });
+
+    // RESET
+    await client.mouse.up({x: 0, y: 0});
 
     connection.close();
 

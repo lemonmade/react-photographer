@@ -103,6 +103,20 @@ function getDescriptorsFromElement(
 
   return allViewports.reduce<Descriptor[]>((allSnapshots, viewport) => [
     ...allSnapshots,
+    {
+      id: getID({name: finalName, case: null, groups: newNestedDescriptor.groups, viewport}),
+      name: finalName,
+      case: null,
+      action: action || null,
+      element: children,
+      groups: newNestedDescriptor.groups,
+      record: newNestedDescriptor.record,
+      skip: newNestedDescriptor.skip,
+      only: newNestedDescriptor.only,
+      threshold: newNestedDescriptor.threshold,
+      viewport,
+      hasMultipleViewports,
+    },
     ...cases.map(({name: caseName, action: caseAction}) => ({
       id: getID({name: finalName, case: caseName, groups: newNestedDescriptor.groups, viewport}),
       name: finalName,

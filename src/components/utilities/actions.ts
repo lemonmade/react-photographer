@@ -9,15 +9,15 @@ interface PerformedActionMessage extends Message {
 export default class Actions implements ActionHelper {
   constructor(public node: HTMLElement, private messenger: Messenger) {}
 
-  mousedown() {
-    return this.performAction('mousedown');
+  mousedown(node?: HTMLElement) {
+    return this.performAction('mousedown', node);
   }
 
-  hover() {
-    return this.performAction('mouseover');
+  hover(node?: HTMLElement) {
+    return this.performAction('mouseover', node);
   }
 
-  private performAction(action: string) {
+  private performAction(action: string, node = this.node) {
     const {messenger} = this;
 
     return new Promise<void>((resolve) => {
@@ -30,7 +30,7 @@ export default class Actions implements ActionHelper {
       messenger.send({
         type: 'REQUEST_ACTION',
         action,
-        position: getCenterForNode(this.node),
+        position: getCenterForNode(node),
       });
     });
   }

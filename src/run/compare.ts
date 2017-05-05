@@ -19,7 +19,7 @@ export default function createCompare({workers}: Options): Compare {
   const pool = new Pool<Compare>(() => {
     return function makeComparison(image, reference): Promise<Comparison> {
       return new Promise((resolve) => {
-        resemble(image).compareTo(reference).ignoreAntialiasing().onComplete((data) => {
+        resemble(image).compareTo(reference).onComplete((data) => {
           resolve({
             mismatch: data.misMatchPercentage / 100,
             getDiff: () => data.getDiffImage().pack(),

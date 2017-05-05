@@ -23,12 +23,12 @@ export default class Connection extends EventEmitter {
     this.messenger.send(message);
   }
 
-  awaitMessage(type: string): Promise<Message> {
+  awaitMessage(type?: string): Promise<Message> {
     const {messenger} = this;
 
     return new Promise((resolve) => {
       const listener = messenger.listen((message) => {
-        if (message.type !== type) { return; }
+        if (type != null && message.type !== type) { return; }
         listener.stop();
         resolve(message);
       });
