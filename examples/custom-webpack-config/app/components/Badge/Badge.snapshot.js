@@ -21,7 +21,7 @@ export default function BadgeSnapshotTest() {
         <Badge status="info">Badge</Badge>
       </Snapshot>
 
-      <Snapshot name="attention">
+      <Snapshot name="attention" skip>
         <Badge status="attention">Badge</Badge>
       </Snapshot>
 

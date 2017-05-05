@@ -20,51 +20,35 @@ export interface Snapshot {
   hasMultipleViewports: boolean,
 }
 
-export enum CaptureStatus {
-  Skipped,
+export enum Status {
   Error,
-  Success,
-}
-
-export type CaptureResult = {
-  status: CaptureStatus.Success,
-  imagePath: string,
-  duration: number,
-} | {
-  status: CaptureStatus.Skipped,
-} | {
-  status: CaptureStatus.Error,
-  error: string,
-  duration: number,
-}
-
-export enum CompareStatus {
+  Skip,
+  Pass,
+  Fail,
   Reference,
-  Skipped,
-  Success,
-  Failure,
-  Error,
 }
 
-export type CompareResult = {
-  status: CompareStatus.Error,
+export interface Image {
+  path: string,
+}
+
+export type Result = {
+  status: Status.Error,
   error: string,
   duration: number,
 } | {
-  status: CompareStatus.Reference,
-  referencePath: string,
+  status: Status.Skip,
+} | {
+  status: Status.Reference,
+  image: Image,
+  referenceImage: Image,
   duration: number,
 } | {
-  status: CompareStatus.Skipped,
-  referencePath: string,
-  threshold: number,
+  status: Status.Pass | Status.Fail,
   duration: number,
-} | {
-  status: CompareStatus.Success | CompareStatus.Failure,
-  referencePath: string,
-  imagePath: string,
-  diffPath?: string,
   threshold: number,
   mismatch: number,
-  duration: number,
+  image: Image,
+  referenceImage: Image,
+  diffImage?: Image,
 };

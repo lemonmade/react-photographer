@@ -1,27 +1,15 @@
 import * as chalk from 'chalk';
 import readline = require('readline');
-import {Snapshot, CaptureResult, CaptureStatus, CompareStatus, CompareResult, Step} from '../../types';
+import {Snapshot, Result, Status, Step} from '../../types';
 
-enum State {
-  Capturing,
-  Captured,
-  Comparing,
-  Skipped,
-  Success,
-  Failure,
-  Error,
-  Reference,
-}
+const RUN = chalk.inverse.bold.gray(' RUNS ');
 
 const indicators = {
-  [State.Capturing]: chalk.inverse.bold.gray(' CAPTURING '),
-  [State.Captured]: chalk.inverse.bold.green(' CAPTURED '),
-  [State.Comparing]: chalk.inverse.bold.gray(' COMPARING '),
-  [State.Skipped]: chalk.inverse.bold.yellow(' SKIPPED '),
-  [State.Success]: chalk.inverse.bold.green(' SUCCESS '),
-  [State.Failure]: chalk.inverse.bold.red(' FAILURE '),
-  [State.Error]: chalk.inverse.bold.red(' ERROR '),
-  [State.Reference]: chalk.inverse.bold.yellow(' REFERENCE '),
+  [Status.Skip]: chalk.inverse.bold.yellow(' SKIP '),
+  [Status.Pass]: chalk.inverse.bold.green(' PASS '),
+  [Status.Fail]: chalk.inverse.bold.red(' FAIL '),
+  [Status.Error]: chalk.inverse.bold.red(' ERROR '),
+  [Status.Reference]: chalk.inverse.bold.yellow(' REFS '),
 }
 
 function getTestString({
@@ -39,7 +27,7 @@ class Reporter {
   private totalSteps = 0;
   private details: {
     [key: string]: {
-      state: State,
+      status: Status | null,
       message: string,
     },
   } = {};
@@ -76,60 +64,30 @@ class Reporter {
     console.log();
   }
 
-  snapshotCaptureStart(snapshot: Snapshot) {
-    this.updateUI(snapshot, State.Capturing, getTestString(snapshot));
+  snapshotStart(snapshot: Snapshot) {
+    this.updateUI(snapshot, null, getTestString(snapshot));
   }
 
-  // TODO
-  snapshotCaptureEnd(snapshot: Snapshot, result: CaptureResult) {
-    let message: string;
-    let state: State;
+  snapshotEnd(snapshot: Snapshot, result: Result) {
+    const message = result.status === Status.Skip
+      ? getTestString(snapshot)
+      : `${getTestString(snapshot)} ${chalk.dim(`(${result.duration}ms)`)}`;
 
-    if (result.status === CaptureStatus.Skipped) {
-      state = State.Skipped;
-      message = getTestString(snapshot);
-    } else {
-      state = State.Captured;
-      message = `${getTestString(snapshot)} ${chalk.dim(`(${result.duration}ms)`)}`;
-    }
-
-    this.updateUI(snapshot, state, message);
-  }
-
-  snapshotCompareStart(snapshot: Snapshot) {
-    this.updateUI(snapshot, State.Comparing, getTestString(snapshot));
-  }
-
-  snapshotCompareEnd(snapshot: Snapshot, result: CompareResult) {
-    let state: State;
-
-    if (result.status === CompareStatus.Reference) {
-      state = State.Reference;
-    } else if (result.status === CompareStatus.Success) {
-      state = State.Success;
-    } else if (result.status === CompareStatus.Failure) {
-      state = State.Failure;
-    } else if (result.status === CompareStatus.Error) {
-      state = State.Error;
-    } else {
-      state = State.Skipped;
-    }
-
-    this.updateUI(snapshot, state, `${getTestString(snapshot)} ${chalk.dim(`(${result.duration}ms)`)}`);
+    this.updateUI(snapshot, result.status, message);
   }
 
   end() {
     console.log();
   }
 
-  private updateUI(snapshot: Snapshot, state: State, message: string) {
-    this.details[snapshot.id] = {state, message};
+  private updateUI(snapshot: Snapshot, status: Status | null, message: string) {
+    this.details[snapshot.id] = {status, message};
 
     const ui = Object
       .keys(this.details)
       .map((key: string) => {
-        const {state, message} = this.details[key];
-        const indicator = indicators[state];
+        const {status, message} = this.details[key];
+        const indicator = status ? indicators[status] : RUN;
         return `${indicator} ${message}`;
       })
       .join('\n') + '\n';

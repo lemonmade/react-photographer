@@ -8,7 +8,7 @@ import generateAssets from './assets';
 import createCompare, {Compare} from './compare';
 
 import {Workspace} from '../workspace';
-import {Snapshot, CaptureResult, CaptureStatus, CompareResult, CompareStatus, Step} from '../types';
+import {Snapshot, Result, Status, Image, Step} from '../types';
 
 interface Run {
   id: string,
@@ -16,8 +16,7 @@ interface Run {
   snapshots: {
     [key: string]: {
       description: Snapshot,
-      captureResult: CaptureResult,
-      compareResult: CompareResult,
+      result: Result,
     },
   },
 }
@@ -51,11 +50,10 @@ export default class Runner extends EventEmitter {
         snapshots.map((snapshot) => this.runSnapshot(snapshot, output, environment, compare, workspace))
       );
 
-      allResults.forEach(({snapshot, compareResult, captureResult}) => {
+      allResults.forEach(({snapshot, result}) => {
         results[snapshot.id] = {
           description: snapshot,
-          compareResult,
-          captureResult,
+          result,
         }
       });
 
@@ -99,11 +97,7 @@ export default class Runner extends EventEmitter {
   emit(event: 'setup:start', steps: number): boolean
   emit(event: 'setup:end', steps: number): boolean
   emit(event: 'snapshot:start', snapshot: Snapshot): boolean
-  emit(event: 'snapshot:capture:start', snapshot: Snapshot): boolean
-  emit(event: 'snapshot:capture:end', snapshot: Snapshot, result: CaptureResult): boolean
-  emit(event: 'snapshot:compare:start', snapshot: Snapshot): boolean
-  emit(event: 'snapshot:compare:end', snapshot: Snapshot, result: CompareResult): boolean
-  emit(event: 'snapshot:end', snapshot: Snapshot, captureResult: CaptureResult, compareResult: CompareResult): boolean
+  emit(event: 'snapshot:end', snapshot: Snapshot, result: Result): boolean
   emit(event: 'end', run: Run): boolean
   emit(event: 'debug', message: string): boolean
   emit(event: string, ...payload: any[]): boolean {
@@ -116,11 +110,7 @@ export default class Runner extends EventEmitter {
   on(event: 'setup:start', handler: (steps: number) => void): this
   on(event: 'setup:end', handler: (steps: number) => void): this
   on(event: 'snapshot:start', handler: (snapshot: Snapshot) => void): this
-  on(event: 'snapshot:capture:start', handler: (snapshot: Snapshot) => void): this
-  on(event: 'snapshot:capture:end', handler: (snapshot: Snapshot, result: CaptureResult) => void): this
-  on(event: 'snapshot:compare:start', handler: (snapshot: Snapshot) => void): this
-  on(event: 'snapshot:compare:end', handler: (snapshot: Snapshot, result: CompareResult) => void): this
-  on(event: 'snapshot:end', handler: (snapshot: Snapshot, captureResult: CaptureResult, compareResult: CompareResult) => void): this
+  on(event: 'snapshot:end', handler: (snapshot: Snapshot, result: Result) => void): this
   on(event: 'end', handler: (run: Run) => void): this
   on(event: 'debug', handler: (message: string) => void): this
   on(event: string, handler: any): this {
@@ -146,9 +136,14 @@ export default class Runner extends EventEmitter {
     const connection = await environment.connect();
     const {directories} = workspace;
 
-    const captureStart = Date.now();
+    const start = Date.now();
     this.emit('snapshot:start', snapshot);
-    this.emit('snapshot:capture:start', snapshot);
+
+    if (snapshot.skip) {
+      const result = {status: Status.Skip};
+      this.emit('snapshot:end', snapshot, result as any);
+      return {snapshot, result};
+    }
 
     const {client} = connection;
     const snapshotPathSegments = [
@@ -169,34 +164,24 @@ export default class Runner extends EventEmitter {
 
     connection.close();
 
-    const captureResult: CaptureResult = {
-      status: CaptureStatus.Success,
-      imagePath: snapshotPath,
-      duration: Date.now() - captureStart,
-    };
-
-    this.emit('snapshot:capture:end', snapshot, captureResult);
-
-    const compareStart = Date.now();
-    this.emit('snapshot:compare:start', snapshot);
-
     const referencePath = resolve(directories.reference, ...snapshotPathSegments);
     const hasReference = await exists(referencePath);
-    let compareResult: CompareResult;
+    let result: Result;
 
     if (!hasReference) {
       await copy(snapshotPath, referencePath);
-      compareResult = {
-        status: CompareStatus.Reference,
-        referencePath,
-        duration: Date.now() - compareStart,
+      result = {
+        status: Status.Reference,
+        image: {path: snapshotPath},
+        referenceImage: {path: referencePath},
+        duration: Date.now() - start,
       };
     } else {
       const {mismatch, getDiff} = await compare(snapshotPath, referencePath);
-      let diffPath: string | undefined;
+      let diffImage: Image | undefined;
 
       if (mismatch > 0) {
-        diffPath = snapshotPath.replace(/\.png$/, '.diff.png');
+        const diffPath = snapshotPath.replace(/\.png$/, '.diff.png');
         const stream = createWriteStream(diffPath);
 
         await new Promise((resolve, reject) => {
@@ -204,23 +189,24 @@ export default class Runner extends EventEmitter {
           stream.on('close', resolve);
           getDiff().pipe(stream);
         });
+
+        diffImage = {path: diffPath};
       }
 
-      compareResult = {
-        status: mismatch > snapshot.threshold ? CompareStatus.Failure : CompareStatus.Success,
+      result = {
+        status: mismatch > snapshot.threshold ? Status.Fail : Status.Pass,
         threshold: snapshot.threshold,
         mismatch,
-        diffPath,
-        referencePath,
-        imagePath: snapshotPath,
-        duration: Date.now() - compareStart,
+        image: {path: snapshotPath},
+        diffImage,
+        referenceImage: {path: referencePath},
+        duration: Date.now() - start,
       };
     }
 
-    this.emit('snapshot:compare:end', snapshot, compareResult);
-    this.emit('snapshot:end', snapshot, captureResult, compareResult);
+    this.emit('snapshot:end', snapshot, result);
 
-    return {snapshot, captureResult, compareResult};
+    return {snapshot, result};
   }
 }
 
