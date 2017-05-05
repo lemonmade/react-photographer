@@ -1,0 +1,448 @@
+{
+  "id": "1493841399033",
+  "output": "/Users/chrissauve/Projects/react-photographer/examples/custom-webpack-config/.photographer/runs/1493841399033",
+  "snapshots": [
+    {
+      "id": "Badge-base@400x400",
+      "name": "base",
+      "case": null,
+      "groups": [
+        "Badge"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Badge-success@400x400",
+      "name": "success",
+      "case": null,
+      "groups": [
+        "Badge"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Badge-subdued@400x400",
+      "name": "subdued",
+      "case": null,
+      "groups": [
+        "Badge"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Badge-info@400x400",
+      "name": "info",
+      "case": null,
+      "groups": [
+        "Badge"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Badge-attention@400x400",
+      "name": "attention",
+      "case": null,
+      "groups": [
+        "Badge"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Badge-warning@400x400",
+      "name": "warning",
+      "case": null,
+      "groups": [
+        "Badge"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Badge-critical@400x400",
+      "name": "critical",
+      "case": null,
+      "groups": [
+        "Badge"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Button-base-hover@400x400",
+      "name": "base",
+      "case": "hover",
+      "groups": [
+        "Button"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Button-base-active@400x400",
+      "name": "base",
+      "case": "active",
+      "groups": [
+        "Button"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Button-primary-hover@400x400",
+      "name": "primary",
+      "case": "hover",
+      "groups": [
+        "Button"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Button-primary-active@400x400",
+      "name": "primary",
+      "case": "active",
+      "groups": [
+        "Button"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Button-destructive-hover@400x400",
+      "name": "destructive",
+      "case": "hover",
+      "groups": [
+        "Button"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Button-destructive-active@400x400",
+      "name": "destructive",
+      "case": "active",
+      "groups": [
+        "Button"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Button-disabled-hover@400x400",
+      "name": "disabled",
+      "case": "hover",
+      "groups": [
+        "Button"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Button-disabled-active@400x400",
+      "name": "disabled",
+      "case": "active",
+      "groups": [
+        "Button"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Button-link-hover@400x400",
+      "name": "link",
+      "case": "hover",
+      "groups": [
+        "Button"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Button-link-active@400x400",
+      "name": "link",
+      "case": "active",
+      "groups": [
+        "Button"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    },
+    {
+      "id": "Button-full-width@400x200",
+      "name": "full-width",
+      "case": null,
+      "groups": [
+        "Button"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 200,
+        "width": 400
+      },
+      "hasMultipleViewports": true
+    },
+    {
+      "id": "Button-full-width@200x200",
+      "name": "full-width",
+      "case": null,
+      "groups": [
+        "Button"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 200,
+        "width": 200
+      },
+      "hasMultipleViewports": true
+    },
+    {
+      "id": "Word-base@400x400",
+      "name": "base",
+      "case": null,
+      "groups": [
+        "Word"
+      ],
+      "record": false,
+      "skip": false,
+      "only": false,
+      "threshold": 0,
+      "viewport": {
+        "height": 400,
+        "width": 400
+      },
+      "hasMultipleViewports": false
+    }
+  ],
+  "results": [
+    {
+      "id": "Badge-base@400x400",
+      "status": 0,
+      "duration": 268
+    },
+    {
+      "id": "Badge-success@400x400",
+      "status": 0,
+      "duration": 263
+    },
+    {
+      "id": "Badge-subdued@400x400",
+      "status": 0,
+      "duration": 295
+    },
+    {
+      "id": "Badge-info@400x400",
+      "status": 0,
+      "duration": 264
+    },
+    {
+      "id": "Badge-attention@400x400",
+      "status": 0,
+      "duration": 263
+    },
+    {
+      "id": "Badge-warning@400x400",
+      "status": 0,
+      "duration": 266
+    },
+    {
+      "id": "Badge-critical@400x400",
+      "status": 0,
+      "duration": 271
+    },
+    {
+      "id": "Button-base-hover@400x400",
+      "status": 0,
+      "duration": 278
+    },
+    {
+      "id": "Button-base-active@400x400",
+      "status": 0,
+      "duration": 274
+    },
+    {
+      "id": "Button-primary-hover@400x400",
+      "status": 0,
+      "duration": 262
+    },
+    {
+      "id": "Button-primary-active@400x400",
+      "status": 0,
+      "duration": 262
+    },
+    {
+      "id": "Button-destructive-hover@400x400",
+      "status": 0,
+      "duration": 263
+    },
+    {
+      "id": "Button-destructive-active@400x400",
+      "status": 0,
+      "duration": 263
+    },
+    {
+      "id": "Button-disabled-hover@400x400",
+      "status": 0,
+      "duration": 273
+    },
+    {
+      "id": "Button-disabled-active@400x400",
+      "status": 0,
+      "duration": 274
+    },
+    {
+      "id": "Button-link-hover@400x400",
+      "status": 0,
+      "duration": 268
+    },
+    {
+      "id": "Button-link-active@400x400",
+      "status": 0,
+      "duration": 268
+    },
+    {
+      "id": "Button-full-width@400x200",
+      "status": 0,
+      "duration": 266
+    },
+    {
+      "id": "Button-full-width@200x200",
+      "status": 0,
+      "duration": 267
+    },
+    {
+      "id": "Word-base@400x400",
+      "status": 0,
+      "duration": 268
+    }
+  ]
+}

@@ -43,8 +43,8 @@ export default class Logger {
     this.ui.snapshotStart && this.ui.snapshotStart(snapshot);
   }
 
-  snapshotEnd(snapshot: any) {
-    this.ui.snapshotEnd && this.ui.snapshotEnd(snapshot);
+  snapshotEnd(snapshot: any, result: any) {
+    this.ui.snapshotEnd && this.ui.snapshotEnd(snapshot, result);
   }
 
   runEnd() {

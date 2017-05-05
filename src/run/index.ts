@@ -1,6 +1,6 @@
 import {resolve} from 'path';
 import {EventEmitter} from 'events';
-import {mkdirp, remove, symlink} from 'fs-extra';
+import {mkdirp, remove, symlink, exists, writeFile, copy} from 'fs-extra';
 
 import createEnvironment, {Environment} from './environment';
 import createPhantom from './browsers/phantom';
@@ -14,33 +14,86 @@ interface Step {
   step: number,
 }
 
+enum Status {
+  Snapshot,
+  Reference,
+  Passed,
+  Failed,
+}
+
+interface Result {
+  id: string,
+  status: Status,
+  duration: number,
+}
+
+interface Run {
+  id: string,
+  output: string,
+  snapshots: any[],
+  results: Result[],
+}
+
 export default class Runner extends EventEmitter {
   private currentStep = 0;
 
   async run(workspace: Workspace) {
-    const now = Date.now();
-    const output = resolve(workspace.directories.runs, String(now));
+    const id = String(Date.now());
+    const output = resolve(workspace.directories.runs, id);
 
     this.emit('setup:start', 3);
     await this.runSetupStep('Building assets', () => generateAssets(workspace));
     const environment = await this.runSetupStep('Starting test server', () => createEnvironment(workspace, createPhantom));
 
+    let results: Result[] = [];
+    let snapshots: any[] = [];
+
     try {
-      const tests = await this.runSetupStep('Figuring out what tests to run', () => getTests(environment));
+      snapshots = await this.runSetupStep('Figuring out what tests to run', () => getSnapshots(environment));
       this.emit('setup:end', 3);
 
       this.emit('run:start');
+
       await mkdirp(output);
-      await Promise.all(tests.map((test) => this.runTest(test, output, environment)));
-      this.emit('run:end');
+      this.emit('debug', `Created output directory (${output})`);
+
+      results = (await Promise.all(
+        snapshots.map((snapshot) => this.runSnapshot(snapshot, output, environment))
+      ));
+
+      this.emit('run:end', {
+        id,
+        output,
+        snapshots,
+        results,
+      });
     } finally {
       environment.close();
     }
 
-    const symlinkDirectory = resolve(workspace.directories.snapshots, 'latest');
+    await writeFile(resolve(output, 'details.json'), JSON.stringify({
+      id,
+      output,
+      snapshots,
+      results,
+    }, null, 2));
+
     await mkdirp(workspace.directories.snapshots);
-    await remove(symlinkDirectory);
-    await symlink(output, symlinkDirectory);
+    this.emit('debug', `Created snapshots directory (${workspace.directories.snapshots})`)
+
+    if (await exists(workspace.directories.reference)) {
+      const symlinkDirectory = resolve(workspace.directories.snapshots, 'latest');
+
+      if (await exists(symlinkDirectory)) {
+        await remove(symlinkDirectory);
+        this.emit('debug', `Removed existing latest symlink (${symlinkDirectory})`);
+      }
+
+      await symlink(output, symlinkDirectory);
+      this.emit('debug', `Symlinked latest directory (${symlinkDirectory})`);
+    } else {
+      await copy(output, workspace.directories.reference);
+    }
   }
 
   emit(event: 'setup:step:start', step: Step): boolean
@@ -49,11 +102,11 @@ export default class Runner extends EventEmitter {
   emit(event: 'setup:end', steps: number): boolean
   emit(event: 'run:start'): boolean
   emit(event: 'snapshot:start', snapshot: any): boolean
-  emit(event: 'snapshot:end', snapshot: any): boolean
-  emit(event: 'run:end'): boolean
+  emit(event: 'snapshot:end', snapshot: any, result: Result): boolean
+  emit(event: 'run:end', run: Run): boolean
   emit(event: 'debug', message: string): boolean
-  emit(event: string, payload?: any): boolean {
-    return super.emit(event, payload);
+  emit(event: string, ...payload: any[]): boolean {
+    return super.emit(event, ...payload);
   }
 
   on(event: 'setup:step:start', handler: (step: Step) => void): this
@@ -62,8 +115,8 @@ export default class Runner extends EventEmitter {
   on(event: 'setup:end', handler: (steps: number) => void): this
   on(event: 'run:start', handler: () => void): this
   on(event: 'snapshot:start', handler: (snapshot: any) => void): this
-  on(event: 'snapshot:end', handler: (snapshot: any) => void): this
-  on(event: 'run:end', handler: () => void): this
+  on(event: 'snapshot:end', handler: (snapshot: any, result: Result) => void): this
+  on(event: 'run:end', handler: (run: Run) => void): this
   on(event: 'debug', handler: (message: string) => void): this
   on(event: string, handler: any): this {
     return super.on(event, handler);
@@ -78,9 +131,10 @@ export default class Runner extends EventEmitter {
     return result;
   }
 
-  private async runTest(snapshot: any, outputDirectory: string, environment: Environment) {
+  private async runSnapshot(snapshot: any, outputDirectory: string, environment: Environment) {
     const connection = await environment.connect();
 
+    const start = Date.now();
     this.emit('snapshot:start', snapshot);
 
     const {client} = connection;
@@ -90,17 +144,28 @@ export default class Runner extends EventEmitter {
 
     const message = await connection.awaitMessage('READY_FOR_MY_CLOSEUP');
     const {position} = message;
+
     await client.snapshot({
       rect: position,
       output: snapshotPath,
     });
+    this.emit('debug', `Generated snapshot for id ${snapshot.id} (${snapshotPath})`);
 
     connection.close();
-    this.emit('snapshot:end', snapshot);
+
+    const result = {
+      id: snapshot.id,
+      status: Status.Snapshot,
+      duration: Date.now() - start,
+    };
+
+    this.emit('snapshot:end', snapshot, result);
+
+    return result;
   }
 }
 
-async function getTests(environment: Environment): Promise<any[]> {
+async function getSnapshots(environment: Environment): Promise<any[]> {
   const connection = await environment.connect();
   const messagePromise = connection.awaitMessage('TEST_DETAILS');
   connection.send({type: 'SEND_DETAILS'});

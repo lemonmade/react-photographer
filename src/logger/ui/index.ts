@@ -18,6 +18,10 @@ class Reporter {
   private clearUI = '';
   private totalSteps = 0;
 
+  clear() {
+    process.stdout.write('\x1B[2J\x1B[0f');
+  }
+
   title(title: string, {icon}: {icon: string}) {
     console.log(`${icon}  ${chalk.bold(title)}\n`);
   }
@@ -43,8 +47,8 @@ class Reporter {
   }
 
   // TODO
-  snapshotEnd(snapshot: any) {
-    console.log(`${SNAPPED} ${getTestString(snapshot)}`);
+  snapshotEnd(snapshot: any, result: any) {
+    console.log(`${SNAPPED} ${getTestString(snapshot)} ${chalk.dim(`(${result.duration}ms)`)}`);
   }
 
   end() {
