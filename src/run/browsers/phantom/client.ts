@@ -42,5 +42,7 @@ export class Client implements ClientInterface {
 
 export default async function createClient(phantom: PhantomJS) {
   const page = await phantom.createPage();
+  await page.on('onConsoleMessage', function() { console.log.apply(console, arguments); });
+  await page.on('onError', function() { console.log.apply(console, arguments); });
   return new Client(page);
 }

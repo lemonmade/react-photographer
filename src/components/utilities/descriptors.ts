@@ -72,7 +72,7 @@ function getDescriptorsFromElement(
   };
 
   if (allChildrenAreSnapshots(element)) {
-    newNestedDescriptor.groups.push(finalName);
+    newNestedDescriptor.groups = [...newNestedDescriptor.groups, finalName];
     const nestedDescriptors: Descriptor[] = [];
 
     React.Children.forEach(children, (child: React.ReactChild) => {

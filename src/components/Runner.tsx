@@ -92,7 +92,7 @@ export default class Runner extends React.Component<Props, State> {
     if (currentSnapshotTest == null) { return null; }
 
     return (
-      <Tester onReady={this.handleTestReady}>
+      <Tester onReady={this.handleTestReady} key={currentSnapshotTest.id}>
         {currentSnapshotTest.element}
       </Tester>
     );

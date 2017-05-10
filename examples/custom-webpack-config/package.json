@@ -6,12 +6,35 @@
     "test": "../../bin/photographer",
     "test:report": "../../bin/photographer report"
   },
+  "browserslist": [
+    "> 1%",
+    "last 5 versions"
+  ],
   "dependencies": {
+    "@shopify/javascript-utilities": "^1.1.2",
+    "@shopify/react-utilities": "^1.2.0",
+    "babel-polyfill": "^6.23.0",
     "react": "^15.5.4",
     "react-dom": "^15.5.4"
   },
   "devDependencies": {
+    "@shopify/images": "^1.0.0",
     "autoprefixer": "^6.7.7",
-    "extract-text-webpack-plugin": "^2.1.0"
+    "awesome-typescript-loader": "^3.1.3",
+    "babel-core": "^6.24.1",
+    "babel-preset-shopify": "^16.0.2",
+    "css-loader": "^0.28.1",
+    "eslint": "^3.19.0",
+    "extract-text-webpack-plugin": "^2.1.0",
+    "file-loader": "^0.11.1",
+    "image-webpack-loader": "^3.3.0",
+    "node-sass": "^4.5.2",
+    "postcss-loader": "^2.0.3",
+    "postcss-shopify": "^1.0.0",
+    "sass-loader": "^6.0.3",
+    "style-loader": "^0.17.0",
+    "typescript": "^2.3.2",
+    "url-loader": "^0.5.8",
+    "webpack": "^2.5.1"
   }
 }

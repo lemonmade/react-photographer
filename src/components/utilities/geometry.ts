@@ -1,9 +1,10 @@
 import {Point, Rect} from '../../types';
 
 export function getCenterForNode(node: HTMLElement): Point {
+  const box = node.getBoundingClientRect();
   return {
-    x: node.offsetLeft + (node.offsetWidth / 2),
-    y: node.offsetTop + (node.offsetHeight / 2),
+    x: box.left + (box.width / 2),
+    y: box.top + (box.height / 2),
   };
 }
 

@@ -1,30 +1,51 @@
 const path = require('path');
-const autoprefixer = require('autoprefixer');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const svgOptimizationOptions = require('@shopify/images/optimize').svgOptions;
+const postcssShopify = require('postcss-shopify');
+
+const ICON_PATH_REGEX = /icons\//;
+const IMAGE_PATH_REGEX = /\.(jpe?g|png|gif|svg)$/;
 
 const rootDir = __dirname;
 
 module.exports = {
-  files: 'app/**/*.snapshot.js',
+  files: 'src/**/*.snapshot.tsx',
   webpack: {
     resolve: {
-      modules: [
-        path.join(rootDir, 'app'),
-        'node_modules',
-      ],
+      extensions: ['.ts', '.tsx', '.js', '.json'],
     },
+    plugins: [
+      new ExtractTextPlugin({filename: '[name].css', allChunks: true}),
+    ],
     module: {
       loaders: [
         {
-          test: /\.js$/,
-          loader: 'babel-loader',
-          exclude: [/node_modules/],
-          query: {
-            presets: [
-              'shopify/web',
-              'shopify/react',
-            ],
+          test(resource) {
+            return ICON_PATH_REGEX.test(resource) && resource.endsWith('.svg');
           },
+          use: [
+            {
+              loader: '@shopify/images/icon-loader',
+            },
+            {
+              loader: 'image-webpack-loader',
+              options: {
+                svgo: svgOptimizationOptions(),
+              },
+            },
+          ],
+        },
+        {
+          test(resource) {
+            return IMAGE_PATH_REGEX.test(resource) && !ICON_PATH_REGEX.test(resource);
+          },
+          use: [{
+            loader: 'url-loader',
+            options: {
+              limit: 10000,
+              emitFile: true,
+            },
+          }],
         },
         {
           test: /\.scss$/,
@@ -36,31 +57,47 @@ module.exports = {
                 query: {
                   modules: true,
                   importLoaders: 1,
-                  localIdentName: '[path]___[name]__[local]___[hash:base64:5]',
+                  localIdentName: '[hash:base64:5]',
                 },
+              },
+              {
+                loader: 'postcss-loader',
               },
               {
                 loader: 'sass-loader',
                 query: {
                   includePaths: [
-                    path.join(rootDir, 'app'),
+                    path.join(rootDir, 'src', 'styles'),
                   ],
-                },
-              },
-              {
-                loader: 'postcss-loader',
-                options: {
-                  ident: 'postcss',
-                  plugins: [autoprefixer],
                 },
               },
             ],
           }),
         },
+        {
+          test: /\.tsx?$/,
+          use: [
+            {
+              loader: 'awesome-typescript-loader',
+              options: {
+                silent: true,
+                useBabel: true,
+                useCache: true,
+                useTranspileModule: true,
+                transpileOnly: true,
+                cacheDirectory: path.resolve(__dirname, '.cache', 'typescript'),
+                babelOptions: {
+                  babelrc: false,
+                  presets: [
+                    ['shopify/web', {modules: false}],
+                    'shopify/react',
+                  ],
+                },
+              },
+            },
+          ],
+        },
       ],
     },
-    plugins: [
-      new ExtractTextPlugin({filename: '[name].css', allChunks: true}),
-    ],
   },
 };
